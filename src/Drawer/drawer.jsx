@@ -159,10 +159,10 @@ export default function DashboardLayoutBasic(props) {
   const handleSaveEdit = async () => {
     try {
       // Replace with your actual update endpoint
-      await axioInstance.put(
-        `${endpoints.closing.updateClosing}/${closingData.id}`, // or whatever ID field you have
-        editingData
-      );
+      const res = await axioInstance.put(`${endpoints.closing.editClosingData}/${closingData?.mode_id}`, {
+      description: editingData.description,
+      prompt_template: editingData.prompt_template,
+    })
 
       // Refresh the data after successful update
       await getClosingData();

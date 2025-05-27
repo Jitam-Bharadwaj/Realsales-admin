@@ -4,6 +4,7 @@ export const endpoints = {
     login: "v1/auth/sign-in",
   },
   closing:{
-     getClosing:"/v1/interaction-modes/by-name"
+     getClosing:"/v1/interaction-modes/by-name",
+     editClosingData:"v1/interaction-modes"
   }
 };
