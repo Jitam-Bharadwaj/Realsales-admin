@@ -60,7 +60,6 @@ const NAVIGATION = [
     title: "Logout",
     icon: <LogoutIcon />,
     segment: "logout",
-    
   },
 ];
 
@@ -106,7 +105,7 @@ export default function DashboardLayoutBasic(props) {
   const router = useDemoRouter("/dashboard");
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [ getClosing,setGetClosing] = React.useState([])
+  const [closingData, setGetClosing] = React.useState([]);
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -124,22 +123,25 @@ export default function DashboardLayoutBasic(props) {
   // Extract the current segment from the path
   const currentSegment = router.pathname.split("/").pop();
 
-  // getClosing function to fetch data based on segment 
+  // getClosing function to fetch data based on segment
 
-  const getClosingData  = async ()=>{
-    try{
-       const res = await axioInstance.get(`${endpoints.closing.getClosing}/closing`);
-       console.log(res?.data,'closingData')
+  const getClosingData = async () => {
+    try {
+      const res = await axioInstance.get(
+        `${endpoints.closing.getClosing}/closing`
+      );
+      // console.log(res?.data, "closingData");
+      setGetClosing(res?.data);
+    } catch (err) {
+      console.log(err);
     }
-    catch(err){
-      console.log(err)
-    }
-  }
+  };
 
-  useEffect(()=>{
-   getClosingData()
-  },[])
-
+  useEffect(() => {
+    getClosingData();
+  }, []);
+  
+  console.log(closingData,'closingdata')
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -148,9 +150,7 @@ export default function DashboardLayoutBasic(props) {
       window={demoWindow}
     >
       <DashboardLayout>
-      
         <PageContainer>
-            
           <Grid container spacing={2}>
             {/* Display content based on current segment */}
             {currentSegment === "prospecting" && (
@@ -181,41 +181,40 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                     <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel2-content"
-                      id="panel2-header"
-                      sx={{mt:"20px",border:"1px solid #fff"}}
-                    >
-                      <Typography component="span">
-                        Interaction Roles Ai Mode
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
-                    </AccordionDetails>
-                  </Accordion>
-                   <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel2-content"
-                      id="panel2-header"
-                      sx={{mt:"20px",border:"1px solid #fff"}}
-                    >
-                      <Typography component="span">
-                        Interaction Roles Ai Mode
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
-                    </AccordionDetails>
-                  </Accordion>
-                      
+                      <Accordion>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls="panel2-content"
+                          id="panel2-header"
+                          sx={{ mt: "20px", border: "1px solid #fff" }}
+                        >
+                          <Typography component="span">
+                            Interaction Roles Ai Mode
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit. Suspendisse malesuada lacus ex, sit amet blandit
+                          leo lobortis eget.
+                        </AccordionDetails>
+                      </Accordion>
+                      <Accordion>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls="panel2-content"
+                          id="panel2-header"
+                          sx={{ mt: "20px", border: "1px solid #fff" }}
+                        >
+                          <Typography component="span">
+                            Interaction Roles Ai Mode
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit. Suspendisse malesuada lacus ex, sit amet blandit
+                          leo lobortis eget.
+                        </AccordionDetails>
+                      </Accordion>
                     </AccordionDetails>
                   </Accordion>
                   <Accordion>
@@ -387,27 +386,33 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Accordion sx={{mt:"20px",border:"1px solid #fff"}}>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel2-content"
-                      id="panel2-header"
-                      
-                    >
-                      <Typography component="span">
-                        Interaction Roles Ai Mode
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
-                    </AccordionDetails>
-                     <AccordionActions>
-                      <Button variant="outlined">Edit</Button>
-                      <Button variant="outlined" color="error">Delete</Button>
-                    </AccordionActions>
-                  </Accordion>
+                      {closingData?.map((item,index) => {
+                        return (
+                          <Accordion
+                          key={index}
+                            sx={{ mt: "20px", border: "1px solid #fff" }}
+                          >
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel2-content"
+                              id="panel2-header"
+                            >
+                              <Typography component="span">
+                                Interaction Roles Ai Mode
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              {item?.prompt_template}
+                            </AccordionDetails>
+                            <AccordionActions>
+                              <Button variant="outlined">Edit</Button>
+                              <Button variant="outlined" color="error">
+                                Delete
+                              </Button>
+                            </AccordionActions>
+                          </Accordion>
+                        );
+                      })}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion>
@@ -487,16 +492,6 @@ export default function DashboardLayoutBasic(props) {
                 </div>
               </Grid>
             )}
-
-            <Grid item xs={4}>
-              <Skeleton height={100} />
-            </Grid>
-            <Grid item xs={8}>
-              <Skeleton height={100} />
-            </Grid>
-            <Grid item xs={12}>
-              <Skeleton height={150} />
-            </Grid>
           </Grid>
         </PageContainer>
       </DashboardLayout>
