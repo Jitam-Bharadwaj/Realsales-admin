@@ -111,7 +111,7 @@ export default function DashboardLayoutBasic(props) {
     description: "",
     prompt_template: "",
   });
-  const [modeAiData,setModeAiData] = React.useState([])
+  const [modeAiData, setModeAiData] = React.useState([]);
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -143,8 +143,6 @@ export default function DashboardLayoutBasic(props) {
     }
   };
 
-  
-
   // console.log(closingData, "closingdata");
 
   const handleEditClick = () => {
@@ -158,10 +156,13 @@ export default function DashboardLayoutBasic(props) {
   const handleSaveEdit = async () => {
     try {
       // Replace with your actual update endpoint
-      const res = await axioInstance.put(`${endpoints.closing.editClosingData}/${closingData?.mode_id}`, {
-      description: editingData.description,
-      prompt_template: editingData.prompt_template,
-    })
+      const res = await axioInstance.put(
+        `${endpoints.closing.editClosingData}/${closingData?.mode_id}`,
+        {
+          description: editingData.description,
+          prompt_template: editingData.prompt_template,
+        }
+      );
 
       // Refresh the data after successful update
       await getClosingData();
@@ -172,26 +173,30 @@ export default function DashboardLayoutBasic(props) {
     }
   };
 
-   // get Handle Mode Ai roles Data function 
+  // get Handle Mode Ai roles Data function
 
-   const getModeAiRelesData = async()=>{
-     try{
-       const res = await axioInstance.get(endpoints.closing.modeAiRoles);
-       setModeAiData(res?.data)
-     }
-     catch(err){
-      console.log(err)
-     }
-   }
-   
+  const getModeAiRelesData = async () => {
+    try {
+      const res = await axioInstance.get(endpoints.closing.modeAiRoles);
+      setModeAiData(res?.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-   useEffect(() => {
+  useEffect(() => {
     getClosingData();
-    getModeAiRelesData()
+    getModeAiRelesData();
   }, []);
 
-  console.log(modeAiData,'modeAiData')
+  // console.log(modeAiData, "modeAiData");
 
+ const filteredData = Array.isArray(modeAiData)
+  ? modeAiData.filter((item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546")
+  : [];
+   
+
+  console.log(filteredData,'filtereddata')
 
   return (
     <AppProvider
@@ -472,28 +477,39 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Accordion sx={{ mt: "20px", border: "1px solid #fff" }}>
-                        <AccordionSummary
-                          expandIcon={<ExpandMoreIcon />}
-                          aria-controls="panel2-content"
-                          id="panel2-header"
-                        >
-                          <Typography component="span">
-                            {closingData?.description || "No Description"}
-                          </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          {closingData?.prompt_template}
-                        </AccordionDetails>
-                        <AccordionActions>
-                          <Button variant="outlined" onClick={handleEditClick}>
-                            Edit
-                          </Button>
-                          <Button variant="outlined" color="error">
-                            Delete
-                          </Button>
-                        </AccordionActions>
-                      </Accordion>
+                      {filteredData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={handleEditClick}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion>
