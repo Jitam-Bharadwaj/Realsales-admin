@@ -550,7 +550,7 @@ export default function DashboardLayoutBasic(props) {
             margin="normal"
             label="Prompt Template"
             multiline
-            rows={5}
+            rows={10}
             value={closingData?.prompt_template}
             onChange={(e) =>
               setEditingData({
