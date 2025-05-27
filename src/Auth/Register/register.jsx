@@ -7,20 +7,17 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { axioInstance } from "../../api/axios/axios";
 import { endpoints } from "../../api/endpoints/endpoints";
 
-const Login = () => {
+const Register = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
-
-  // Snackbar state
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success", // 'success' | 'error' | 'info' | 'warning'
+    severity: "success",
   });
 
   const {
@@ -30,49 +27,41 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const onSubmit = async (data) => {
     const payload = {
       email: data.email,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      phone_number: data.phone_number,
       password: data.password,
     };
 
     try {
       setLoading(true);
-      const res = await axioInstance.post(`${endpoints.auth.login}`, payload);
-      localStorage.setItem("x-access-token", res?.data?.token);
-      console.log(res?.status,'login')
+      const res = await axioInstance.post(endpoints.auth.register, payload);
       
-
+      
       setLoading(false);
       reset();
 
-      // Show success snackbar
       setSnackbar({
         open: true,
-        message: res.data.message,
+        message: res?.data?.message,
         severity: "success",
       });
-
-      if(res?.status === 200){
-        navigate("/drawer")
-      }
-
-      // You can do further actions here like redirecting user or storing token
     } catch (err) {
       setLoading(false);
-
-      // Show error snackbar
       setSnackbar({
         open: true,
         message:
-          err.response?.data?.message || "Login failed. Please try again.",
+          err?.response?.data?.message || "Registration failed. Try again.",
         severity: "error",
       });
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   return (
@@ -93,26 +82,27 @@ const Login = () => {
             minHeight: "200px",
             minWidth: { xs: "250px", sm: "400px" },
             border: "1px solid #C0C0C0",
-            padding: "40px 20px 60px 20px",
+            padding: "30px 20px",
             bgcolor: "#fff",
             borderRadius: "8px",
+            maxWidth: "600px",
           }}
         >
           <Typography>Please Enter Your Details</Typography>
           <Typography sx={{ fontSize: "28px", fontWeight: "600", pb: "20px" }}>
-            Welcome Back!
+            Please Register First!
           </Typography>
 
           <TextField
             fullWidth
             label="Email Address"
             type="email"
-            sx={{ pb: "20px" }}
+            sx={{ pb: "15px" }}
             {...register("email", {
               required: "Email is required",
               pattern: {
                 value: /\S+@\S+\.\S+/,
-                message: "Invalid email address",
+                message: "Invalid email format",
               },
             })}
             error={!!errors.email}
@@ -121,9 +111,45 @@ const Login = () => {
 
           <TextField
             fullWidth
+            label="First Name"
+            type="text"
+            sx={{ pb: "15px" }}
+            {...register("first_name", { required: "First name is required" })}
+            error={!!errors.first_name}
+            helperText={errors.first_name?.message}
+          />
+
+          <TextField
+            fullWidth
+            label="Last Name"
+            type="text"
+            sx={{ pb: "15px" }}
+            {...register("last_name", { required: "Last name is required" })}
+            error={!!errors.last_name}
+            helperText={errors.last_name?.message}
+          />
+
+          <TextField
+            fullWidth
+            label="Phone"
+            type="tel"
+            sx={{ pb: "15px" }}
+            {...register("phone_number", {
+              required: "Phone number is required",
+              pattern: {
+                value: /^[0-9]{10}$/,
+                message: "Enter a valid 10-digit phone number",
+              },
+            })}
+            error={!!errors.phone_number}
+            helperText={errors.phone_number?.message}
+          />
+
+          <TextField
+            fullWidth
             label="Password"
             type="password"
-            sx={{ pb: "40px" }}
+            sx={{ pb: "30px" }}
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -139,24 +165,21 @@ const Login = () => {
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ padding: "12px 0px", borderRadius: "8px" }}
+            sx={{ padding: "10px 0px", borderRadius: "8px" }}
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign-in"}
+            {loading ? "Submitting..." : "SIGN-UP"}
           </Button>
 
           <Typography sx={{ textAlign: "center", paddingTop: "20px" }}>
-            Don't have an account?{" "}
-            <span>
-              <Link style={{ textDecoration: "none" }} to="/register">
-                Sign-up
-              </Link>
-            </span>
+            Already have an account?{" "}
+            <Link style={{ textDecoration: "none" }} to="/">
+              Sign-in
+            </Link>
           </Typography>
         </Box>
       </Box>
 
-      {/* Snackbar for feedback */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -175,4 +198,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
