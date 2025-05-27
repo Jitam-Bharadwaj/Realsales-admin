@@ -105,7 +105,7 @@ export default function DashboardLayoutBasic(props) {
   const router = useDemoRouter("/dashboard");
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [closingData, setGetClosing] = React.useState([]);
+  const [closingData, setGetClosing] = React.useState({});
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -140,8 +140,8 @@ export default function DashboardLayoutBasic(props) {
   useEffect(() => {
     getClosingData();
   }, []);
-  
-  console.log(closingData,'closingdata')
+
+  console.log(closingData, "closingdata");
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -386,33 +386,29 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {closingData?.map((item,index) => {
-                        return (
-                          <Accordion
-                          key={index}
-                            sx={{ mt: "20px", border: "1px solid #fff" }}
-                          >
-                            <AccordionSummary
-                              expandIcon={<ExpandMoreIcon />}
-                              aria-controls="panel2-content"
-                              id="panel2-header"
-                            >
-                              <Typography component="span">
-                                Interaction Roles Ai Mode
-                              </Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                              {item?.prompt_template}
-                            </AccordionDetails>
-                            <AccordionActions>
-                              <Button variant="outlined">Edit</Button>
-                              <Button variant="outlined" color="error">
-                                Delete
-                              </Button>
-                            </AccordionActions>
-                          </Accordion>
-                        );
-                      })}
+                      <Accordion
+                       
+                        sx={{ mt: "20px", border: "1px solid #fff" }}
+                      >
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls="panel2-content"
+                          id="panel2-header"
+                        >
+                          <Typography component="span">
+                            Interaction Roles Ai Mode
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          {closingData?.prompt_template}
+                        </AccordionDetails>
+                        <AccordionActions>
+                          <Button variant="outlined">Edit</Button>
+                          <Button variant="outlined" color="error">
+                            Delete
+                          </Button>
+                        </AccordionActions>
+                      </Accordion>
                     </AccordionDetails>
                   </Accordion>
                   <Accordion>
