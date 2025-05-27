@@ -9,7 +9,7 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
 import Grid from "@mui/material/Grid";
-import { Button, Typography } from "@mui/material";
+import { Button, Modal, Typography, TextField, Box } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import Accordion from "@mui/material/Accordion";
 import AccordionActions from "@mui/material/AccordionActions";
@@ -106,6 +106,11 @@ export default function DashboardLayoutBasic(props) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [closingData, setGetClosing] = React.useState({});
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [editingData, setEditingData] = React.useState({
+    description: "",
+    prompt_template: "",
+  });
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -142,6 +147,31 @@ export default function DashboardLayoutBasic(props) {
   }, []);
 
   console.log(closingData, "closingdata");
+
+  const handleEditClick = () => {
+    setEditingData({
+      description: closingData?.description || "",
+      prompt_template: closingData?.prompt_template || "",
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      // Replace with your actual update endpoint
+      await axioInstance.put(
+        `${endpoints.closing.updateClosing}/${closingData.id}`, // or whatever ID field you have
+        editingData
+      );
+
+      // Refresh the data after successful update
+      await getClosingData();
+      setEditModalOpen(false);
+    } catch (err) {
+      console.error("Error updating closing data:", err);
+      // You might want to add error handling here
+    }
+  };
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -386,24 +416,23 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Accordion
-                       
-                        sx={{ mt: "20px", border: "1px solid #fff" }}
-                      >
+                      <Accordion sx={{ mt: "20px", border: "1px solid #fff" }}>
                         <AccordionSummary
                           expandIcon={<ExpandMoreIcon />}
                           aria-controls="panel2-content"
                           id="panel2-header"
                         >
                           <Typography component="span">
-                            Interaction Roles Ai Mode
+                            {closingData?.description || "No Description"}
                           </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                           {closingData?.prompt_template}
                         </AccordionDetails>
                         <AccordionActions>
-                          <Button variant="outlined">Edit</Button>
+                          <Button variant="outlined" onClick={handleEditClick}>
+                            Edit
+                          </Button>
                           <Button variant="outlined" color="error">
                             Delete
                           </Button>
@@ -491,6 +520,55 @@ export default function DashboardLayoutBasic(props) {
           </Grid>
         </PageContainer>
       </DashboardLayout>
+
+      {/* Modal */}
+      <Modal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        aria-labelledby="edit-modal-title"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 600,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            border: "1px solid #fff",
+            borderRadius: "8px",
+          }}
+        >
+          <Typography id="edit-modal-title" variant="h6" component="h2">
+            Edit Closing Data
+          </Typography>
+
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Prompt Template"
+            multiline
+            rows={5}
+            value={closingData?.prompt_template}
+            onChange={(e) =>
+              setEditingData({
+                ...editingData,
+                prompt_template: e.target.value,
+              })
+            }
+          />
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+            <Button onClick={() => setEditModalOpen(false)} sx={{ mr: 1 }}>
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={handleSaveEdit}>
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </AppProvider>
   );
 }
