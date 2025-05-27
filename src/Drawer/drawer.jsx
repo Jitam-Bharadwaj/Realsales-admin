@@ -111,6 +111,7 @@ export default function DashboardLayoutBasic(props) {
     description: "",
     prompt_template: "",
   });
+  const [modeAiData,setModeAiData] = React.useState([])
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -142,11 +143,9 @@ export default function DashboardLayoutBasic(props) {
     }
   };
 
-  useEffect(() => {
-    getClosingData();
-  }, []);
+  
 
-  console.log(closingData, "closingdata");
+  // console.log(closingData, "closingdata");
 
   const handleEditClick = () => {
     setEditingData({
@@ -172,6 +171,28 @@ export default function DashboardLayoutBasic(props) {
       // You might want to add error handling here
     }
   };
+
+   // get Handle Mode Ai roles Data function 
+
+   const getModeAiRelesData = async()=>{
+     try{
+       const res = await axioInstance.get(endpoints.closing.modeAiRoles);
+       setModeAiData(res?.data)
+     }
+     catch(err){
+      console.log(err)
+     }
+   }
+   
+
+   useEffect(() => {
+    getClosingData();
+    getModeAiRelesData()
+  }, []);
+
+  console.log(modeAiData,'modeAiData')
+
+
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -451,9 +472,28 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                        <Accordion sx={{ mt: "20px", border: "1px solid #fff" }}>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls="panel2-content"
+                          id="panel2-header"
+                        >
+                          <Typography component="span">
+                            {closingData?.description || "No Description"}
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          {closingData?.prompt_template}
+                        </AccordionDetails>
+                        <AccordionActions>
+                          <Button variant="outlined" onClick={handleEditClick}>
+                            Edit
+                          </Button>
+                          <Button variant="outlined" color="error">
+                            Delete
+                          </Button>
+                        </AccordionActions>
+                      </Accordion>
                     </AccordionDetails>
                   </Accordion>
                   <Accordion>
