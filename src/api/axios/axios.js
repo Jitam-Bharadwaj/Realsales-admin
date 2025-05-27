@@ -7,14 +7,14 @@ export const axioInstance = axios.create({
   baseURL,
 });
 
-axioInstance.interceptors.request.use({
-  function(config) {
-    const token = localStorage.getItem("x-access-token");
+axioInstance.interceptors.request.use(function (config) {
+  const token = localStorage.getItem("x-access-token");
 
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
+  console.log(token, "settoken");
 
-    return config;
-  },
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return config;
 });

@@ -128,7 +128,7 @@ export default function DashboardLayoutBasic(props) {
 
   const getClosingData  = async ()=>{
     try{
-       const res = await axioInstance.get(`${endpoints.closing.getClosing}/${`closing`}`);
+       const res = await axioInstance.get(`${endpoints.closing.getClosing}/closing`);
        console.log(res?.data,'closingData')
     }
     catch(err){
