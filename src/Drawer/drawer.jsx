@@ -113,6 +113,7 @@ export default function DashboardLayoutBasic(props) {
   });
   const [modeAiData, setModeAiData] = React.useState([]);
   const [manufacturingModels, setmanufacturingModels] = React.useState([]);
+  const [plantModeSize, setPlantModeSize] = React.useState([])
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -198,10 +199,22 @@ export default function DashboardLayoutBasic(props) {
     }
   };
 
+  // get Handle Plant Mode Size Data function
+  const getPlantModeSize = async()=>{
+    try{
+      const res = await axioInstance.get(`${endpoints.closing.plantModeSize}`);
+      setPlantModeSize(res?.data)
+    }
+    catch(err){
+      console.log(err)
+    }
+  }
+
   useEffect(() => {
     getClosingData();
     getModeAiRelesData();
     getManufacturingModels();
+    getPlantModeSize()
   }, []);
 
   // filterData for Mode Ai Roles Bases on mode_id
@@ -220,9 +233,18 @@ export default function DashboardLayoutBasic(props) {
       )
     : [];
 
-  console.log(manufacturingModels, "manufacturingModels");
+     // filterData for Mode Ai Roles Bases on mode_id
+  const filterPlantsizeModeData = Array.isArray(plantModeSize)
+    ? plantModeSize.filter(
+        (item) =>
+          item?.mode_id ===
+          "1dc1cebb-e716-4c2d-bda6-c177c9686546"
+      )
+    : [];
 
-  console.log(filteredManufatcuringData, "filtereddata");
+  console.log(plantModeSize, "plantMode");
+
+  console.log(filterPlantsizeModeData, "filterplantMode");
 
   return (
     <AppProvider
@@ -599,14 +621,41 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                      {filterPlantsizeModeData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={handleEditClick}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
-                    <AccordionActions>
-                      <Button>Cancel</Button>
-                      <Button>Agree</Button>
-                    </AccordionActions>
+                    
                   </Accordion>
                   <Accordion>
                     <AccordionSummary
