@@ -261,7 +261,7 @@ export default function DashboardLayoutBasic(props) {
 
   const filterIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
-        (item) => item?.industry_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
+        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
       )
     : [];
 
