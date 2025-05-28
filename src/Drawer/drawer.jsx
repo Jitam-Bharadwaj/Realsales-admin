@@ -216,6 +216,97 @@ export default function DashboardLayoutBasic(props) {
     }
   };
 
+  const handleDeleteClick = (item, type) => {
+    console.log("Delete clicked with type:", type);
+    console.log("Item being deleted:", item);
+    
+    // Set the appropriate ID based on the type
+    let itemId;
+    if (type.includes('plant')) {
+      itemId = item.interaction_mode_plant_size_impact_id;
+    } else if (type.includes('manufacturing')) {
+      itemId = item.interaction_mode_manufacturing_model_id;
+    } else if (type.includes('roles')) {
+      itemId = item.interaction_mode_ai_role_id;
+    } else if (type.includes('industry')) {
+      itemId = item.industry_id;
+    } else {
+      itemId = item.mode_id;
+    }
+    
+    setDeleteItemId(itemId);
+    setDeleteType(type);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      console.log("Deleting with type:", deleteType);
+      console.log("Deleting item ID:", deleteItemId);
+      
+      // Base URL from endpoints
+      const baseUrl = endpoints.closing;
+      
+      switch(deleteType) {
+        // Base Prompt (interaction-modes)
+        case 'prospecting-base':
+        case 'sales-base':
+        case 'closing-base':
+          await axioInstance.delete(`${baseUrl.getClosing}/${deleteItemId}`);
+          await getClosingData();
+          break;
+
+        // Interaction Roles
+        case 'prospecting-roles':
+        case 'sales-roles':
+        case 'closing-roles':
+          await axioInstance.delete(`${baseUrl.modeAiRoles}/${deleteItemId}`);
+          await getModeAiRelesData();
+          break;
+
+        // Manufacturing Models
+        case 'prospecting-manufacturing':
+        case 'sales-manufacturing':
+        case 'closing-manufacturing':
+          await axioInstance.delete(`${baseUrl.manufacturingModels}/${deleteItemId}`);
+          await getManufacturingModels();
+          break;
+
+        // Plant Size
+        case 'prospecting-plant':
+        case 'sales-plant':
+        case 'closing-plant':
+          await axioInstance.delete(`${baseUrl.plantModeSize}/${deleteItemId}`);
+          await getPlantModeSize();
+          break;
+
+        // Industry
+        case 'prospecting-industry':
+        case 'sales-industry':
+        case 'closing-industry':
+          await axioInstance.delete(`${baseUrl.industrysize}${deleteItemId}`); // Note: no slash here as it's in the base URL
+          await getIndustryDetails();
+          break;
+
+        default:
+          console.error('Unknown delete type:', deleteType);
+          return;
+      }
+      
+      setDeleteModalOpen(false);
+      setDeleteItemId(null);
+      setDeleteType('');
+    } catch (err) {
+      console.error("Error deleting data:", err);
+      console.log("Delete error details:", {
+        type: deleteType,
+        id: deleteItemId,
+        error: err,
+        url: err.config?.url
+      });
+    }
+  };
+
   const handleSaveEdit = async () => {
     try {
       const baseUrl = endpoints.closing;
@@ -227,36 +318,40 @@ export default function DashboardLayoutBasic(props) {
       if (type?.includes('plant')) {
         url = `${baseUrl.plantModeSize}/${itemId}`;
         payload = {
-          description: editingData.description,
           prompt_template: editingData.prompt_template,
+          interaction_mode_plant_size_impact_id: itemId
         };
       } else if (type?.includes('manufacturing')) {
         url = `${baseUrl.manufacturingModels}/${itemId}`;
         payload = {
-          description: editingData.description,
           prompt_template: editingData.prompt_template,
+          interaction_mode_manufacturing_model_id: itemId
         };
       } else if (type?.includes('roles')) {
         url = `${baseUrl.modeAiRoles}/${itemId}`;
         payload = {
-          description: editingData.description,
           prompt_template: editingData.prompt_template,
+          interaction_mode_ai_role_id: itemId
         };
       } else if (type?.includes('industry')) {
-        url = `${baseUrl.industrysize}${itemId}`;
+        url = `${baseUrl.industrysize}${itemId}`; // Note: no slash here as it's in the base URL
         payload = {
-          name: editingData.description,
           details: editingData.prompt_template,
+          industry_id: itemId
         };
       } else {
         url = `${baseUrl.getClosing}/${itemId}`;
         payload = {
-          description: editingData.description,
           prompt_template: editingData.prompt_template,
+          mode_id: itemId
         };
       }
 
-      await axioInstance.put(url, payload);
+      console.log('Making PUT request to:', url);
+      console.log('With payload:', payload);
+
+      const response = await axioInstance.put(url, payload);
+      console.log('Edit response:', response);
 
       // Refresh all data after successful update
       await Promise.all([
@@ -270,6 +365,12 @@ export default function DashboardLayoutBasic(props) {
       setEditModalOpen(false);
     } catch (err) {
       console.error("Error updating data:", err);
+      console.log("Edit error details:", {
+        type: editingData.type,
+        id: editingData.mode_id,
+        error: err,
+        url: err.config?.url
+      });
     }
   };
 
@@ -434,97 +535,6 @@ export default function DashboardLayoutBasic(props) {
   console.log(industrySize, "industrySize");
 
   console.log(filterIndustry, "filterClosingData");
-
-  const handleDeleteClick = (item, type) => {
-    console.log("Delete clicked with type:", type);
-    console.log("Item being deleted:", item);
-    
-    // Set the appropriate ID based on the type
-    let itemId;
-    if (type.includes('plant')) {
-      itemId = item.interaction_mode_plant_size_impact_id;
-    } else if (type.includes('manufacturing')) {
-      itemId = item.interaction_mode_manufacturing_model_id;
-    } else if (type.includes('roles')) {
-      itemId = item.interaction_mode_ai_role_id;
-    } else if (type.includes('industry')) {
-      itemId = item.industry_id;
-    } else {
-      itemId = item.mode_id;
-    }
-    
-    setDeleteItemId(itemId);
-    setDeleteType(type);
-    setDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    try {
-      console.log("Deleting with type:", deleteType);
-      console.log("Deleting item ID:", deleteItemId);
-      
-      // Base URL from endpoints
-      const baseUrl = endpoints.closing;
-      
-      switch(deleteType) {
-        // Base Prompt (interaction-modes)
-        case 'prospecting-base':
-        case 'sales-base':
-        case 'closing-base':
-          await axioInstance.delete(`${baseUrl.getClosing}/${deleteItemId}`);
-          await getClosingData();
-          break;
-
-        // Interaction Roles
-        case 'prospecting-roles':
-        case 'sales-roles':
-        case 'closing-roles':
-          await axioInstance.delete(`${baseUrl.modeAiRoles}/${deleteItemId}`);
-          await getModeAiRelesData();
-          break;
-
-        // Manufacturing Models
-        case 'prospecting-manufacturing':
-        case 'sales-manufacturing':
-        case 'closing-manufacturing':
-          await axioInstance.delete(`${baseUrl.manufacturingModels}/${deleteItemId}`);
-          await getManufacturingModels();
-          break;
-
-        // Plant Size
-        case 'prospecting-plant':
-        case 'sales-plant':
-        case 'closing-plant':
-          await axioInstance.delete(`${baseUrl.plantModeSize}/${deleteItemId}`);
-          await getPlantModeSize();
-          break;
-
-        // Industry
-        case 'prospecting-industry':
-        case 'sales-industry':
-        case 'closing-industry':
-          await axioInstance.delete(`${baseUrl.industrysize}${deleteItemId}`);
-          await getIndustryDetails();
-          break;
-
-        default:
-          console.error('Unknown delete type:', deleteType);
-          return;
-      }
-      
-      setDeleteModalOpen(false);
-      setDeleteItemId(null);
-      setDeleteType('');
-    } catch (err) {
-      console.error("Error deleting data:", err);
-      console.log("Delete error details:", {
-        type: deleteType,
-        id: deleteItemId,
-        error: err,
-        url: err.config?.url
-      });
-    }
-  };
 
   return (
     <AppProvider
@@ -1340,7 +1350,7 @@ export default function DashboardLayoutBasic(props) {
           }}
         >
           <Typography id="edit-modal-title" variant="h6" component="h2" mb={2}>
-            Edit Data
+            Edit Prompt Template
           </Typography>
 
           {editingData.loading ? (
@@ -1348,35 +1358,20 @@ export default function DashboardLayoutBasic(props) {
               <CircularProgress />
             </Box>
           ) : (
-            <>
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Description"
-                value={editingData.description}
-                onChange={(e) =>
-                  setEditingData({
-                    ...editingData,
-                    description: e.target.value,
-                  })
-                }
-              />
-
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Prompt Template"
-                multiline
-                rows={12}
-                value={editingData.prompt_template}
-                onChange={(e) =>
-                  setEditingData({
-                    ...editingData,
-                    prompt_template: e.target.value,
-                  })
-                }
-              />
-            </>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Prompt Template"
+              multiline
+              rows={12}
+              value={editingData.prompt_template}
+              onChange={(e) =>
+                setEditingData({
+                  ...editingData,
+                  prompt_template: e.target.value,
+                })
+              }
+            />
           )}
           
           <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
