@@ -4,7 +4,7 @@ export const endpoints = {
     login: "v1/auth/sign-in",
   },
   closing:{
-     getClosing:"/api/v1/interaction-modes",
+     getClosing:"v1/interaction-modes",
      editClosingData:"v1/interaction-modes",
      modeAiRoles:"v1/interaction-mode-ai-roles",
      manufacturingModels:"v1/interaction-mode-manufacturing-models",
