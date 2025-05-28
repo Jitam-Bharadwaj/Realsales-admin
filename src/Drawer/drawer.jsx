@@ -204,7 +204,7 @@ export default function DashboardLayoutBasic(props) {
     getManufacturingModels();
   }, []);
 
-  // console.log(modeAiData, "modeAiData");
+  
 
   // filterData for Mode Ai Roles Bases on mode_id
  const filteredData = Array.isArray(modeAiData)
@@ -217,7 +217,9 @@ export default function DashboardLayoutBasic(props) {
   : [];
    
 
-  console.log(filteredData,'filtereddata')
+  console.log(manufacturingModels,'manufacturingModels')
+
+  console.log(filteredManufaturingData,'filtereddata')
 
   return (
     <AppProvider
