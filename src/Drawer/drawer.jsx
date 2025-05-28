@@ -105,7 +105,7 @@ export default function DashboardLayoutBasic(props) {
   const router = useDemoRouter("/dashboard");
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [closingData, setGetClosing] = React.useState({});
+  const [closingData, setGetClosing] = React.useState([]);
   const [editModalOpen, setEditModalOpen] = React.useState(false);
   const [editingData, setEditingData] = React.useState({
     description: "",
@@ -136,7 +136,7 @@ export default function DashboardLayoutBasic(props) {
   const getClosingData = async () => {
     try {
       const res = await axioInstance.get(
-        `${endpoints.closing.getClosing}/closing`
+        `${endpoints.closing.getClosing}`
       );
       // console.log(res?.data, "closingData");
       setGetClosing(res?.data);
@@ -217,6 +217,15 @@ export default function DashboardLayoutBasic(props) {
     getPlantModeSize()
   }, []);
 
+
+   // filterData for Mode Ai Roles Bases on mode_id
+  const filteredClosinData = Array.isArray(closingData)
+    ? closingData.filter(
+        (item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
+      )
+    : [];
+
+
   // filterData for Mode Ai Roles Bases on mode_id
   const filteredData = Array.isArray(modeAiData)
     ? modeAiData.filter(
@@ -242,9 +251,9 @@ export default function DashboardLayoutBasic(props) {
       )
     : [];
 
-  console.log(plantModeSize, "plantMode");
+  console.log(closingData, "filterClosingData");
 
-  console.log(filterPlantsizeModeData, "filterplantMode");
+  console.log(filteredClosinData, "filterClosingData");
 
   return (
     <AppProvider
@@ -490,28 +499,39 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Accordion sx={{ mt: "20px", border: "1px solid #fff" }}>
-                        <AccordionSummary
-                          expandIcon={<ExpandMoreIcon />}
-                          aria-controls="panel2-content"
-                          id="panel2-header"
-                        >
-                          <Typography component="span">
-                            {closingData?.description || "No Description"}
-                          </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          {closingData?.prompt_template}
-                        </AccordionDetails>
-                        <AccordionActions>
-                          <Button variant="outlined" onClick={handleEditClick}>
-                            Edit
-                          </Button>
-                          <Button variant="outlined" color="error">
-                            Delete
-                          </Button>
-                        </AccordionActions>
-                      </Accordion>
+                       {filteredClosinData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={handleEditClick}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion>
