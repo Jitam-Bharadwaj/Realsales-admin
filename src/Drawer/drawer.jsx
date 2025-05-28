@@ -112,6 +112,7 @@ export default function DashboardLayoutBasic(props) {
     prompt_template: "",
   });
   const [modeAiData, setModeAiData] = React.useState([]);
+  const [manufacturingModels,setmanufacturingModels] = React.useState([])
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -184,6 +185,19 @@ export default function DashboardLayoutBasic(props) {
     }
   };
 
+
+   // get Handle Mode Ai roles Data function
+
+   const getManufacturingModels = async()=>{
+     try{
+        const res = await axioInstance.get(`${endpoints.closing.manufacturingModels}`);
+        setmanufacturingModels(res?.data)
+     }
+     catch(err){
+      console.log(err)
+     }
+   }
+
   useEffect(() => {
     getClosingData();
     getModeAiRelesData();
@@ -191,8 +205,14 @@ export default function DashboardLayoutBasic(props) {
 
   // console.log(modeAiData, "modeAiData");
 
+  // filterData for Mode Ai Roles Bases on mode_id
  const filteredData = Array.isArray(modeAiData)
   ? modeAiData.filter((item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546")
+  : [];
+
+  // filterData for Mode Ai Roles Bases on mode_id
+ const filteredManufaturingData = Array.isArray(manufacturingModels)
+  ? manufacturingModels.filter((item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546")
   : [];
    
 
@@ -523,9 +543,39 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                      {filteredManufaturingData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={handleEditClick}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
                     <AccordionActions>
                       <Button>Cancel</Button>
