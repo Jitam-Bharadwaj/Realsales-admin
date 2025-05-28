@@ -111,6 +111,7 @@ export default function DashboardLayoutBasic(props) {
     description: "",
     prompt_template: "",
     mode_id: null,
+    type: null,
     loading: false
   });
   const [modeAiData, setModeAiData] = React.useState([]);
@@ -152,14 +153,30 @@ export default function DashboardLayoutBasic(props) {
   // console.log(closingData, "closingdata");
 
   // Add function to fetch specific item data
-  const fetchItemData = async (mode_id) => {
+  const fetchItemData = async (itemId, type) => {
     try {
       setEditingData(prev => ({ ...prev, loading: true }));
-      const res = await axioInstance.get(`${endpoints.closing.getClosingById}/${mode_id}`);
+      const baseUrl = endpoints.closing;
+      let url;
+
+      if (type?.includes('plant')) {
+        url = `${baseUrl.plantModeSize}/${itemId}`;
+      } else if (type?.includes('manufacturing')) {
+        url = `${baseUrl.manufacturingModels}/${itemId}`;
+      } else if (type?.includes('roles')) {
+        url = `${baseUrl.modeAiRoles}/${itemId}`;
+      } else if (type?.includes('industry')) {
+        url = `${baseUrl.industrysize}${itemId}`;
+      } else {
+        url = `${baseUrl.getClosing}/${itemId}`;
+      }
+
+      const res = await axioInstance.get(url);
       setEditingData({
-        description: res.data?.description || "",
-        prompt_template: res.data?.prompt_template || "",
-        mode_id: mode_id,
+        description: res.data?.description || res.data?.name || "",
+        prompt_template: res.data?.prompt_template || res.data?.details || "",
+        mode_id: itemId,
+        type: type,
         loading: false
       });
     } catch (err) {
@@ -168,30 +185,78 @@ export default function DashboardLayoutBasic(props) {
     }
   };
 
-  const handleEditClick = (item) => {
+  const handleEditClick = (item, type) => {
     setEditModalOpen(true);
+    // Set the appropriate ID based on the type
+    let itemId;
+    if (type?.includes('plant')) {
+      itemId = item.interaction_mode_plant_size_impact_id;
+    } else if (type?.includes('manufacturing')) {
+      itemId = item.interaction_mode_manufacturing_model_id;
+    } else if (type?.includes('roles')) {
+      itemId = item.interaction_mode_ai_role_id;
+    } else if (type?.includes('industry')) {
+      itemId = item.industry_id;
+    } else {
+      itemId = item.mode_id;
+    }
+
     // Set initial data from the item
     setEditingData({
-      description: item?.description || "",
-      prompt_template: item?.prompt_template || "",
-      mode_id: item?.mode_id,
+      description: item?.description || item?.name || "",
+      prompt_template: item?.prompt_template || item?.details || "",
+      mode_id: itemId,
+      type: type,
       loading: true
     });
+    
     // Fetch fresh data
-    if (item?.mode_id) {
-      fetchItemData(item.mode_id);
+    if (itemId) {
+      fetchItemData(itemId, type);
     }
   };
 
   const handleSaveEdit = async () => {
     try {
-      const res = await axioInstance.put(
-        `${endpoints.closing.editClosingData}/${editingData.mode_id}`,
-        {
+      const baseUrl = endpoints.closing;
+      const itemId = editingData.mode_id;
+      const type = editingData.type;
+      let url;
+      let payload;
+
+      if (type?.includes('plant')) {
+        url = `${baseUrl.plantModeSize}/${itemId}`;
+        payload = {
           description: editingData.description,
           prompt_template: editingData.prompt_template,
-        }
-      );
+        };
+      } else if (type?.includes('manufacturing')) {
+        url = `${baseUrl.manufacturingModels}/${itemId}`;
+        payload = {
+          description: editingData.description,
+          prompt_template: editingData.prompt_template,
+        };
+      } else if (type?.includes('roles')) {
+        url = `${baseUrl.modeAiRoles}/${itemId}`;
+        payload = {
+          description: editingData.description,
+          prompt_template: editingData.prompt_template,
+        };
+      } else if (type?.includes('industry')) {
+        url = `${baseUrl.industrysize}${itemId}`;
+        payload = {
+          name: editingData.description,
+          details: editingData.prompt_template,
+        };
+      } else {
+        url = `${baseUrl.getClosing}/${itemId}`;
+        payload = {
+          description: editingData.description,
+          prompt_template: editingData.prompt_template,
+        };
+      }
+
+      await axioInstance.put(url, payload);
 
       // Refresh all data after successful update
       await Promise.all([
@@ -507,14 +572,14 @@ export default function DashboardLayoutBasic(props) {
                             <AccordionActions>
                               <Button
                                 variant="outlined"
-                                onClick={() => handleEditClick(item)}
+                                onClick={(e) => handleEditClick(item, 'prospecting')}
                               >
                                 Edit
                               </Button>
                               <Button 
                                 variant="outlined" 
                                 color="error"
-                                onClick={() => {
+                                onClick={(e) => {
                                   console.log("Deleting prospecting item:", item);
                                   handleDeleteClick(item, 'prospecting-base')
                                 }}
@@ -559,14 +624,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'prospecting')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'prospecting-roles')}
+                                  onClick={(e) => handleDeleteClick(item, 'prospecting-roles')}
                                 >
                                   Delete
                                 </Button>
@@ -609,14 +674,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'prospecting')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'prospecting-manufacturing')}
+                                  onClick={(e) => handleDeleteClick(item, 'prospecting-manufacturing')}
                                 >
                                   Delete
                                 </Button>
@@ -660,14 +725,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'prospecting')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'prospecting-plant')}
+                                  onClick={(e) => handleDeleteClick(item, 'prospecting-plant')}
                                 >
                                   Delete
                                 </Button>
@@ -709,14 +774,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'prospecting')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'prospecting-industry')}
+                                  onClick={(e) => handleDeleteClick(item, 'prospecting-industry')}
                                 >
                                   Delete
                                 </Button>
@@ -765,14 +830,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'sales')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => {
+                                  onClick={(e) => {
                                     console.log("Deleting sales item:", item);
                                     handleDeleteClick(item, 'sales-base')
                                   }}
@@ -818,14 +883,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'sales')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'sales-roles')}
+                                  onClick={(e) => handleDeleteClick(item, 'sales-roles')}
                                 >
                                   Delete
                                 </Button>
@@ -868,14 +933,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'sales')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'sales-manufacturing')}
+                                  onClick={(e) => handleDeleteClick(item, 'sales-manufacturing')}
                                 >
                                   Delete
                                 </Button>
@@ -919,14 +984,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'sales')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'sales-plant')}
+                                  onClick={(e) => handleDeleteClick(item, 'sales-plant')}
                                 >
                                   Delete
                                 </Button>
@@ -968,14 +1033,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'sales')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'sales-industry')}
+                                  onClick={(e) => handleDeleteClick(item, 'sales-industry')}
                                 >
                                   Delete
                                 </Button>
@@ -1024,14 +1089,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'closing')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => {
+                                  onClick={(e) => {
                                     console.log("Deleting closing item:", item);
                                     handleDeleteClick(item, 'closing-base')
                                   }}
@@ -1077,14 +1142,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'closing')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'closing-roles')}
+                                  onClick={(e) => handleDeleteClick(item, 'closing-roles')}
                                 >
                                   Delete
                                 </Button>
@@ -1127,14 +1192,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'closing')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'closing-manufacturing')}
+                                  onClick={(e) => handleDeleteClick(item, 'closing-manufacturing')}
                                 >
                                   Delete
                                 </Button>
@@ -1181,14 +1246,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'closing')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'closing-plant')}
+                                  onClick={(e) => handleDeleteClick(item, 'closing-plant')}
                                 >
                                   Delete
                                 </Button>
@@ -1229,14 +1294,14 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={() => handleEditClick(item)}
+                                  onClick={(e) => handleEditClick(item, 'closing')}
                                 >
                                   Edit
                                 </Button>
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'closing-industry')}
+                                  onClick={(e) => handleDeleteClick(item, 'closing-industry')}
                                 >
                                   Delete
                                 </Button>
