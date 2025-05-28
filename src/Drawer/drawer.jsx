@@ -382,7 +382,6 @@ export default function DashboardLayoutBasic(props) {
   const handleDeleteConfirm = async () => {
     try {
       // Choose endpoint based on deleteType
-      let endpoint;
       switch(deleteType) {
         case 'basePrompt':
           await axioInstance.delete(`${endpoints.closing.getClosing}/${deleteItemId}`);
@@ -401,7 +400,7 @@ export default function DashboardLayoutBasic(props) {
           await getPlantModeSize();
           break;
         case 'industry':
-          await axioInstance.delete(`${endpoints.closing.industrysize}/${deleteItemId}`);
+          await axioInstance.delete(`${endpoints.closing.industrysize}${deleteItemId}`);
           await getIndustryDetails();
           break;
         default:
@@ -414,6 +413,11 @@ export default function DashboardLayoutBasic(props) {
       setDeleteType('');
     } catch (err) {
       console.error("Error deleting data:", err);
+      console.log("Delete error details:", {
+        type: deleteType,
+        id: deleteItemId,
+        error: err
+      });
     }
   };
 
