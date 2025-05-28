@@ -9,7 +9,7 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
 import Grid from "@mui/material/Grid";
-import { Button, Modal, Typography, TextField, Box } from "@mui/material";
+import { Button, Modal, Typography, TextField, Box, CircularProgress } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import Accordion from "@mui/material/Accordion";
 import AccordionActions from "@mui/material/AccordionActions";
@@ -110,6 +110,8 @@ export default function DashboardLayoutBasic(props) {
   const [editingData, setEditingData] = React.useState({
     description: "",
     prompt_template: "",
+    mode_id: null,
+    loading: false
   });
   const [modeAiData, setModeAiData] = React.useState([]);
   const [manufacturingModels, setmanufacturingModels] = React.useState([]);
@@ -146,31 +148,60 @@ export default function DashboardLayoutBasic(props) {
 
   // console.log(closingData, "closingdata");
 
-  const handleEditClick = () => {
-    setEditingData({
-      description: closingData?.description || "",
-      prompt_template: closingData?.prompt_template || "",
-    });
+  // Add function to fetch specific item data
+  const fetchItemData = async (mode_id) => {
+    try {
+      setEditingData(prev => ({ ...prev, loading: true }));
+      const res = await axioInstance.get(`${endpoints.closing.getClosingById}/${mode_id}`);
+      setEditingData({
+        description: res.data?.description || "",
+        prompt_template: res.data?.prompt_template || "",
+        mode_id: mode_id,
+        loading: false
+      });
+    } catch (err) {
+      console.error("Error fetching item data:", err);
+      setEditingData(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleEditClick = (item) => {
     setEditModalOpen(true);
+    // Set initial data from the item
+    setEditingData({
+      description: item?.description || "",
+      prompt_template: item?.prompt_template || "",
+      mode_id: item?.mode_id,
+      loading: true
+    });
+    // Fetch fresh data
+    if (item?.mode_id) {
+      fetchItemData(item.mode_id);
+    }
   };
 
   const handleSaveEdit = async () => {
     try {
-      // Replace with your actual update endpoint
       const res = await axioInstance.put(
-        `${endpoints.closing.editClosingData}/${closingData?.mode_id}`,
+        `${endpoints.closing.editClosingData}/${editingData.mode_id}`,
         {
           description: editingData.description,
           prompt_template: editingData.prompt_template,
         }
       );
 
-      // Refresh the data after successful update
-      await getClosingData();
+      // Refresh all data after successful update
+      await Promise.all([
+        getClosingData(),
+        getModeAiRelesData(),
+        getManufacturingModels(),
+        getPlantModeSize(),
+        getIndustryDetails()
+      ]);
+      
       setEditModalOpen(false);
     } catch (err) {
-      console.error("Error updating closing data:", err);
-      // You might want to add error handling here
+      console.error("Error updating data:", err);
     }
   };
 
@@ -534,7 +565,7 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={handleEditClick}
+                                  onClick={() => handleEditClick(item)}
                                 >
                                   Edit
                                 </Button>
@@ -580,7 +611,7 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={handleEditClick}
+                                  onClick={() => handleEditClick(item)}
                                 >
                                   Edit
                                 </Button>
@@ -626,7 +657,7 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={handleEditClick}
+                                  onClick={() => handleEditClick(item)}
                                 >
                                   Edit
                                 </Button>
@@ -676,7 +707,7 @@ export default function DashboardLayoutBasic(props) {
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={handleEditClick}
+                                  onClick={() => handleEditClick(item)}
                                 >
                                   Edit
                                 </Button>
@@ -711,16 +742,16 @@ export default function DashboardLayoutBasic(props) {
                                 id="panel2-header"
                               >
                                 <Typography component="span">
-                                  {item?.description || "No Description"}
+                                  {item?.name || "No Description"}
                                 </Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {item?.prompt_template}
+                                {item?.details}
                               </AccordionDetails>
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={handleEditClick}
+                                  onClick={() => handleEditClick(item)}
                                 >
                                   Edit
                                 </Button>
@@ -761,29 +792,55 @@ export default function DashboardLayoutBasic(props) {
             borderRadius: "8px",
           }}
         >
-          <Typography id="edit-modal-title" variant="h6" component="h2">
-            Edit Closing Data
+          <Typography id="edit-modal-title" variant="h6" component="h2" mb={2}>
+            Edit Data
           </Typography>
 
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Prompt Template"
-            multiline
-            rows={12}
-            value={editingData.prompt_template}
-            onChange={(e) =>
-              setEditingData({
-                ...editingData,
-                prompt_template: e.target.value,
-              })
-            }
-          />
+          {editingData.loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Description"
+                value={editingData.description}
+                onChange={(e) =>
+                  setEditingData({
+                    ...editingData,
+                    description: e.target.value,
+                  })
+                }
+              />
+
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Prompt Template"
+                multiline
+                rows={12}
+                value={editingData.prompt_template}
+                onChange={(e) =>
+                  setEditingData({
+                    ...editingData,
+                    prompt_template: e.target.value,
+                  })
+                }
+              />
+            </>
+          )}
+          
           <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
             <Button onClick={() => setEditModalOpen(false)} sx={{ mr: 1 }}>
               Cancel
             </Button>
-            <Button variant="contained" onClick={handleSaveEdit}>
+            <Button 
+              variant="contained" 
+              onClick={handleSaveEdit}
+              disabled={editingData.loading}
+            >
               Save
             </Button>
           </Box>
