@@ -371,40 +371,64 @@ export default function DashboardLayoutBasic(props) {
   console.log(filterIndustry, "filterClosingData");
 
   const handleDeleteClick = (item, type) => {
-    console.log("Deleting item:", item);
-    console.log("Delete type:", type);
-    console.log("Item mode_id:", item.mode_id);
-    setDeleteItemId(item.mode_id);
+    console.log("Delete clicked with type:", type);
+    console.log("Item being deleted:", item);
+    setDeleteItemId(item.mode_id || item.industry_id);
     setDeleteType(type);
     setDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
     try {
-      // Choose endpoint based on deleteType
+      console.log("Deleting with type:", deleteType);
+      console.log("Deleting item ID:", deleteItemId);
+      
+      // Base URL from endpoints
+      const baseUrl = endpoints.closing;
+      
       switch(deleteType) {
-        case 'basePrompt':
-          await axioInstance.delete(`${endpoints.closing.getClosing}/${deleteItemId}`);
+        // Base Prompt (interaction-modes)
+        case 'prospecting-base':
+        case 'sales-base':
+        case 'closing-base':
+          await axioInstance.delete(`${baseUrl.getClosing}/${deleteItemId}`);
           await getClosingData();
           break;
-        case 'interactionRoles':
-          await axioInstance.delete(`${endpoints.closing.modeAiRoles}/${deleteItemId}`);
+
+        // Interaction Roles
+        case 'prospecting-roles':
+        case 'sales-roles':
+        case 'closing-roles':
+          await axioInstance.delete(`${baseUrl.modeAiRoles}/${deleteItemId}`);
           await getModeAiRelesData();
           break;
-        case 'manufacturingModels':
-          await axioInstance.delete(`${endpoints.closing.manufacturingModels}/${deleteItemId}`);
+
+        // Manufacturing Models
+        case 'prospecting-manufacturing':
+        case 'sales-manufacturing':
+        case 'closing-manufacturing':
+          await axioInstance.delete(`${baseUrl.manufacturingModels}/${deleteItemId}`);
           await getManufacturingModels();
           break;
-        case 'plantSize':
-          await axioInstance.delete(`${endpoints.closing.plantModeSize}/${deleteItemId}`);
+
+        // Plant Size
+        case 'prospecting-plant':
+        case 'sales-plant':
+        case 'closing-plant':
+          await axioInstance.delete(`${baseUrl.plantModeSize}/${deleteItemId}`);
           await getPlantModeSize();
           break;
-        case 'industry':
-          await axioInstance.delete(`${endpoints.closing.industrysize}${deleteItemId}`);
+
+        // Industry
+        case 'prospecting-industry':
+        case 'sales-industry':
+        case 'closing-industry':
+          await axioInstance.delete(`${baseUrl.industrysize}${deleteItemId}`);
           await getIndustryDetails();
           break;
+
         default:
-          console.error('Unknown delete type');
+          console.error('Unknown delete type:', deleteType);
           return;
       }
       
@@ -416,7 +440,8 @@ export default function DashboardLayoutBasic(props) {
       console.log("Delete error details:", {
         type: deleteType,
         id: deleteItemId,
-        error: err
+        error: err,
+        url: err.config?.url
       });
     }
   };
@@ -444,9 +469,9 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {console.log("Filtered Base Prompt Data:", filteredProspectingData)}
+                      {console.log("Base Prompt Data being mapped:", filteredProspectingData)}
                       {filteredProspectingData?.map((item) => {
-                        console.log("Base Prompt Item:", item);
+                        console.log("Individual Base Prompt item:", item);
                         return (
                           <Accordion
                             key={item.mode_id}
@@ -475,8 +500,8 @@ export default function DashboardLayoutBasic(props) {
                                 variant="outlined" 
                                 color="error"
                                 onClick={() => {
-                                  console.log("Delete clicked for item:", item);
-                                  handleDeleteClick(item, 'basePrompt')
+                                  console.log("Deleting prospecting item:", item);
+                                  handleDeleteClick(item, 'prospecting-base')
                                 }}
                               >
                                 Delete
@@ -526,7 +551,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'interactionRoles')}
+                                  onClick={() => handleDeleteClick(item, 'prospecting-roles')}
                                 >
                                   Delete
                                 </Button>
@@ -576,7 +601,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'manufacturingModels')}
+                                  onClick={() => handleDeleteClick(item, 'prospecting-manufacturing')}
                                 >
                                   Delete
                                 </Button>
@@ -627,7 +652,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'plantSize')}
+                                  onClick={() => handleDeleteClick(item, 'prospecting-plant')}
                                 >
                                   Delete
                                 </Button>
@@ -676,7 +701,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'industry')}
+                                  onClick={() => handleDeleteClick(item, 'prospecting-industry')}
                                 >
                                   Delete
                                 </Button>
@@ -732,7 +757,10 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'basePrompt')}
+                                  onClick={() => {
+                                    console.log("Deleting sales item:", item);
+                                    handleDeleteClick(item, 'sales-base')
+                                  }}
                                 >
                                   Delete
                                 </Button>
@@ -782,7 +810,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'interactionRoles')}
+                                  onClick={() => handleDeleteClick(item, 'sales-roles')}
                                 >
                                   Delete
                                 </Button>
@@ -832,7 +860,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'manufacturingModels')}
+                                  onClick={() => handleDeleteClick(item, 'sales-manufacturing')}
                                 >
                                   Delete
                                 </Button>
@@ -883,7 +911,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'plantSize')}
+                                  onClick={() => handleDeleteClick(item, 'sales-plant')}
                                 >
                                   Delete
                                 </Button>
@@ -932,7 +960,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'industry')}
+                                  onClick={() => handleDeleteClick(item, 'sales-industry')}
                                 >
                                   Delete
                                 </Button>
@@ -988,7 +1016,10 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'basePrompt')}
+                                  onClick={() => {
+                                    console.log("Deleting closing item:", item);
+                                    handleDeleteClick(item, 'closing-base')
+                                  }}
                                 >
                                   Delete
                                 </Button>
@@ -1038,7 +1069,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'interactionRoles')}
+                                  onClick={() => handleDeleteClick(item, 'closing-roles')}
                                 >
                                   Delete
                                 </Button>
@@ -1088,7 +1119,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'manufacturingModels')}
+                                  onClick={() => handleDeleteClick(item, 'closing-manufacturing')}
                                 >
                                   Delete
                                 </Button>
@@ -1142,7 +1173,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'plantSize')}
+                                  onClick={() => handleDeleteClick(item, 'closing-plant')}
                                 >
                                   Delete
                                 </Button>
@@ -1190,7 +1221,7 @@ export default function DashboardLayoutBasic(props) {
                                 <Button 
                                   variant="outlined" 
                                   color="error"
-                                  onClick={() => handleDeleteClick(item, 'industry')}
+                                  onClick={() => handleDeleteClick(item, 'closing-industry')}
                                 >
                                   Delete
                                 </Button>
