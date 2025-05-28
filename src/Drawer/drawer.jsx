@@ -265,7 +265,7 @@ export default function DashboardLayoutBasic(props) {
       )
     : [];
 
-     // filterData for Mode Ai Roles Bases on mode_id
+   
   const filteredProspectingData = Array.isArray(closingData)
     ? closingData.filter(
         (item) => item.mode_id === "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf"
@@ -285,7 +285,20 @@ export default function DashboardLayoutBasic(props) {
       )
     : [];
 
-  // filterData for Mode Ai Roles Bases on mode_id
+     const filteredProspectingModeData = Array.isArray(modeAiData)
+    ? modeAiData.filter(
+        (item) => item.mode_id === "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf"
+      )
+    : [];
+
+
+     const filteredSalesModeData = Array.isArray(modeAiData)
+    ? modeAiData.filter(
+        (item) => item.mode_id === "2dab8507-0523-45ea-a537-4daa105db6a7"
+      )
+    : [];
+
+  // filterData for Manufacturing Models based on mode-id
   const filteredManufatcuringData = Array.isArray(manufacturingModels)
     ? manufacturingModels.filter(
         (item) =>
@@ -294,10 +307,39 @@ export default function DashboardLayoutBasic(props) {
       )
     : [];
 
-  // filterData for Mode Ai Roles Bases on mode_id
+    const filteredManufatcuringProsepectingData = Array.isArray(manufacturingModels)
+    ? manufacturingModels.filter(
+        (item) =>
+          item?.interaction_mode?.mode_id ===
+          "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf"
+      )
+    : [];
+    
+     const filteredManufatcuringSalesData = Array.isArray(manufacturingModels)
+    ? manufacturingModels.filter(
+        (item) =>
+          item?.interaction_mode?.mode_id ===
+          "2dab8507-0523-45ea-a537-4daa105db6a7"
+      )
+    : [];
+
+
+  // filterData for Mode Plant size Bases on mode_id
   const filterPlantsizeModeData = Array.isArray(plantModeSize)
     ? plantModeSize.filter(
         (item) => item?.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
+      )
+    : [];
+
+    const filterProspectingPlantsizeModeData = Array.isArray(plantModeSize)
+    ? plantModeSize.filter(
+        (item) => item?.mode_id === "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf"
+      )
+    : [];
+
+     const filterSalesPlantsizeModeData = Array.isArray(plantModeSize)
+    ? plantModeSize.filter(
+        (item) => item?.mode_id === "2dab8507-0523-45ea-a537-4daa105db6a7"
       )
     : [];
 
@@ -306,6 +348,18 @@ export default function DashboardLayoutBasic(props) {
   const filterIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
         (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+      )
+    : [];
+
+     const filterProsepectingIndustry = Array.isArray(industrySize)
+    ? industrySize.filter(
+        (item) => item?.industry_id === "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf"
+      )
+    : [];
+
+     const filterSalesIndustry = Array.isArray(industrySize)
+    ? industrySize.filter(
+        (item) => item?.industry_id === "2dab8507-0523-45ea-a537-4daa105db6a7"
       )
     : [];
 
@@ -382,40 +436,39 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Accordion>
-                        <AccordionSummary
-                          expandIcon={<ExpandMoreIcon />}
-                          aria-controls="panel2-content"
-                          id="panel2-header"
-                          sx={{ mt: "20px", border: "1px solid #fff" }}
-                        >
-                          <Typography component="span">
-                            Interaction Roles Ai Mode
-                          </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit. Suspendisse malesuada lacus ex, sit amet blandit
-                          leo lobortis eget.
-                        </AccordionDetails>
-                      </Accordion>
-                      <Accordion>
-                        <AccordionSummary
-                          expandIcon={<ExpandMoreIcon />}
-                          aria-controls="panel2-content"
-                          id="panel2-header"
-                          sx={{ mt: "20px", border: "1px solid #fff" }}
-                        >
-                          <Typography component="span">
-                            Interaction Roles Ai Mode
-                          </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit. Suspendisse malesuada lacus ex, sit amet blandit
-                          leo lobortis eget.
-                        </AccordionDetails>
-                      </Accordion>
+                    {filteredProspectingModeData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEditClick(item)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion>
@@ -429,14 +482,41 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                      {filteredManufatcuringProsepectingData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEditClick(item)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
-                    <AccordionActions>
-                      <Button>Cancel</Button>
-                      <Button>Agree</Button>
-                    </AccordionActions>
+                    
                   </Accordion>
                   <Accordion>
                     <AccordionSummary
@@ -449,14 +529,41 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                     {filterProspectingPlantsizeModeData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEditClick(item)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
-                    <AccordionActions>
-                      <Button>Cancel</Button>
-                      <Button>Agree</Button>
-                    </AccordionActions>
+                    
                   </Accordion>
                   <Accordion>
                     <AccordionSummary
@@ -467,14 +574,41 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                     {filterProsepectingIndustry?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEditClick(item)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
-                    <AccordionActions>
-                      <Button>Cancel</Button>
-                      <Button>Agree</Button>
-                    </AccordionActions>
+                   
                   </Accordion>
                 </div>
               </Grid>
@@ -538,9 +672,39 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                      {filteredSalesModeData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEditClick(item)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion>
@@ -554,14 +718,41 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                      {filteredManufatcuringSalesData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEditClick(item)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
-                    <AccordionActions>
-                      <Button>Cancel</Button>
-                      <Button>Agree</Button>
-                    </AccordionActions>
+                    
                   </Accordion>
                   <Accordion>
                     <AccordionSummary
@@ -574,14 +765,41 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                       {filterSalesPlantsizeModeData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEditClick(item)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
-                    <AccordionActions>
-                      <Button>Cancel</Button>
-                      <Button>Agree</Button>
-                    </AccordionActions>
+                    
                   </Accordion>
                   <Accordion>
                     <AccordionSummary
@@ -592,14 +810,41 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                       {filterSalesIndustry?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEditClick(item)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
-                    <AccordionActions>
-                      <Button>Cancel</Button>
-                      <Button>Agree</Button>
-                    </AccordionActions>
+                    
                   </Accordion>
                 </div>
               </Grid>
