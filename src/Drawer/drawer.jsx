@@ -112,7 +112,7 @@ export default function DashboardLayoutBasic(props) {
     prompt_template: "",
   });
   const [modeAiData, setModeAiData] = React.useState([]);
-  const [manufacturingModels,setmanufacturingModels] = React.useState([])
+  const [manufacturingModels, setmanufacturingModels] = React.useState([]);
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -185,18 +185,18 @@ export default function DashboardLayoutBasic(props) {
     }
   };
 
+  // get Handle Mode Ai roles Data function
 
-   // get Handle Mode Ai roles Data function
-
-   const getManufacturingModels = async()=>{
-     try{
-        const res = await axioInstance.get(`${endpoints.closing.manufacturingModels}`);
-        setmanufacturingModels(res?.data)
-     }
-     catch(err){
-      console.log(err)
-     }
-   }
+  const getManufacturingModels = async () => {
+    try {
+      const res = await axioInstance.get(
+        `${endpoints.closing.manufacturingModels}`
+      );
+      setmanufacturingModels(res?.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
     getClosingData();
@@ -204,22 +204,25 @@ export default function DashboardLayoutBasic(props) {
     getManufacturingModels();
   }, []);
 
-  
+  // filterData for Mode Ai Roles Bases on mode_id
+  const filteredData = Array.isArray(modeAiData)
+    ? modeAiData.filter(
+        (item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
+      )
+    : [];
 
   // filterData for Mode Ai Roles Bases on mode_id
- const filteredData = Array.isArray(modeAiData)
-  ? modeAiData.filter((item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546")
-  : [];
+  const filteredManufatcuringData = Array.isArray(manufacturingModels)
+    ? manufacturingModels.filter(
+        (item) =>
+          item?.interaction_mode?.mode_id ===
+          "1dc1cebb-e716-4c2d-bda6-c177c9686546"
+      )
+    : [];
 
-  // filterData for Mode Ai Roles Bases on mode_id
- const filteredManufaturingData = Array.isArray(manufacturingModels)
-  ? manufacturingModels.filter((item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546")
-  : [];
-   
+  console.log(manufacturingModels, "manufacturingModels");
 
-  console.log(manufacturingModels,'manufacturingModels')
-
-  console.log(filteredManufaturingData,'filtereddata')
+  console.log(filteredManufatcuringData, "filtereddata");
 
   return (
     <AppProvider
@@ -546,7 +549,7 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredManufaturingData?.map((item) => {
+                      {filteredManufatcuringData?.map((item) => {
                         return (
                           <>
                             <Accordion
