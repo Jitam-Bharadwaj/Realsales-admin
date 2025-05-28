@@ -113,7 +113,8 @@ export default function DashboardLayoutBasic(props) {
   });
   const [modeAiData, setModeAiData] = React.useState([]);
   const [manufacturingModels, setmanufacturingModels] = React.useState([]);
-  const [plantModeSize, setPlantModeSize] = React.useState([])
+  const [plantModeSize, setPlantModeSize] = React.useState([]);
+  const [industrySize, setIndustrySize] = React.useState([]);
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -135,9 +136,7 @@ export default function DashboardLayoutBasic(props) {
 
   const getClosingData = async () => {
     try {
-      const res = await axioInstance.get(
-        `${endpoints.closing.getClosing}`
-      );
+      const res = await axioInstance.get(`${endpoints.closing.getClosing}`);
       // console.log(res?.data, "closingData");
       setGetClosing(res?.data);
     } catch (err) {
@@ -200,31 +199,40 @@ export default function DashboardLayoutBasic(props) {
   };
 
   // get Handle Plant Mode Size Data function
-  const getPlantModeSize = async()=>{
-    try{
+  const getPlantModeSize = async () => {
+    try {
       const res = await axioInstance.get(`${endpoints.closing.plantModeSize}`);
-      setPlantModeSize(res?.data)
+      setPlantModeSize(res?.data);
+    } catch (err) {
+      console.log(err);
     }
-    catch(err){
-      console.log(err)
+  };
+
+  // get Handle Industry Details Data function
+
+  const getIndustryDetails = async () => {
+    try {
+      const res = await axioInstance.get(`${endpoints.closing.industrysize}`);
+      setIndustrySize(res?.data);
+    } catch (err) {
+      console.log(err);
     }
-  }
+  };
 
   useEffect(() => {
     getClosingData();
     getModeAiRelesData();
     getManufacturingModels();
-    getPlantModeSize()
+    getPlantModeSize();
+    getIndustryDetails();
   }, []);
 
-
-   // filterData for Mode Ai Roles Bases on mode_id
+  // filterData for Mode Ai Roles Bases on mode_id
   const filteredClosinData = Array.isArray(closingData)
     ? closingData.filter(
         (item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
       )
     : [];
-
 
   // filterData for Mode Ai Roles Bases on mode_id
   const filteredData = Array.isArray(modeAiData)
@@ -242,18 +250,24 @@ export default function DashboardLayoutBasic(props) {
       )
     : [];
 
-     // filterData for Mode Ai Roles Bases on mode_id
+  // filterData for Mode Ai Roles Bases on mode_id
   const filterPlantsizeModeData = Array.isArray(plantModeSize)
     ? plantModeSize.filter(
-        (item) =>
-          item?.mode_id ===
-          "1dc1cebb-e716-4c2d-bda6-c177c9686546"
+        (item) => item?.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
       )
     : [];
 
-  console.log(closingData, "filterClosingData");
+  // filterData for Industry Details Bases on Industry_id
 
-  console.log(filteredClosinData, "filterClosingData");
+  const filterIndustry = Array.isArray(industrySize)
+    ? industrySize.filter(
+        (item) => item?.industry_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
+      )
+    : [];
+
+  console.log(industrySize, "industrySize");
+
+  console.log(filterIndustry, "filterClosingData");
 
   return (
     <AppProvider
@@ -499,7 +513,7 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                       {filteredClosinData?.map((item) => {
+                      {filteredClosinData?.map((item) => {
                         return (
                           <>
                             <Accordion
@@ -675,7 +689,6 @@ export default function DashboardLayoutBasic(props) {
                         );
                       })}
                     </AccordionDetails>
-                    
                   </Accordion>
                   <Accordion>
                     <AccordionSummary
@@ -686,14 +699,40 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Suspendisse malesuada lacus ex, sit amet blandit leo
-                      lobortis eget.
+                      {filterIndustry?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.prompt_template}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={handleEditClick}
+                                >
+                                  Edit
+                                </Button>
+                                <Button variant="outlined" color="error">
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
-                    <AccordionActions>
-                      <Button>Cancel</Button>
-                      <Button>Agree</Button>
-                    </AccordionActions>
                   </Accordion>
                 </div>
               </Grid>

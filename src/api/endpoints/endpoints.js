@@ -8,6 +8,7 @@ export const endpoints = {
      editClosingData:"v1/interaction-modes",
      modeAiRoles:"v1/interaction-mode-ai-roles",
      manufacturingModels:"v1/interaction-mode-manufacturing-models",
-     plantModeSize:"v1/interaction-mode-plant-size-impacts"
+     plantModeSize:"v1/interaction-mode-plant-size-impacts",
+     industrysize:"v1/industries/"
   }
 };
