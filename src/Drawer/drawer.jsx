@@ -117,6 +117,9 @@ export default function DashboardLayoutBasic(props) {
   const [manufacturingModels, setmanufacturingModels] = React.useState([]);
   const [plantModeSize, setPlantModeSize] = React.useState([]);
   const [industrySize, setIndustrySize] = React.useState([]);
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
+  const [deleteItemId, setDeleteItemId] = React.useState(null);
+  const [deleteType, setDeleteType] = React.useState('');
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
@@ -139,7 +142,7 @@ export default function DashboardLayoutBasic(props) {
   const getClosingData = async () => {
     try {
       const res = await axioInstance.get(`${endpoints.closing.getClosing}`);
-      // console.log(res?.data, "closingData");
+      console.log("Base Prompt Data:", res?.data);
       setGetClosing(res?.data);
     } catch (err) {
       console.log(err);
@@ -367,6 +370,53 @@ export default function DashboardLayoutBasic(props) {
 
   console.log(filterIndustry, "filterClosingData");
 
+  const handleDeleteClick = (item, type) => {
+    console.log("Deleting item:", item);
+    console.log("Delete type:", type);
+    console.log("Item mode_id:", item.mode_id);
+    setDeleteItemId(item.mode_id);
+    setDeleteType(type);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      // Choose endpoint based on deleteType
+      let endpoint;
+      switch(deleteType) {
+        case 'basePrompt':
+          await axioInstance.delete(`${endpoints.closing.getClosing}/${deleteItemId}`);
+          await getClosingData();
+          break;
+        case 'interactionRoles':
+          await axioInstance.delete(`${endpoints.closing.modeAiRoles}/${deleteItemId}`);
+          await getModeAiRelesData();
+          break;
+        case 'manufacturingModels':
+          await axioInstance.delete(`${endpoints.closing.manufacturingModels}/${deleteItemId}`);
+          await getManufacturingModels();
+          break;
+        case 'plantSize':
+          await axioInstance.delete(`${endpoints.closing.plantModeSize}/${deleteItemId}`);
+          await getPlantModeSize();
+          break;
+        case 'industry':
+          await axioInstance.delete(`${endpoints.closing.industrysize}/${deleteItemId}`);
+          await getIndustryDetails();
+          break;
+        default:
+          console.error('Unknown delete type');
+          return;
+      }
+      
+      setDeleteModalOpen(false);
+      setDeleteItemId(null);
+      setDeleteType('');
+    } catch (err) {
+      console.error("Error deleting data:", err);
+    }
+  };
+
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -390,37 +440,45 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
+                      {console.log("Filtered Base Prompt Data:", filteredProspectingData)}
                       {filteredProspectingData?.map((item) => {
+                        console.log("Base Prompt Item:", item);
                         return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                          <Accordion
+                            key={item.mode_id}
+                            sx={{ mt: "20px", border: "1px solid #fff" }}
+                          >
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel2-content"
+                              id="panel2-header"
                             >
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
-                                aria-controls="panel2-content"
-                                id="panel2-header"
+                              <Typography component="span">
+                                {item?.description || "No Description"}
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              {item?.prompt_template}
+                            </AccordionDetails>
+                            <AccordionActions>
+                              <Button
+                                variant="outlined"
+                                onClick={() => handleEditClick(item)}
                               >
-                                <Typography component="span">
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {item?.prompt_template}
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={() => handleEditClick(item)}
-                                >
-                                  Edit
-                                </Button>
-                                <Button variant="outlined" color="error">
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
+                                Edit
+                              </Button>
+                              <Button 
+                                variant="outlined" 
+                                color="error"
+                                onClick={() => {
+                                  console.log("Delete clicked for item:", item);
+                                  handleDeleteClick(item, 'basePrompt')
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </AccordionActions>
+                          </Accordion>
                         );
                       })}
                     </AccordionDetails>
@@ -461,7 +519,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'interactionRoles')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -507,7 +569,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'manufacturingModels')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -554,7 +620,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'plantSize')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -599,7 +669,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'industry')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -651,7 +725,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'basePrompt')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -697,7 +775,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'interactionRoles')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -743,7 +825,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'manufacturingModels')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -790,7 +876,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'plantSize')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -835,7 +925,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'industry')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -887,7 +981,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'basePrompt')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -933,7 +1031,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'interactionRoles')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -979,7 +1081,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'manufacturingModels')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -1029,7 +1135,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'plantSize')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -1073,7 +1183,11 @@ export default function DashboardLayoutBasic(props) {
                                 >
                                   Edit
                                 </Button>
-                                <Button variant="outlined" color="error">
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(item, 'industry')}
+                                >
                                   Delete
                                 </Button>
                               </AccordionActions>
@@ -1160,6 +1274,59 @@ export default function DashboardLayoutBasic(props) {
               disabled={editingData.loading}
             >
               Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        open={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setDeleteItemId(null);
+          setDeleteType('');
+        }}
+        aria-labelledby="delete-modal-title"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            border: "1px solid #fff",
+            borderRadius: "8px",
+          }}
+        >
+          <Typography id="delete-modal-title" variant="h6" component="h2" mb={2}>
+            Confirm Delete
+          </Typography>
+          <Typography mb={3}>
+            Are you sure you want to delete this item? This action cannot be undone.
+          </Typography>
+          
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button 
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setDeleteItemId(null);
+                setDeleteType('');
+              }} 
+              sx={{ mr: 1 }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="contained" 
+              color="error"
+              onClick={handleDeleteConfirm}
+            >
+              Delete
             </Button>
           </Box>
         </Box>
