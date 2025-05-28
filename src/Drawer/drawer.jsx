@@ -373,7 +373,22 @@ export default function DashboardLayoutBasic(props) {
   const handleDeleteClick = (item, type) => {
     console.log("Delete clicked with type:", type);
     console.log("Item being deleted:", item);
-    setDeleteItemId(item.mode_id || item.industry_id);
+    
+    // Set the appropriate ID based on the type
+    let itemId;
+    if (type.includes('plant')) {
+      itemId = item.interaction_mode_plant_size_impact_id;
+    } else if (type.includes('manufacturing')) {
+      itemId = item.interaction_mode_manufacturing_model_id;
+    } else if (type.includes('roles')) {
+      itemId = item.interaction_mode_ai_role_id;
+    } else if (type.includes('industry')) {
+      itemId = item.industry_id;
+    } else {
+      itemId = item.mode_id;
+    }
+    
+    setDeleteItemId(itemId);
     setDeleteType(type);
     setDeleteModalOpen(true);
   };
