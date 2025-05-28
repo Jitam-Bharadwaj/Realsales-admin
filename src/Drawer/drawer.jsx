@@ -201,6 +201,7 @@ export default function DashboardLayoutBasic(props) {
   useEffect(() => {
     getClosingData();
     getModeAiRelesData();
+    getManufacturingModels();
   }, []);
 
   // console.log(modeAiData, "modeAiData");
