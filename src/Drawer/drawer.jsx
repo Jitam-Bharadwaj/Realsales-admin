@@ -478,31 +478,50 @@ export default function DashboardLayoutBasic(props) {
       let url;
       let payload;
 
-      if (type?.includes('plant')) {
+      // Helper function to get the correct mode_id based on segment
+      const getModeId = (segment) => {
+        switch(segment) {
+          case 'prospecting':
+            return "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf";
+          case 'sales':
+            return "2dab8507-0523-45ea-a537-4daa105db6a7";
+          case 'closing':
+            return "1dc1cebb-e716-4c2d-bda6-c177c9686546";
+          default:
+            return null;
+        }
+      };
+
+      // Determine the correct URL and payload based on type
+      if (type.includes('plant')) {
         url = `${baseUrl.plantModeSize}/${itemId}`;
         payload = {
           prompt_template: editingData.prompt_template,
-          interaction_mode_plant_size_impact_id: itemId
+          interaction_mode_plant_size_impact_id: itemId,
+          mode_id: getModeId(type.split('-')[0]) // Extract segment from type (e.g., 'prospecting-plant' -> 'prospecting')
         };
-      } else if (type?.includes('manufacturing')) {
+      } else if (type.includes('manufacturing')) {
         url = `${baseUrl.manufacturingModels}/${itemId}`;
         payload = {
           prompt_template: editingData.prompt_template,
-          interaction_mode_manufacturing_model_id: itemId
+          interaction_mode_manufacturing_model_id: itemId,
+          mode_id: getModeId(type.split('-')[0])
         };
-      } else if (type?.includes('roles')) {
+      } else if (type.includes('roles')) {
         url = `${baseUrl.modeAiRoles}/${itemId}`;
         payload = {
           prompt_template: editingData.prompt_template,
-          interaction_mode_ai_role_id: itemId
+          interaction_mode_ai_role_id: itemId,
+          mode_id: getModeId(type.split('-')[0])
         };
-      } else if (type?.includes('industry')) {
-        url = `${baseUrl.industrysize}${itemId}`; // Note: no slash here as it's in the base URL
+      } else if (type.includes('industry')) {
+        url = `${baseUrl.industrysize}${itemId}`; // Note: no slash as it's in the base URL
         payload = {
           details: editingData.prompt_template,
           industry_id: itemId
         };
       } else {
+        // Base prompt case
         url = `${baseUrl.getClosing}/${itemId}`;
         payload = {
           prompt_template: editingData.prompt_template,
@@ -512,6 +531,7 @@ export default function DashboardLayoutBasic(props) {
 
       console.log('Making PUT request to:', url);
       console.log('With payload:', payload);
+      console.log('Edit type:', type);
 
       const response = await axioInstance.put(url, payload);
       console.log('Edit response:', response);
@@ -532,7 +552,8 @@ export default function DashboardLayoutBasic(props) {
         type: editingData.type,
         id: editingData.mode_id,
         error: err,
-        url: err.config?.url
+        url: err.config?.url,
+        payload: err.config?.data
       });
     }
   };
