@@ -48,7 +48,7 @@ const NAVIGATION = [
   },
   {
     segment: "reports",
-    title: "Modes",
+    title: "Reports",
     icon: <BarChartIcon />,
     children: [
       {
@@ -303,11 +303,12 @@ export default function DashboardLayoutBasic(props) {
 
   const getClosingData = async () => {
     try {
+      console.log('Fetching base prompt data...');
       const res = await axioInstance.get(`${endpoints.closing.getClosing}`);
-      console.log("Base Prompt Data:", res?.data);
+      console.log('Base prompt response:', res?.data);
       setGetClosing(res?.data);
     } catch (err) {
-      console.log(err);
+      console.error('Error fetching base prompt data:', err);
     }
   };
 
@@ -355,27 +356,67 @@ export default function DashboardLayoutBasic(props) {
     if (type?.includes('industry')) {
       content = item?.details || "";
       itemId = item.industry_id;
+      setEditingData({
+        description: item?.name || "",
+        prompt_template: content,
+        mode_id: itemId,
+        type: `${type}-industry`, // Ensure we add the -industry suffix
+        loading: false
+      });
     } else if (type?.includes('plant')) {
       content = item?.prompt_template || "";
       itemId = item.interaction_mode_plant_size_impact_id;
+      setEditingData({
+        description: item?.name || "",
+        prompt_template: content,
+        mode_id: itemId,
+        type: `${type}-plant`,
+        loading: false
+      });
     } else if (type?.includes('manufacturing')) {
       content = item?.prompt_template || "";
       itemId = item.interaction_mode_manufacturing_model_id;
+      setEditingData({
+        description: item?.name || "",
+        prompt_template: content,
+        mode_id: itemId,
+        type: `${type}-manufacturing`,
+        loading: false
+      });
     } else if (type?.includes('roles')) {
       content = item?.prompt_template || "";
       itemId = item.interaction_mode_ai_role_id;
+      setEditingData({
+        description: item?.name || "",
+        prompt_template: content,
+        mode_id: itemId,
+        type: `${type}-roles`,
+        loading: false
+      });
     } else {
+      // Base prompt case
       content = item?.prompt_template || "";
       itemId = item.mode_id;
+      setEditingData({
+        description: item?.description || "",
+        prompt_template: content,
+        mode_id: itemId,
+        type: type,
+        loading: false
+      });
     }
 
-    // Set the exact data that's shown in the accordion
-    setEditingData({
-      description: item?.description || item?.name || "",
-      prompt_template: content,
-      mode_id: itemId,
-      type: type,
-      loading: false // No need to load since we're using existing data
+    console.log('Edit data being set:', {
+      item,
+      type,
+      content,
+      itemId,
+      editingData: {
+        description: item?.name || item?.description || "",
+        prompt_template: content,
+        mode_id: itemId,
+        type: type
+      }
     });
   };
 
@@ -527,12 +568,12 @@ export default function DashboardLayoutBasic(props) {
       // Determine the correct URL and payload based on type
       if (type.includes('plant')) {
         url = `${baseUrl.plantModeSize}/${itemId}`;
-        const segment = type.split('-')[0]; // Extract segment (prospecting/sales/closing)
+        const segment = type.split('-')[0];
         payload = {
           prompt_template: editingData.prompt_template,
           mode_id: getModeId(segment),
           interaction_mode_plant_size_impact_id: itemId,
-          name: "Plant Size Impact", // Add required name field
+          name: editingData.description || "Plant Size Impact",
           description: editingData.description || "Plant Size Impact Description"
         };
       } else if (type.includes('manufacturing')) {
@@ -542,7 +583,7 @@ export default function DashboardLayoutBasic(props) {
           prompt_template: editingData.prompt_template,
           mode_id: getModeId(segment),
           interaction_mode_manufacturing_model_id: itemId,
-          name: "Manufacturing Model", // Add required name field
+          name: editingData.description || "Manufacturing Model",
           description: editingData.description || "Manufacturing Model Description"
         };
       } else if (type.includes('roles')) {
@@ -552,7 +593,7 @@ export default function DashboardLayoutBasic(props) {
           prompt_template: editingData.prompt_template,
           mode_id: getModeId(segment),
           interaction_mode_ai_role_id: itemId,
-          name: "AI Role", // Add required name field
+          name: editingData.description || "AI Role",
           description: editingData.description || "AI Role Description"
         };
       } else if (type.includes('industry')) {
@@ -581,19 +622,55 @@ export default function DashboardLayoutBasic(props) {
       const response = await axioInstance.put(url, payload);
       console.log('Edit response:', response);
 
-      // Refresh all data after successful update
-      await Promise.all([
-        getClosingData(),
-        getModeAiRelesData(),
-        getManufacturingModels(),
-        getPlantModeSize(),
-        getIndustryDetails()
-      ]);
-      
+      // Close modal first
       setEditModalOpen(false);
+      
+      // Immediately refresh the specific data that was edited
+      try {
+        if (type.includes('industry')) {
+          const industryRes = await axioInstance.get(`${endpoints.closing.industrysize}`);
+          console.log('Refreshed industry data:', industryRes?.data);
+          setIndustrySize(industryRes?.data);
+        } else if (type.includes('plant')) {
+          const plantRes = await axioInstance.get(`${endpoints.closing.plantModeSize}`);
+          console.log('Refreshed plant size data:', plantRes?.data);
+          setPlantModeSize(plantRes?.data);
+        } else if (type.includes('manufacturing')) {
+          const manufacturingRes = await axioInstance.get(`${endpoints.closing.manufacturingModels}`);
+          console.log('Refreshed manufacturing data:', manufacturingRes?.data);
+          setmanufacturingModels(manufacturingRes?.data);
+        } else if (type.includes('roles')) {
+          const rolesRes = await axioInstance.get(endpoints.closing.modeAiRoles);
+          console.log('Refreshed AI roles data:', rolesRes?.data);
+          setModeAiData(rolesRes?.data);
+        } else {
+          const baseRes = await axioInstance.get(`${endpoints.closing.getClosing}`);
+          console.log('Refreshed base prompt data:', baseRes?.data);
+          setGetClosing(baseRes?.data);
+        }
+
+        // Force a re-render by updating a state variable
+        setEditingData(prev => ({...prev, loading: false}));
+        
+        // Then refresh all other data in the background
+        Promise.all([
+          getClosingData(),
+          getModeAiRelesData(),
+          getManufacturingModels(),
+          getPlantModeSize(),
+          getIndustryDetails()
+        ]).then(() => {
+          console.log('Background data refresh completed');
+        }).catch(err => {
+          console.error('Error in background refresh:', err);
+        });
+
+      } catch (refreshError) {
+        console.error('Error refreshing specific data:', refreshError);
+      }
+
     } catch (err) {
       console.error("Error updating data:", err);
-      // Show detailed error message to user
       const errorMessage = err.response?.data?.detail || "Failed to update. Please check the required fields.";
       alert(errorMessage);
       console.log("Edit error details:", {
@@ -611,10 +688,12 @@ export default function DashboardLayoutBasic(props) {
 
   const getModeAiRelesData = async () => {
     try {
+      console.log('Fetching AI roles data...');
       const res = await axioInstance.get(endpoints.closing.modeAiRoles);
+      console.log('AI roles response:', res?.data);
       setModeAiData(res?.data);
     } catch (err) {
-      console.log(err);
+      console.error('Error fetching AI roles:', err);
     }
   };
 
@@ -622,22 +701,26 @@ export default function DashboardLayoutBasic(props) {
 
   const getManufacturingModels = async () => {
     try {
+      console.log('Fetching manufacturing models...');
       const res = await axioInstance.get(
         `${endpoints.closing.manufacturingModels}`
       );
+      console.log('Manufacturing models response:', res?.data);
       setmanufacturingModels(res?.data);
     } catch (err) {
-      console.log(err);
+      console.error('Error fetching manufacturing models:', err);
     }
   };
 
   // get Handle Plant Mode Size Data function
   const getPlantModeSize = async () => {
     try {
+      console.log('Fetching plant mode size...');
       const res = await axioInstance.get(`${endpoints.closing.plantModeSize}`);
+      console.log('Plant mode size response:', res?.data);
       setPlantModeSize(res?.data);
     } catch (err) {
-      console.log(err);
+      console.error('Error fetching plant mode size:', err);
     }
   };
 
@@ -645,10 +728,12 @@ export default function DashboardLayoutBasic(props) {
 
   const getIndustryDetails = async () => {
     try {
+      console.log('Fetching industry details...');
       const res = await axioInstance.get(`${endpoints.closing.industrysize}`);
+      console.log('Industry details response:', res?.data);
       setIndustrySize(res?.data);
     } catch (err) {
-      console.log(err);
+      console.error('Error fetching industry details:', err);
     }
   };
 
@@ -769,27 +854,56 @@ export default function DashboardLayoutBasic(props) {
 
   // filterData for Industry Details Bases on Industry_id
 
-  const filterIndustry = Array.isArray(industrySize)
-    ? industrySize.filter(
-        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
-      )
-    : [];
+  const filterIndustry = React.useMemo(() => {
+    const filtered = Array.isArray(industrySize)
+      ? industrySize.filter(
+          (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+        )
+      : [];
+    console.log('Filtered industry data:', filtered);
+    return filtered;
+  }, [industrySize]);
 
-     const filterProsepectingIndustry = Array.isArray(industrySize)
-    ? industrySize.filter(
-        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
-      )
-    : [];
+     const filterProsepectingIndustry = React.useMemo(() => {
+    const filtered = Array.isArray(industrySize)
+      ? industrySize.filter(
+          (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+        )
+      : [];
+    console.log('Filtered prospecting industry data:', filtered);
+    return filtered;
+  }, [industrySize]);
 
-     const filterSalesIndustry = Array.isArray(industrySize)
-    ? industrySize.filter(
-        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
-      )
-    : [];
+     const filterSalesIndustry = React.useMemo(() => {
+    const filtered = Array.isArray(industrySize)
+      ? industrySize.filter(
+          (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+        )
+      : [];
+    console.log('Filtered sales industry data:', filtered);
+    return filtered;
+  }, [industrySize]);
 
-  console.log(industrySize, "industrySize");
+  // Add useEffect to log state changes
+  useEffect(() => {
+    console.log('Industry size data updated:', industrySize);
+  }, [industrySize]);
 
-  console.log(filterIndustry, "filterClosingData");
+  useEffect(() => {
+    console.log('Plant size data updated:', plantModeSize);
+  }, [plantModeSize]);
+
+  useEffect(() => {
+    console.log('Manufacturing models updated:', manufacturingModels);
+  }, [manufacturingModels]);
+
+  useEffect(() => {
+    console.log('AI roles data updated:', modeAiData);
+  }, [modeAiData]);
+
+  useEffect(() => {
+    console.log('Base prompt data updated:', closingData);
+  }, [closingData]);
 
   // Define the renderPageItem function
   const renderPageItem = React.useCallback((item, { mini }) => {
@@ -1585,7 +1699,7 @@ export default function DashboardLayoutBasic(props) {
           }}
         >
           <Typography id="edit-modal-title" variant="h6" component="h2" mb={2}>
-            Edit Prompt Template
+            {editingData.type?.includes('industry') ? 'Edit Industry Details' : 'Edit Prompt Template'}
           </Typography>
 
           {editingData.loading ? (
@@ -1593,20 +1707,34 @@ export default function DashboardLayoutBasic(props) {
               <CircularProgress />
             </Box>
           ) : (
-            <TextField
-              fullWidth
-              margin="normal"
-              label="Prompt Template"
-              multiline
-              rows={12}
-              value={editingData.prompt_template}
-              onChange={(e) =>
-                setEditingData({
-                  ...editingData,
-                  prompt_template: e.target.value,
-                })
-              }
-            />
+            <>
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Name/Description"
+                value={editingData.description}
+                onChange={(e) =>
+                  setEditingData({
+                    ...editingData,
+                    description: e.target.value,
+                  })
+                }
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                label={editingData.type?.includes('industry') ? 'Industry Details' : 'Prompt Template'}
+                multiline
+                rows={12}
+                value={editingData.prompt_template}
+                onChange={(e) =>
+                  setEditingData({
+                    ...editingData,
+                    prompt_template: e.target.value,
+                  })
+                }
+              />
+            </>
           )}
           
           <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
