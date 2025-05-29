@@ -935,43 +935,33 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filterProsepectingIndustry?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
-                            >
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
-                                aria-controls="panel2-content"
-                                id="panel2-header"
-                              >
-                                <Typography component="span">
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {item?.details}
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'prospecting')}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="outlined" 
-                                  color="error"
-                                  onClick={(e) => handleDeleteClick(item, 'prospecting-industry')}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                      {filterProsepectingIndustry?.map((item) => (
+                        <Accordion
+                          key={item.industry_id}
+                          sx={{ mt: "20px", border: "1px solid #fff" }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls={`panel-${item.industry_id}-content`}
+                            id={`panel-${item.industry_id}-header`}
+                          >
+                            <Typography component="span">
+                              {item?.name || "No Description"}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {item?.details}
+                          </AccordionDetails>
+                          <AccordionActions>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'prospecting')}>
+                              Edit
+                            </Button>
+                            <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'prospecting-industry')}>
+                              Delete
+                            </Button>
+                          </AccordionActions>
+                        </Accordion>
+                      ))}
                     </AccordionDetails>
                   </Accordion>
                 </div>
@@ -1171,43 +1161,33 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filterSalesIndustry?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
-                            >
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
-                                aria-controls="panel2-content"
-                                id="panel2-header"
-                              >
-                                <Typography component="span">
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {item?.details}
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'sales')}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="outlined" 
-                                  color="error"
-                                  onClick={(e) => handleDeleteClick(item, 'sales-industry')}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                      {filterSalesIndustry?.map((item) => (
+                        <Accordion
+                          key={item.industry_id}
+                          sx={{ mt: "20px", border: "1px solid #fff" }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls={`panel-${item.industry_id}-content`}
+                            id={`panel-${item.industry_id}-header`}
+                          >
+                            <Typography component="span">
+                              {item?.name || "No Description"}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {item?.details}
+                          </AccordionDetails>
+                          <AccordionActions>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'sales')}>
+                              Edit
+                            </Button>
+                            <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'sales-industry')}>
+                              Delete
+                            </Button>
+                          </AccordionActions>
+                        </Accordion>
+                      ))}
                     </AccordionDetails>
                   </Accordion>
                 </div>
