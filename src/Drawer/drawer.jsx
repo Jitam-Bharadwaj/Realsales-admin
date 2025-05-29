@@ -1237,44 +1237,34 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span" sx={{ color: '#fff' }}>Manufacturing Models</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredManufatcuringData?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
-                            >
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
-                                aria-controls={`panel-${item.mode_id}-content`}
-                                id={`panel-${item.mode_id}-header`}
-                                sx={{ bgcolor: '#000', color: '#fff' }}
-                              >
-                                <Typography component="span" sx={{ color: '#fff' }}>
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {item?.prompt_template}
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'closing')}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="outlined" 
-                                  color="error"
-                                  onClick={(e) => handleDeleteClick(item, 'closing-manufacturing')}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                      {filteredManufatcuringData?.map((item) => (
+                        <Accordion
+                          key={item.interaction_mode_manufacturing_model_id}
+                          sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
+                            aria-controls={`panel-${item.interaction_mode_manufacturing_model_id}-content`}
+                            id={`panel-${item.interaction_mode_manufacturing_model_id}-header`}
+                            sx={{ bgcolor: '#000', color: '#fff' }}
+                          >
+                            <Typography component="span" sx={{ color: '#fff' }}>
+                              {getHeadingFromPrompt(item.prompt_template)}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {item?.prompt_template}
+                          </AccordionDetails>
+                          <AccordionActions>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'manufacturing')}>
+                              Edit
+                            </Button>
+                            <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'manufacturing')}>
+                              Delete
+                            </Button>
+                          </AccordionActions>
+                        </Accordion>
+                      ))}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
@@ -1287,44 +1277,34 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span" sx={{ color: '#fff' }}>Plant Size Settings</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filterPlantsizeModeData?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
-                            >
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
-                                aria-controls={`panel-${item.mode_id}-content`}
-                                id={`panel-${item.mode_id}-header`}
-                                sx={{ bgcolor: '#000', color: '#fff' }}
-                              >
-                                <Typography component="span" sx={{ color: '#fff' }}>
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {item?.prompt_template}
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'closing')}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="outlined" 
-                                  color="error"
-                                  onClick={(e) => handleDeleteClick(item, 'closing-plant')}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                      {filterPlantsizeModeData?.map((item) => (
+                        <Accordion
+                          key={item.interaction_mode_plant_size_impact_id}
+                          sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
+                            aria-controls={`panel-${item.interaction_mode_plant_size_impact_id}-content`}
+                            id={`panel-${item.interaction_mode_plant_size_impact_id}-header`}
+                            sx={{ bgcolor: '#000', color: '#fff' }}
+                          >
+                            <Typography component="span" sx={{ color: '#fff' }}>
+                              {getHeadingFromPrompt(item.prompt_template)}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {item?.prompt_template}
+                          </AccordionDetails>
+                          <AccordionActions>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'plant')}>
+                              Edit
+                            </Button>
+                            <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'plant')}>
+                              Delete
+                            </Button>
+                          </AccordionActions>
+                        </Accordion>
+                      ))}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
