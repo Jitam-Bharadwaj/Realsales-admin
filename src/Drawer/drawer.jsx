@@ -348,33 +348,35 @@ export default function DashboardLayoutBasic(props) {
 
   const handleEditClick = (item, type) => {
     setEditModalOpen(true);
-    // Set the appropriate ID based on the type
-    let itemId;
-    if (type?.includes('plant')) {
+    
+    // Set the appropriate content and ID based on the type
+    let content, itemId;
+    
+    if (type?.includes('industry')) {
+      content = item?.details || "";
+      itemId = item.industry_id;
+    } else if (type?.includes('plant')) {
+      content = item?.prompt_template || "";
       itemId = item.interaction_mode_plant_size_impact_id;
     } else if (type?.includes('manufacturing')) {
+      content = item?.prompt_template || "";
       itemId = item.interaction_mode_manufacturing_model_id;
     } else if (type?.includes('roles')) {
+      content = item?.prompt_template || "";
       itemId = item.interaction_mode_ai_role_id;
-    } else if (type?.includes('industry')) {
-      itemId = item.industry_id;
     } else {
+      content = item?.prompt_template || "";
       itemId = item.mode_id;
     }
 
-    // Set initial data from the item
+    // Set the exact data that's shown in the accordion
     setEditingData({
       description: item?.description || item?.name || "",
-      prompt_template: item?.prompt_template || item?.details || "",
+      prompt_template: content,
       mode_id: itemId,
       type: type,
-      loading: true
+      loading: false // No need to load since we're using existing data
     });
-    
-    // Fetch fresh data
-    if (itemId) {
-      fetchItemData(itemId, type);
-    }
   };
 
   const handleDeleteClick = (item, type) => {
