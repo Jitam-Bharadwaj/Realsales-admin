@@ -13,7 +13,6 @@ import {
   CircularProgress, 
   Grid,
   Box,
-  Drawer,
   AppBar,
   Toolbar,
   List,
@@ -22,7 +21,6 @@ import {
   ListItemText,
   IconButton
 } from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
 import { Navigate, useNavigate } from "react-router-dom";
 import Accordion from "@mui/material/Accordion";
 import AccordionActions from "@mui/material/AccordionActions";
@@ -35,7 +33,7 @@ import { endpoints } from "../api/endpoints/endpoints";
 import { useEffect } from "react";
 import '../Drawer/custome.css'
 import { AppProvider } from "@toolpad/core/AppProvider";
-import { DashboardLayout } from "@toolpad/core/DashboardLayout";
+import { DashboardLayout, DashboardSidebarPageItem } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
 
 const NAVIGATION = [
@@ -50,7 +48,7 @@ const NAVIGATION = [
   },
   {
     segment: "reports",
-    title: "Reports",
+    title: "Modes",
     icon: <BarChartIcon />,
     children: [
       {
@@ -148,7 +146,7 @@ const demoTheme = createTheme({
       components: {
         MuiDrawer: {
           styleOverrides: {
-            paper: {
+            '& .MuiDrawer-paper': {
               backgroundColor: '#000', // Black drawer background for dark mode
               color: '#fff', // White text for dark mode drawer
             },
@@ -255,32 +253,43 @@ export default function DashboardLayoutBasic(props) {
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [deleteItemId, setDeleteItemId] = React.useState(null);
   const [deleteType, setDeleteType] = React.useState('');
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const drawerWidth = 240;
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
-  const handleLogout = () => {
-    console.log("Logout function called");
-    // Clear all auth related data
-    localStorage.removeItem("x-access-token");
-    localStorage.removeItem("user"); // If you store user data
-    console.log("Local storage cleared");
-    
-    // Close the modal and redirect to login page
-    setLogoutModalOpen(false);
-    console.log("Redirecting to login page");
-    navigate("/");
-  };
 
   const handleNavigation = (segment) => {
-    if (segment === "logout") {
-      localStorage.removeItem("x-access-token");
-      navigate("/");
-    } else {
+    if (segment !== "logout") {
       navigate(`/${segment}`);
+    }
+  };
+
+  const handleLogout = async () => {
+    console.log("Logout function called");
+    try {
+      // Call backend logout API to destroy the token
+      // Using the specified endpoint /v1/auth/logout with DELETE method
+      const res = await axioInstance.delete("/v1/auth/logout");
+      console.log("Backend logout successful:", res.data);
+
+      console.log("Local storage before clearing:", localStorage.getItem("x-access-token"), localStorage.getItem("user"));
+      // Clear all auth related data from local storage
+      localStorage.removeItem("x-access-token");
+      localStorage.removeItem("user"); // If you store user data
+      console.log("Local storage after clearing:", localStorage.getItem("x-access-token"), localStorage.getItem("user"));
+
+      console.log("Local storage cleared");
+
+      // Close the modal and redirect to login page
+      setLogoutModalOpen(false);
+      console.log("Redirecting to login page");
+      navigate("/");
+    } catch (err) {
+      console.error("Error during logout:", err);
+      console.log("Local storage before clearing (error case):", localStorage.getItem("x-access-token"), localStorage.getItem("user"));
+      // Even if backend logout fails, clear local storage and attempt navigation
+      // This helps prevent being stuck in a partially logged-out state
+      localStorage.removeItem("x-access-token");
+      localStorage.removeItem("user");
+      console.log("Local storage after clearing (error case):", localStorage.getItem("x-access-token"), localStorage.getItem("user"));
+      console.log("Attempting navigation after logout error");
+      navigate("/"); // Attempt to navigate even on error
     }
   };
 
@@ -710,6 +719,21 @@ export default function DashboardLayoutBasic(props) {
 
   console.log(filterIndustry, "filterClosingData");
 
+  // Define the renderPageItem function
+  const renderPageItem = React.useCallback((item, { mini }) => {
+    if (item.segment === 'logout') {
+      return (
+        <DashboardSidebarPageItem
+          item={item}
+          mini={mini}
+          onClick={() => setLogoutModalOpen(true)} // Open modal on click
+        />
+      );
+    }
+    // Default rendering for other items
+    return <DashboardSidebarPageItem item={item} mini={mini} />;
+  }, [setLogoutModalOpen]); // Include setLogoutModalOpen in dependencies
+
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -722,11 +746,12 @@ export default function DashboardLayoutBasic(props) {
       }}
     >
       <DashboardLayout
+        renderPageItem={renderPageItem}
         sx={{
           '& .Mui-selected': {
             backgroundColor: '#fbdc5c', // Yellow background for selected item
             '&:hover': {
-              backgroundColor: '#e6c753', // Slightly darker yellow on hover for selected
+              backgroundColor: '#e6c253', // Slightly darker yellow on hover for selected
             },
             '& .MuiListItemIcon-root': {
               color: '#000000', // Black color for the icon when selected
@@ -735,6 +760,23 @@ export default function DashboardLayoutBasic(props) {
             '& .MuiListItemText-primary': {
               color: '#000000', // Black color for the text when selected
             },
+          },
+          // Add style to target the drawer paper specifically using theme palette color
+          '& .MuiDrawer-paper': {
+            bgcolor: 'background.paper',
+          },
+          // Modify style for default text/icon color with higher specificity
+          '.MuiListItem-root .MuiListItemText-primary, .MuiListItem-root .MuiListItemIcon-root': {
+             color: 'text.primary',
+          },
+           // Keep override for selected state (ensuring specificity)
+          '& .Mui-selected .MuiListItemText-primary, & .Mui-selected .MuiListItemIcon-root': {
+             color: '#000000',
+             fill: '#000000',
+          },
+          // Keep style for the AppBar root
+          '& .MuiAppBar-root': {
+            bgcolor: 'background.paper',
           },
         }}
       >
@@ -953,10 +995,17 @@ export default function DashboardLayoutBasic(props) {
                             {item?.details}
                           </AccordionDetails>
                           <AccordionActions>
-                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'prospecting')}>
+                            <Button
+                              variant="outlined"
+                              onClick={(e) => handleEditClick(item, 'prospecting')}
+                            >
                               Edit
                             </Button>
-                            <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'prospecting-industry')}>
+                            <Button 
+                              variant="outlined" 
+                              color="error"
+                              onClick={(e) => handleDeleteClick(item, 'prospecting-industry')}
+                            >
                               Delete
                             </Button>
                           </AccordionActions>
@@ -1161,33 +1210,43 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filterSalesIndustry?.map((item) => (
-                        <Accordion
-                          key={item.industry_id}
-                          sx={{ mt: "20px", border: "1px solid #fff" }}
-                        >
-                          <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls={`panel-${item.industry_id}-content`}
-                            id={`panel-${item.industry_id}-header`}
-                          >
-                            <Typography component="span">
-                              {item?.name || "No Description"}
-                            </Typography>
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            {item?.details}
-                          </AccordionDetails>
-                          <AccordionActions>
-                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'sales')}>
-                              Edit
-                            </Button>
-                            <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'sales-industry')}>
-                              Delete
-                            </Button>
-                          </AccordionActions>
-                        </Accordion>
-                      ))}
+                      {filterSalesIndustry?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
+                                aria-controls="panel2-content"
+                                id="panel2-header"
+                              >
+                                <Typography component="span">
+                                  {item?.name || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {item?.details}
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={(e) => handleEditClick(item, 'sales')}
+                                >
+                                  Edit
+                                </Button>
+                                <Button 
+                                  variant="outlined" 
+                                  color="error"
+                                  onClick={(e) => handleDeleteClick(item, 'sales-industry')}
+                                >
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
                   </Accordion>
                 </div>
