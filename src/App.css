@@ -6,6 +6,7 @@
 }
 
 .logo {
+  display: none!important;
   height: 6em;
   padding: 1.5em;
   will-change: filter;

@@ -1,15 +1,28 @@
 import * as React from "react";
-import { createTheme, styled } from "@mui/material/styles";
+import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import DescriptionIcon from "@mui/icons-material/Description";
 import LayersIcon from "@mui/icons-material/Layers";
-import { AppProvider } from "@toolpad/core/AppProvider";
-import { DashboardLayout } from "@toolpad/core/DashboardLayout";
-import { PageContainer } from "@toolpad/core/PageContainer";
-import Grid from "@mui/material/Grid";
-import { Button, Modal, Typography, TextField, Box, CircularProgress } from "@mui/material";
+import { 
+  Button, 
+  Modal, 
+  Typography, 
+  TextField, 
+  CircularProgress, 
+  Grid,
+  Box,
+  Drawer,
+  AppBar,
+  Toolbar,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton
+} from "@mui/material";
+import MenuIcon from '@mui/icons-material/Menu';
 import { Navigate, useNavigate } from "react-router-dom";
 import Accordion from "@mui/material/Accordion";
 import AccordionActions from "@mui/material/AccordionActions";
@@ -20,6 +33,10 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
 import { useEffect } from "react";
+import '../Drawer/custome.css'
+import { AppProvider } from "@toolpad/core/AppProvider";
+import { DashboardLayout } from "@toolpad/core/DashboardLayout";
+import { PageContainer } from "@toolpad/core/PageContainer";
 
 const NAVIGATION = [
   {
@@ -57,9 +74,9 @@ const NAVIGATION = [
     kind: "divider",
   },
   {
+    segment: "logout",
     title: "Logout",
     icon: <LogoutIcon />,
-    segment: "logout",
   },
 ];
 
@@ -145,6 +162,7 @@ export default function DashboardLayoutBasic(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [closingData, setGetClosing] = React.useState([]);
   const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = React.useState(false);
   const [editingData, setEditingData] = React.useState({
     description: "",
     prompt_template: "",
@@ -159,13 +177,31 @@ export default function DashboardLayoutBasic(props) {
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [deleteItemId, setDeleteItemId] = React.useState(null);
   const [deleteType, setDeleteType] = React.useState('');
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const drawerWidth = 240;
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleLogout = () => {
+    console.log("Logout function called");
+    // Clear all auth related data
+    localStorage.removeItem("x-access-token");
+    localStorage.removeItem("user"); // If you store user data
+    console.log("Local storage cleared");
+    
+    // Close the modal and redirect to login page
+    setLogoutModalOpen(false);
+    console.log("Redirecting to login page");
+    navigate("/");
+  };
 
   const handleNavigation = (segment) => {
     if (segment === "logout") {
-      // do logout logic here if needed
-      navigate("/login");
+      localStorage.removeItem("x-access-token");
+      navigate("/");
     } else {
-      // normal navigation
       navigate(`/${segment}`);
     }
   };
@@ -465,44 +501,66 @@ export default function DashboardLayoutBasic(props) {
     getIndustryDetails();
   }, []);
 
-  // filterData for Mode Ai Roles Bases on mode_id
+  const getHeadingFromPrompt = (promptTemplate) => {
+    if (!promptTemplate) return "No Description";
+    const parts = promptTemplate.split(':');
+    return parts[0].trim();
+  };
+
+  // Modify your filter functions to include the heading extraction
   const filteredClosinData = Array.isArray(closingData)
     ? closingData.filter(
         (item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
-      )
+      ).map(item => ({
+        ...item,
+        description: getHeadingFromPrompt(item.prompt_template)
+      }))
     : [];
 
-   
   const filteredProspectingData = Array.isArray(closingData)
     ? closingData.filter(
         (item) => item.mode_id === "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf"
-      )
+      ).map(item => ({
+        ...item,
+        description: getHeadingFromPrompt(item.prompt_template)
+      }))
     : [];
 
-    const filteredSalesData = Array.isArray(closingData)
+  const filteredSalesData = Array.isArray(closingData)
     ? closingData.filter(
         (item) => item.mode_id === "2dab8507-0523-45ea-a537-4daa105db6a7"
-      )
+      ).map(item => ({
+        ...item,
+        description: getHeadingFromPrompt(item.prompt_template)
+      }))
     : [];
 
-  // filterData for Mode Ai Roles Bases on mode_id
+  // Do the same for other filtered data sets
   const filteredData = Array.isArray(modeAiData)
     ? modeAiData.filter(
         (item) => item.mode_id === "1dc1cebb-e716-4c2d-bda6-c177c9686546"
-      )
+      ).map(item => ({
+        ...item,
+        description: getHeadingFromPrompt(item.prompt_template)
+      }))
     : [];
 
-     const filteredProspectingModeData = Array.isArray(modeAiData)
+  const filteredProspectingModeData = Array.isArray(modeAiData)
     ? modeAiData.filter(
         (item) => item.mode_id === "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf"
-      )
+      ).map(item => ({
+        ...item,
+        description: getHeadingFromPrompt(item.prompt_template)
+      }))
     : [];
 
-
-     const filteredSalesModeData = Array.isArray(modeAiData)
+  const filteredSalesModeData = Array.isArray(modeAiData)
     ? modeAiData.filter(
         (item) => item.mode_id === "2dab8507-0523-45ea-a537-4daa105db6a7"
-      )
+      ).map(item => ({
+        ...item,
+        description: getHeadingFromPrompt(item.prompt_template)
+      }))
     : [];
 
   // filterData for Manufacturing Models based on mode-id
@@ -595,51 +653,46 @@ export default function DashboardLayoutBasic(props) {
                       id="panel1-header"
                       sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span" sx={{ color: '#fff' }}>Base Prompt</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>
+                        {getHeadingFromPrompt(item.prompt_template)}
+                      </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {console.log("Base Prompt Data being mapped:", filteredProspectingData)}
-                      {filteredProspectingData?.map((item) => {
-                        console.log("Individual Base Prompt item:", item);
-                        return (
-                          <Accordion
-                            key={item.mode_id}
-                            sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                      {filteredProspectingData?.map((item) => (
+                        <Accordion
+                          key={item.mode_id}
+                          sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
+                            aria-controls="panel2-content"
+                            id="panel2-header"
+                            sx={{ bgcolor: '#000', color: '#fff' }}
                           >
-                            <AccordionSummary
-                              expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
-                              aria-controls="panel2-content"
-                              id="panel2-header"
-                              sx={{ bgcolor: '#000', color: '#fff' }}
+                            <Typography component="span" sx={{ color: '#fff' }}>
+                              {getHeadingFromPrompt(item.prompt_template)}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {item?.prompt_template}
+                          </AccordionDetails>
+                          <AccordionActions>
+                            <Button
+                              variant="outlined"
+                              onClick={(e) => handleEditClick(item, 'prospecting')}
                             >
-                              <Typography component="span" sx={{ color: '#fff' }}>
-                                {item?.description || "No Description"}
-                              </Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                              {item?.prompt_template}
-                            </AccordionDetails>
-                            <AccordionActions>
-                              <Button
-                                variant="outlined"
-                                onClick={(e) => handleEditClick(item, 'prospecting')}
-                              >
-                                Edit
-                              </Button>
-                              <Button 
-                                variant="outlined" 
-                                color="error"
-                                onClick={(e) => {
-                                  console.log("Deleting prospecting item:", item);
-                                  handleDeleteClick(item, 'prospecting-base')
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </AccordionActions>
-                          </Accordion>
-                        );
-                      })}
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="outlined" 
+                              color="error"
+                              onClick={(e) => handleDeleteClick(item, 'prospecting-base')}
+                            >
+                              Delete
+                            </Button>
+                          </AccordionActions>
+                        </Accordion>
+                      ))}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
@@ -865,50 +918,46 @@ export default function DashboardLayoutBasic(props) {
                       id="panel1-header"
                       sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span" sx={{ color: '#fff' }}>Base Prompt</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>
+                        {getHeadingFromPrompt(item.prompt_template)}
+                      </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredSalesData?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                      {filteredSalesData?.map((item) => (
+                        <Accordion
+                          key={item.mode_id}
+                          sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
+                            aria-controls="panel2-content"
+                            id="panel2-header"
+                            sx={{ bgcolor: '#000', color: '#fff' }}
+                          >
+                            <Typography component="span" sx={{ color: '#fff' }}>
+                              {getHeadingFromPrompt(item.prompt_template)}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {item?.prompt_template}
+                          </AccordionDetails>
+                          <AccordionActions>
+                            <Button
+                              variant="outlined"
+                              onClick={(e) => handleEditClick(item, 'sales')}
                             >
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
-                                aria-controls="panel2-content"
-                                id="panel2-header"
-                                sx={{ bgcolor: '#000', color: '#fff' }}
-                              >
-                                <Typography component="span" sx={{ color: '#fff' }}>
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {item?.prompt_template}
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'sales')}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="outlined" 
-                                  color="error"
-                                  onClick={(e) => {
-                                    console.log("Deleting sales item:", item);
-                                    handleDeleteClick(item, 'sales-base')
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="outlined" 
+                              color="error"
+                              onClick={(e) => handleDeleteClick(item, 'sales-base')}
+                            >
+                              Delete
+                            </Button>
+                          </AccordionActions>
+                        </Accordion>
+                      ))}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
@@ -1134,50 +1183,46 @@ export default function DashboardLayoutBasic(props) {
                       id="panel1-header"
                       sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span" sx={{ color: '#fff' }}>Base Prompt</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>
+                        {getHeadingFromPrompt(item.prompt_template)}
+                      </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredClosinData?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                      {filteredClosinData?.map((item) => (
+                        <Accordion
+                          key={item.mode_id}
+                          sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
+                            aria-controls="panel2-content"
+                            id="panel2-header"
+                            sx={{ bgcolor: '#000', color: '#fff' }}
+                          >
+                            <Typography component="span" sx={{ color: '#fff' }}>
+                              {getHeadingFromPrompt(item.prompt_template)}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {item?.prompt_template}
+                          </AccordionDetails>
+                          <AccordionActions>
+                            <Button
+                              variant="outlined"
+                              onClick={(e) => handleEditClick(item, 'closing')}
                             >
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
-                                aria-controls="panel2-content"
-                                id="panel2-header"
-                                sx={{ bgcolor: '#000', color: '#fff' }}
-                              >
-                                <Typography component="span" sx={{ color: '#fff' }}>
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {item?.prompt_template}
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'closing')}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="outlined" 
-                                  color="error"
-                                  onClick={(e) => {
-                                    console.log("Deleting closing item:", item);
-                                    handleDeleteClick(item, 'closing-base')
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="outlined" 
+                              color="error"
+                              onClick={(e) => handleDeleteClick(item, 'closing-base')}
+                            >
+                              Delete
+                            </Button>
+                          </AccordionActions>
+                        </Accordion>
+                      ))}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
@@ -1192,44 +1237,41 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredData?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                      {filteredData?.map((item) => (
+                        <Accordion
+                          key={item.mode_id}
+                          sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
+                        >
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
+                            aria-controls="panel2-content"
+                            id="panel2-header"
+                            sx={{ bgcolor: '#000', color: '#fff' }}
+                          >
+                            <Typography component="span" sx={{ color: '#fff' }}>
+                              {getHeadingFromPrompt(item.prompt_template)}
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {item?.prompt_template}
+                          </AccordionDetails>
+                          <AccordionActions>
+                            <Button
+                              variant="outlined"
+                              onClick={(e) => handleEditClick(item, 'closing')}
                             >
-                              <AccordionSummary
-                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
-                                aria-controls="panel2-content"
-                                id="panel2-header"
-                                sx={{ bgcolor: '#000', color: '#fff' }}
-                              >
-                                <Typography component="span" sx={{ color: '#fff' }}>
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {item?.prompt_template}
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'closing')}
-                                >
-                                  Edit
-                                </Button>
-                                <Button 
-                                  variant="outlined" 
-                                  color="error"
-                                  onClick={(e) => handleDeleteClick(item, 'closing-roles')}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="outlined" 
+                              color="error"
+                              onClick={(e) => handleDeleteClick(item, 'closing-roles')}
+                            >
+                              Delete
+                            </Button>
+                          </AccordionActions>
+                        </Accordion>
+                      ))}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
@@ -1505,6 +1547,53 @@ export default function DashboardLayoutBasic(props) {
               onClick={handleDeleteConfirm}
             >
               Delete
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        open={logoutModalOpen}
+        onClose={() => setLogoutModalOpen(false)}
+        aria-labelledby="logout-modal-title"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "#000",
+            color: "#fff",
+            boxShadow: 24,
+            p: 4,
+            border: "1px solid #fff",
+            borderRadius: "8px",
+          }}
+        >
+          <Typography id="logout-modal-title" variant="h6" component="h2" mb={2}>
+            Confirm Logout
+          </Typography>
+          <Typography mb={3}>
+            Are you sure you want to logout?
+          </Typography>
+          
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button 
+              onClick={() => setLogoutModalOpen(false)} 
+              sx={{ mr: 1, color: "#fff", borderColor: "#fff" }}
+              variant="outlined"
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="contained" 
+              color="error"
+              onClick={handleLogout}
+            >
+              Logout
             </Button>
           </Box>
         </Box>
