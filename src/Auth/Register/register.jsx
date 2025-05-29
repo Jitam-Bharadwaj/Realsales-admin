@@ -72,7 +72,7 @@ const Register = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
-          bgcolor: "#FAF9F6",
+          bgcolor: "#000000",
         }}
       >
         <Box
@@ -81,15 +81,16 @@ const Register = () => {
           sx={{
             minHeight: "200px",
             minWidth: { xs: "250px", sm: "400px" },
-            border: "1px solid #C0C0C0",
+            border: "1px solid #fbdc5c",
             padding: "30px 20px",
-            bgcolor: "#fff",
+            bgcolor: "#000000",
             borderRadius: "8px",
             maxWidth: "600px",
+            color: "#fbdc5c",
           }}
         >
-          <Typography>Please Enter Your Details</Typography>
-          <Typography sx={{ fontSize: "28px", fontWeight: "600", pb: "20px" }}>
+          <Typography sx={{ color: "#fbdc5c" }}>Please Enter Your Details</Typography>
+          <Typography sx={{ fontSize: "28px", fontWeight: "600", pb: "20px", color: "#fbdc5c" }}>
             Please Register First!
           </Typography>
 
@@ -97,7 +98,32 @@ const Register = () => {
             fullWidth
             label="Email Address"
             type="email"
-            sx={{ pb: "15px" }}
+            sx={{ 
+              pb: "15px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                backgroundColor: "#000",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#fbdc5c",
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                backgroundColor: "#000",
+              },
+              "& input:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 100px #000 inset",
+                WebkitTextFillColor: "#fff",
+              },
+            }}
             {...register("email", {
               required: "Email is required",
               pattern: {
@@ -113,7 +139,32 @@ const Register = () => {
             fullWidth
             label="First Name"
             type="text"
-            sx={{ pb: "15px" }}
+            sx={{ 
+              pb: "15px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                backgroundColor: "#000",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#fbdc5c",
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                backgroundColor: "#000",
+              },
+              "& input:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 100px #000 inset",
+                WebkitTextFillColor: "#fff",
+              },
+            }}
             {...register("first_name", { required: "First name is required" })}
             error={!!errors.first_name}
             helperText={errors.first_name?.message}
@@ -123,7 +174,32 @@ const Register = () => {
             fullWidth
             label="Last Name"
             type="text"
-            sx={{ pb: "15px" }}
+            sx={{ 
+              pb: "15px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                backgroundColor: "#000",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#fbdc5c",
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                backgroundColor: "#000",
+              },
+              "& input:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 100px #000 inset",
+                WebkitTextFillColor: "#fff",
+              },
+            }}
             {...register("last_name", { required: "Last name is required" })}
             error={!!errors.last_name}
             helperText={errors.last_name?.message}
@@ -133,7 +209,32 @@ const Register = () => {
             fullWidth
             label="Phone"
             type="tel"
-            sx={{ pb: "15px" }}
+            sx={{ 
+              pb: "15px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                backgroundColor: "#000",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#fbdc5c",
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                backgroundColor: "#000",
+              },
+              "& input:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 100px #000 inset",
+                WebkitTextFillColor: "#fff",
+              },
+            }}
             {...register("phone_number", {
               required: "Phone number is required",
               pattern: {
@@ -149,7 +250,32 @@ const Register = () => {
             fullWidth
             label="Password"
             type="password"
-            sx={{ pb: "30px" }}
+            sx={{ 
+              pb: "30px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                backgroundColor: "#000",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#fbdc5c",
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                backgroundColor: "#000",
+              },
+              "& input:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 100px #000 inset",
+                WebkitTextFillColor: "#fff",
+              },
+            }}
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -165,15 +291,23 @@ const Register = () => {
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ padding: "10px 0px", borderRadius: "8px" }}
+            sx={{ 
+              padding: "10px 0px", 
+              borderRadius: "8px",
+              bgcolor: "#fbdc5c",
+              color: "#000000",
+              "&:hover": {
+                bgcolor: "#e6c753",
+              },
+            }}
             disabled={loading}
           >
             {loading ? "Submitting..." : "SIGN-UP"}
           </Button>
 
-          <Typography sx={{ textAlign: "center", paddingTop: "20px" }}>
+          <Typography sx={{ textAlign: "center", paddingTop: "20px", color: "#fbdc5c" }}>
             Already have an account?{" "}
-            <Link style={{ textDecoration: "none" }} to="/">
+            <Link style={{ textDecoration: "none", color: "#fbdc5c" }} to="/">
               Sign-in
             </Link>
           </Typography>

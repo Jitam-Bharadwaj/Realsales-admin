@@ -83,7 +83,7 @@ const Login = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
-          bgcolor: "#FAF9F6",
+          bgcolor: "#000000",
         }}
       >
         <Box
@@ -92,14 +92,15 @@ const Login = () => {
           sx={{
             minHeight: "200px",
             minWidth: { xs: "250px", sm: "400px" },
-            border: "1px solid #C0C0C0",
+            border: "1px solid #fbdc5c",
             padding: "40px 20px 60px 20px",
-            bgcolor: "#fff",
+            bgcolor: "#000000",
             borderRadius: "8px",
+            color: "#fbdc5c",
           }}
         >
-          <Typography>Please Enter Your Details</Typography>
-          <Typography sx={{ fontSize: "28px", fontWeight: "600", pb: "20px" }}>
+          <Typography sx={{ color: "#fbdc5c" }}>Please Enter Your Details</Typography>
+          <Typography sx={{ fontSize: "28px", fontWeight: "600", pb: "20px", color: "#fbdc5c" }}>
             Welcome Back!
           </Typography>
 
@@ -107,7 +108,33 @@ const Login = () => {
             fullWidth
             label="Email Address"
             type="email"
-            sx={{ pb: "20px" }}
+            sx={{ 
+              pb: "20px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                backgroundColor: "#000",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#fbdc5c",
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                backgroundColor: "#000",
+              },
+              // Autofill fix
+              "& input:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 100px #000 inset",
+                WebkitTextFillColor: "#fff",
+              },
+            }}
             {...register("email", {
               required: "Email is required",
               pattern: {
@@ -123,7 +150,33 @@ const Login = () => {
             fullWidth
             label="Password"
             type="password"
-            sx={{ pb: "40px" }}
+            sx={{ 
+              pb: "40px",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#fbdc5c",
+                },
+                backgroundColor: "#000",
+              },
+              "& .MuiInputLabel-root": {
+                color: "#fbdc5c",
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                backgroundColor: "#000",
+              },
+              // Autofill fix
+              "& input:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 100px #000 inset",
+                WebkitTextFillColor: "#fff",
+              },
+            }}
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -139,16 +192,24 @@ const Login = () => {
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ padding: "12px 0px", borderRadius: "8px" }}
+            sx={{ 
+              padding: "12px 0px", 
+              borderRadius: "8px",
+              bgcolor: "#fbdc5c",
+              color: "#000000",
+              "&:hover": {
+                bgcolor: "#e6c753",
+              },
+            }}
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign-in"}
           </Button>
 
-          <Typography sx={{ textAlign: "center", paddingTop: "20px" }}>
+          <Typography sx={{ textAlign: "center", paddingTop: "20px", color: "#fbdc5c" }}>
             Don't have an account?{" "}
             <span>
-              <Link style={{ textDecoration: "none" }} to="/register">
+              <Link style={{ textDecoration: "none", color: "#fbdc5c" }} to="/register">
                 Sign-up
               </Link>
             </span>

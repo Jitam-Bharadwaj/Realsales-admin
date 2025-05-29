@@ -77,6 +77,44 @@ const demoTheme = createTheme({
       xl: 1536,
     },
   },
+  palette: {
+    background: {
+      default: '#000',
+      paper: '#000',
+    },
+    text: {
+      primary: '#fff',
+      secondary: '#fff',
+    },
+    primary: {
+      main: '#fff',
+      contrastText: '#000',
+    },
+  },
+  components: {
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#000',
+          color: '#fff',
+        },
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          color: '#fff',
+        },
+      },
+    },
+    MuiListItemText: {
+      styleOverrides: {
+        primary: {
+          color: '#fff',
+        },
+      },
+    },
+  },
 });
 
 function useDemoRouter(initialPath) {
@@ -544,19 +582,20 @@ export default function DashboardLayoutBasic(props) {
       window={demoWindow}
     >
       <DashboardLayout>
-        <PageContainer>
-          <Grid container spacing={2}>
+        <PageContainer sx={{ bgcolor: '#000', color: '#fff', minHeight: '100vh' }}>
+          <Grid container spacing={2} sx={{ bgcolor: '#000', color: '#fff', minHeight: '100vh' }}>
             {/* Display content based on current segment */}
             {currentSegment === "prospecting" && (
               <Grid item xs={12} sx={{ width: "90%", pt: "40px" }}>
-                <div>
-                  <Accordion sx={{ width: "100%" }}>
+                <div style={{ background: '#000', color: '#fff', minHeight: '100vh' }}>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel1-content"
                       id="panel1-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">Base Prompt</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       {console.log("Base Prompt Data being mapped:", filteredProspectingData)}
@@ -565,14 +604,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <Accordion
                             key={item.mode_id}
-                            sx={{ mt: "20px", border: "1px solid #fff" }}
+                            sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                           >
                             <AccordionSummary
-                              expandIcon={<ExpandMoreIcon />}
+                              expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                               aria-controls="panel2-content"
                               id="panel2-header"
+                              sx={{ bgcolor: '#000', color: '#fff' }}
                             >
-                              <Typography component="span">
+                              <Typography component="span" sx={{ color: '#fff' }}>
                                 {item?.description || "No Description"}
                               </Typography>
                             </AccordionSummary>
@@ -602,13 +642,14 @@ export default function DashboardLayoutBasic(props) {
                       })}
                     </AccordionDetails>
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel2-content"
                       id="panel2-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Interaction Roles Ai Mode
                       </Typography>
                     </AccordionSummary>
@@ -617,14 +658,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -652,13 +694,14 @@ export default function DashboardLayoutBasic(props) {
                       })}
                     </AccordionDetails>
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Instruction Mode Manufacturing Models
                       </Typography>
                     </AccordionSummary>
@@ -667,14 +710,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -703,13 +747,14 @@ export default function DashboardLayoutBasic(props) {
                     </AccordionDetails>
                     
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Instruction Mode Plant Size
                       </Typography>
                     </AccordionSummary>
@@ -718,14 +763,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -754,27 +800,29 @@ export default function DashboardLayoutBasic(props) {
                     </AccordionDetails>
                     
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">Industry Details</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                      {filterProsepectingIndustry?.map((item) => {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -809,28 +857,30 @@ export default function DashboardLayoutBasic(props) {
 
             {currentSegment === "sales" && (
               <Grid item xs={12} sx={{ width: "90%", pt: "40px" }}>
-                <div>
-                  <Accordion sx={{ width: "100%" }}>
+                <div style={{ background: '#000', color: '#fff', minHeight: '100vh' }}>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel1-content"
                       id="panel1-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">Base Prompt</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       {filteredSalesData?.map((item) => {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -861,13 +911,14 @@ export default function DashboardLayoutBasic(props) {
                       })}
                     </AccordionDetails>
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel2-content"
                       id="panel2-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Interaction Roles Ai Mode
                       </Typography>
                     </AccordionSummary>
@@ -876,14 +927,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -911,13 +963,14 @@ export default function DashboardLayoutBasic(props) {
                       })}
                     </AccordionDetails>
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Instruction Mode Manufacturing Models
                       </Typography>
                     </AccordionSummary>
@@ -926,14 +979,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -962,13 +1016,14 @@ export default function DashboardLayoutBasic(props) {
                     </AccordionDetails>
                     
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Instruction Mode Plant Size
                       </Typography>
                     </AccordionSummary>
@@ -977,14 +1032,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -1013,27 +1069,29 @@ export default function DashboardLayoutBasic(props) {
                     </AccordionDetails>
                     
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">Industry Details</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                        {filterSalesIndustry?.map((item) => {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -1068,28 +1126,30 @@ export default function DashboardLayoutBasic(props) {
 
             {currentSegment === "closing" && (
               <Grid item xs={12} sx={{ width: "90%", pt: "40px" }}>
-                <div>
-                  <Accordion sx={{ width: "100%" }}>
+                <div style={{ background: '#000', color: '#fff', minHeight: '100vh' }}>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel1-content"
                       id="panel1-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">Base Prompt</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       {filteredClosinData?.map((item) => {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -1120,13 +1180,14 @@ export default function DashboardLayoutBasic(props) {
                       })}
                     </AccordionDetails>
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel2-content"
                       id="panel2-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Interaction Roles Ai Mode
                       </Typography>
                     </AccordionSummary>
@@ -1135,14 +1196,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -1170,13 +1232,14 @@ export default function DashboardLayoutBasic(props) {
                       })}
                     </AccordionDetails>
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Instruction Mode Manufacturing Models
                       </Typography>
                     </AccordionSummary>
@@ -1185,14 +1248,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -1224,13 +1288,14 @@ export default function DashboardLayoutBasic(props) {
                       <Button>Agree</Button>
                     </AccordionActions>
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">
+                      <Typography component="span" sx={{ color: '#fff' }}>
                         Instruction Mode Plant Size
                       </Typography>
                     </AccordionSummary>
@@ -1239,14 +1304,15 @@ export default function DashboardLayoutBasic(props) {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.description || "No Description"}
                                 </Typography>
                               </AccordionSummary>
@@ -1274,27 +1340,29 @@ export default function DashboardLayoutBasic(props) {
                       })}
                     </AccordionDetails>
                   </Accordion>
-                  <Accordion>
+                  <Accordion sx={{ width: '100%', bgcolor: '#000', color: '#fff', border: '1px solid #fff', borderRadius: '8px' }}>
                     <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
+                      expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                       aria-controls="panel3-content"
                       id="panel3-header"
+                      sx={{ bgcolor: '#000', color: '#fff' }}
                     >
-                      <Typography component="span">Industry Details</Typography>
+                      <Typography component="span" sx={{ color: '#fff' }}>Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       {filterIndustry?.map((item) => {
                         return (
                           <>
                             <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                              sx={{ mt: "20px", border: "1px solid #fff", bgcolor: '#000', color: '#fff' }}
                             >
                               <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}
                                 aria-controls="panel2-content"
                                 id="panel2-header"
+                                sx={{ bgcolor: '#000', color: '#fff' }}
                               >
-                                <Typography component="span">
+                                <Typography component="span" sx={{ color: '#fff' }}>
                                   {item?.name || "No Description"}
                                 </Typography>
                               </AccordionSummary>
