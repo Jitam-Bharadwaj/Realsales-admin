@@ -696,13 +696,13 @@ export default function DashboardLayoutBasic(props) {
 
      const filterProsepectingIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
-        (item) => item?.industry_id === "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf"
+        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
       )
     : [];
 
      const filterSalesIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
-        (item) => item?.industry_id === "2dab8507-0523-45ea-a537-4daa105db6a7"
+        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
       )
     : [];
 
