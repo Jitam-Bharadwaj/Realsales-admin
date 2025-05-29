@@ -475,8 +475,40 @@ export default function DashboardLayoutBasic(props) {
       const baseUrl = endpoints.closing;
       const itemId = editingData.mode_id;
       const type = editingData.type;
-      let url;
+      let url = '';
       let payload;
+
+      // Required placeholders that must be preserved
+      const requiredPlaceholders = {
+        role: '{role}',
+        role_details: '{role_details}',
+        plant_size_impact: '{plant_size_impact}',
+        plant_size_impact_details: '{plant_size_impact_details}',
+        name: '{name}',
+        manufacturing_model_details: '{manufacturing_model_details}',
+        experience_level: '{experience_level}',
+        manufacturing_model: '{manufacturing_model}',
+        industry: '{industry}',
+        industry_details: '{industry_details}'
+      };
+
+      // Helper function to ensure placeholders are preserved
+      const ensurePlaceholders = (template) => {
+        let updatedTemplate = template;
+        
+        // Check if template already contains placeholders
+        const hasPlaceholders = Object.values(requiredPlaceholders).some(
+          placeholder => template.includes(placeholder)
+        );
+        
+        // If no placeholders found, append them at the end
+        if (!hasPlaceholders) {
+          const placeholderSection = Object.values(requiredPlaceholders).join(' ');
+          updatedTemplate = `${template}\n\nPlaceholders:\n${placeholderSection}`;
+        }
+        
+        return updatedTemplate;
+      };
 
       // Helper function to get the correct mode_id based on segment
       const getModeId = (segment) => {
@@ -495,44 +527,57 @@ export default function DashboardLayoutBasic(props) {
       // Determine the correct URL and payload based on type
       if (type.includes('plant')) {
         url = `${baseUrl.plantModeSize}/${itemId}`;
+        const segment = type.split('-')[0]; // Extract segment (prospecting/sales/closing)
         payload = {
           prompt_template: editingData.prompt_template,
+          mode_id: getModeId(segment),
           interaction_mode_plant_size_impact_id: itemId,
-          mode_id: getModeId(type.split('-')[0]) // Extract segment from type (e.g., 'prospecting-plant' -> 'prospecting')
+          name: "Plant Size Impact", // Add required name field
+          description: editingData.description || "Plant Size Impact Description"
         };
       } else if (type.includes('manufacturing')) {
         url = `${baseUrl.manufacturingModels}/${itemId}`;
+        const segment = type.split('-')[0];
         payload = {
           prompt_template: editingData.prompt_template,
+          mode_id: getModeId(segment),
           interaction_mode_manufacturing_model_id: itemId,
-          mode_id: getModeId(type.split('-')[0])
+          name: "Manufacturing Model", // Add required name field
+          description: editingData.description || "Manufacturing Model Description"
         };
       } else if (type.includes('roles')) {
         url = `${baseUrl.modeAiRoles}/${itemId}`;
+        const segment = type.split('-')[0];
         payload = {
           prompt_template: editingData.prompt_template,
+          mode_id: getModeId(segment),
           interaction_mode_ai_role_id: itemId,
-          mode_id: getModeId(type.split('-')[0])
+          name: "AI Role", // Add required name field
+          description: editingData.description || "AI Role Description"
         };
       } else if (type.includes('industry')) {
-        url = `${baseUrl.industrysize}${itemId}`; // Note: no slash as it's in the base URL
+        url = `${baseUrl.industrysize}${itemId}`;
         payload = {
           details: editingData.prompt_template,
-          industry_id: itemId
+          industry_id: itemId,
+          name: editingData.description || "Industry Details",
+          description: "Industry specific details"
         };
       } else {
         // Base prompt case
         url = `${baseUrl.getClosing}/${itemId}`;
         payload = {
-          prompt_template: editingData.prompt_template,
+          prompt_template: ensurePlaceholders(editingData.prompt_template),
           mode_id: itemId
         };
       }
 
+      // Log the request details
       console.log('Making PUT request to:', url);
       console.log('With payload:', payload);
       console.log('Edit type:', type);
 
+      // Make the API call
       const response = await axioInstance.put(url, payload);
       console.log('Edit response:', response);
 
@@ -548,12 +593,16 @@ export default function DashboardLayoutBasic(props) {
       setEditModalOpen(false);
     } catch (err) {
       console.error("Error updating data:", err);
+      // Show detailed error message to user
+      const errorMessage = err.response?.data?.detail || "Failed to update. Please check the required fields.";
+      alert(errorMessage);
       console.log("Edit error details:", {
         type: editingData.type,
         id: editingData.mode_id,
         error: err,
         url: err.config?.url,
-        payload: err.config?.data
+        payload: err.config?.data,
+        response: err.response?.data
       });
     }
   };
