@@ -356,67 +356,27 @@ export default function DashboardLayoutBasic(props) {
     if (type?.includes('industry')) {
       content = item?.details || "";
       itemId = item.industry_id;
-      setEditingData({
-        description: item?.name || "",
-        prompt_template: content,
-        mode_id: itemId,
-        type: `${type}-industry`, // Ensure we add the -industry suffix
-        loading: false
-      });
     } else if (type?.includes('plant')) {
       content = item?.prompt_template || "";
       itemId = item.interaction_mode_plant_size_impact_id;
-      setEditingData({
-        description: item?.name || "",
-        prompt_template: content,
-        mode_id: itemId,
-        type: `${type}-plant`,
-        loading: false
-      });
     } else if (type?.includes('manufacturing')) {
       content = item?.prompt_template || "";
       itemId = item.interaction_mode_manufacturing_model_id;
-      setEditingData({
-        description: item?.name || "",
-        prompt_template: content,
-        mode_id: itemId,
-        type: `${type}-manufacturing`,
-        loading: false
-      });
     } else if (type?.includes('roles')) {
       content = item?.prompt_template || "";
       itemId = item.interaction_mode_ai_role_id;
-      setEditingData({
-        description: item?.name || "",
-        prompt_template: content,
-        mode_id: itemId,
-        type: `${type}-roles`,
-        loading: false
-      });
     } else {
-      // Base prompt case
       content = item?.prompt_template || "";
       itemId = item.mode_id;
-      setEditingData({
-        description: item?.description || "",
-        prompt_template: content,
-        mode_id: itemId,
-        type: type,
-        loading: false
-      });
     }
 
-    console.log('Edit data being set:', {
-      item,
-      type,
-      content,
-      itemId,
-      editingData: {
-        description: item?.name || item?.description || "",
-        prompt_template: content,
-        mode_id: itemId,
-        type: type
-      }
+    // Set the exact data that's shown in the accordion
+    setEditingData({
+      description: item?.description || item?.name || "",
+      prompt_template: content,
+      mode_id: itemId,
+      type: type,
+      loading: false // No need to load since we're using existing data
     });
   };
 
@@ -516,170 +476,66 @@ export default function DashboardLayoutBasic(props) {
       const baseUrl = endpoints.closing;
       const itemId = editingData.mode_id;
       const type = editingData.type;
-      let url = '';
+      let url;
       let payload;
-
-      // Required placeholders that must be preserved
-      const requiredPlaceholders = {
-        role: '{role}',
-        role_details: '{role_details}',
-        plant_size_impact: '{plant_size_impact}',
-        plant_size_impact_details: '{plant_size_impact_details}',
-        name: '{name}',
-        manufacturing_model_details: '{manufacturing_model_details}',
-        experience_level: '{experience_level}',
-        manufacturing_model: '{manufacturing_model}',
-        industry: '{industry}',
-        industry_details: '{industry_details}'
-      };
-
-      // Helper function to ensure placeholders are preserved
-      const ensurePlaceholders = (template) => {
-        let updatedTemplate = template;
-        
-        // Check if template already contains placeholders
-        const hasPlaceholders = Object.values(requiredPlaceholders).some(
-          placeholder => template.includes(placeholder)
-        );
-        
-        // If no placeholders found, append them at the end
-        if (!hasPlaceholders) {
-          const placeholderSection = Object.values(requiredPlaceholders).join(' ');
-          updatedTemplate = `${template}\n\nPlaceholders:\n${placeholderSection}`;
-        }
-        
-        return updatedTemplate;
-      };
-
-      // Helper function to get the correct mode_id based on segment
-      const getModeId = (segment) => {
-        switch(segment) {
-          case 'prospecting':
-            return "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf";
-          case 'sales':
-            return "2dab8507-0523-45ea-a537-4daa105db6a7";
-          case 'closing':
-            return "1dc1cebb-e716-4c2d-bda6-c177c9686546";
-          default:
-            return null;
-        }
-      };
 
       // Determine the correct URL and payload based on type
       if (type.includes('plant')) {
         url = `${baseUrl.plantModeSize}/${itemId}`;
-        const segment = type.split('-')[0];
         payload = {
           prompt_template: editingData.prompt_template,
-          mode_id: getModeId(segment),
-          interaction_mode_plant_size_impact_id: itemId,
-          name: editingData.description || "Plant Size Impact",
-          description: editingData.description || "Plant Size Impact Description"
+          interaction_mode_plant_size_impact_id: itemId
         };
       } else if (type.includes('manufacturing')) {
         url = `${baseUrl.manufacturingModels}/${itemId}`;
-        const segment = type.split('-')[0];
         payload = {
           prompt_template: editingData.prompt_template,
-          mode_id: getModeId(segment),
-          interaction_mode_manufacturing_model_id: itemId,
-          name: editingData.description || "Manufacturing Model",
-          description: editingData.description || "Manufacturing Model Description"
+          interaction_mode_manufacturing_model_id: itemId
         };
       } else if (type.includes('roles')) {
         url = `${baseUrl.modeAiRoles}/${itemId}`;
-        const segment = type.split('-')[0];
         payload = {
           prompt_template: editingData.prompt_template,
-          mode_id: getModeId(segment),
-          interaction_mode_ai_role_id: itemId,
-          name: editingData.description || "AI Role",
-          description: editingData.description || "AI Role Description"
+          interaction_mode_ai_role_id: itemId
         };
       } else if (type.includes('industry')) {
         url = `${baseUrl.industrysize}${itemId}`;
         payload = {
           details: editingData.prompt_template,
-          industry_id: itemId,
-          name: editingData.description || "Industry Details",
-          description: "Industry specific details"
+          industry_id: itemId
         };
       } else {
         // Base prompt case
         url = `${baseUrl.getClosing}/${itemId}`;
         payload = {
-          prompt_template: ensurePlaceholders(editingData.prompt_template),
+          prompt_template: editingData.prompt_template,
           mode_id: itemId
         };
       }
 
-      // Log the request details
       console.log('Making PUT request to:', url);
       console.log('With payload:', payload);
-      console.log('Edit type:', type);
 
-      // Make the API call
       const response = await axioInstance.put(url, payload);
       console.log('Edit response:', response);
 
-      // Close modal first
-      setEditModalOpen(false);
+      // Refresh all data after successful update
+      await Promise.all([
+        getClosingData(),
+        getModeAiRelesData(),
+        getManufacturingModels(),
+        getPlantModeSize(),
+        getIndustryDetails()
+      ]);
       
-      // Immediately refresh the specific data that was edited
-      try {
-        if (type.includes('industry')) {
-          const industryRes = await axioInstance.get(`${endpoints.closing.industrysize}`);
-          console.log('Refreshed industry data:', industryRes?.data);
-          setIndustrySize(industryRes?.data);
-        } else if (type.includes('plant')) {
-          const plantRes = await axioInstance.get(`${endpoints.closing.plantModeSize}`);
-          console.log('Refreshed plant size data:', plantRes?.data);
-          setPlantModeSize(plantRes?.data);
-        } else if (type.includes('manufacturing')) {
-          const manufacturingRes = await axioInstance.get(`${endpoints.closing.manufacturingModels}`);
-          console.log('Refreshed manufacturing data:', manufacturingRes?.data);
-          setmanufacturingModels(manufacturingRes?.data);
-        } else if (type.includes('roles')) {
-          const rolesRes = await axioInstance.get(endpoints.closing.modeAiRoles);
-          console.log('Refreshed AI roles data:', rolesRes?.data);
-          setModeAiData(rolesRes?.data);
-        } else {
-          const baseRes = await axioInstance.get(`${endpoints.closing.getClosing}`);
-          console.log('Refreshed base prompt data:', baseRes?.data);
-          setGetClosing(baseRes?.data);
-        }
-
-        // Force a re-render by updating a state variable
-        setEditingData(prev => ({...prev, loading: false}));
-        
-        // Then refresh all other data in the background
-        Promise.all([
-          getClosingData(),
-          getModeAiRelesData(),
-          getManufacturingModels(),
-          getPlantModeSize(),
-          getIndustryDetails()
-        ]).then(() => {
-          console.log('Background data refresh completed');
-        }).catch(err => {
-          console.error('Error in background refresh:', err);
-        });
-
-      } catch (refreshError) {
-        console.error('Error refreshing specific data:', refreshError);
-      }
-
+      setEditModalOpen(false);
     } catch (err) {
       console.error("Error updating data:", err);
-      const errorMessage = err.response?.data?.detail || "Failed to update. Please check the required fields.";
-      alert(errorMessage);
       console.log("Edit error details:", {
         type: editingData.type,
         id: editingData.mode_id,
         error: err,
-        url: err.config?.url,
-        payload: err.config?.data,
-        response: err.response?.data
+        url: err.config?.url
       });
     }
   };
@@ -854,35 +710,23 @@ export default function DashboardLayoutBasic(props) {
 
   // filterData for Industry Details Bases on Industry_id
 
-  const filterIndustry = React.useMemo(() => {
-    const filtered = Array.isArray(industrySize)
-      ? industrySize.filter(
-          (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
-        )
-      : [];
-    console.log('Filtered industry data:', filtered);
-    return filtered;
-  }, [industrySize]);
+  const filterIndustry = Array.isArray(industrySize)
+    ? industrySize.filter(
+        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+      )
+    : [];
 
-     const filterProsepectingIndustry = React.useMemo(() => {
-    const filtered = Array.isArray(industrySize)
-      ? industrySize.filter(
-          (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
-        )
-      : [];
-    console.log('Filtered prospecting industry data:', filtered);
-    return filtered;
-  }, [industrySize]);
+     const filterProsepectingIndustry = Array.isArray(industrySize)
+    ? industrySize.filter(
+        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+      )
+    : [];
 
-     const filterSalesIndustry = React.useMemo(() => {
-    const filtered = Array.isArray(industrySize)
-      ? industrySize.filter(
-          (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
-        )
-      : [];
-    console.log('Filtered sales industry data:', filtered);
-    return filtered;
-  }, [industrySize]);
+     const filterSalesIndustry = Array.isArray(industrySize)
+    ? industrySize.filter(
+        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+      )
+    : [];
 
   // Add useEffect to log state changes
   useEffect(() => {
