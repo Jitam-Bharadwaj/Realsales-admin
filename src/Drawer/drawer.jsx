@@ -36,6 +36,31 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout, DashboardSidebarPageItem } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
 
+// Text formatting functions
+const convertNewlines = (text) => {
+  return text
+    .trim()
+    .replace(/\s*\n\s*/g, '\n')      // Clean up spaces around newlines
+    .replace(/\n{3,}/g, '\n\n')      // Limit to max 2 consecutive newlines
+    .split('\n\n')
+    .filter(para => para.trim())      // Remove empty paragraphs
+    .map(paragraph => paragraph.replace(/\n/g, '\\n'))
+    .join('\\n\\n');
+};
+
+// Text display component
+const TextDisplay = ({ text }) => {
+  if (!text) return null;
+  const displayText = text
+    .replace(/\\n\\n/g, '\n\n')
+    .replace(/\\n/g, '\n');
+  return (
+    <div className="whitespace-pre-wrap p-4 bg-gray-100 rounded">
+      {displayText}
+    </div>
+  );
+};
+
 const NAVIGATION = [
   {
     kind: "header",
@@ -303,9 +328,31 @@ export default function DashboardLayoutBasic(props) {
 
   const getClosingData = async () => {
     try {
-      console.log('Fetching base prompt data...');
-      const res = await axioInstance.get(`${endpoints.closing.getClosing}`);
-      console.log('Base prompt response:', res?.data);
+      console.log('Fetching base prompt data for segment:', currentSegment);
+      let modeId;
+      
+      // Set the appropriate mode_id based on the current segment
+      switch(currentSegment) {
+        case 'prospecting':
+          modeId = "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf";
+          break;
+        case 'sales':
+          modeId = "2dab8507-0523-45ea-a537-4daa105db6a7";
+          break;
+        case 'closing':
+          modeId = "1dc1cebb-e716-4c2d-bda6-c177c9686546";
+          break;
+        default:
+          console.error('Unknown segment:', currentSegment);
+          return;
+      }
+      
+      const res = await axioInstance.get(`${endpoints.closing.getClosing}?mode_id=${modeId}`);
+      console.log('Base prompt response for segment', currentSegment, ':', {
+        modeId,
+        data: res?.data,
+        url: `${endpoints.closing.getClosing}?mode_id=${modeId}`
+      });
       setGetClosing(res?.data);
     } catch (err) {
       console.error('Error fetching base prompt data:', err);
@@ -349,6 +396,7 @@ export default function DashboardLayoutBasic(props) {
 
   const handleEditClick = (item, type) => {
     setEditModalOpen(true);
+    console.log("Edit clicked for item:", item, "with type:", type);
     
     // Set the appropriate content and ID based on the type
     let content, itemId;
@@ -479,36 +527,43 @@ export default function DashboardLayoutBasic(props) {
       let url;
       let payload;
 
+      // Use the convertNewlines function to format the text
+      const formattedText = convertNewlines(editingData.prompt_template);
+
       // Determine the correct URL and payload based on type
       if (type.includes('plant')) {
         url = `${baseUrl.plantModeSize}/${itemId}`;
         payload = {
-          prompt_template: editingData.prompt_template,
+          prompt_template: formattedText,
           interaction_mode_plant_size_impact_id: itemId
         };
       } else if (type.includes('manufacturing')) {
         url = `${baseUrl.manufacturingModels}/${itemId}`;
         payload = {
-          prompt_template: editingData.prompt_template,
+          prompt_template: formattedText,
           interaction_mode_manufacturing_model_id: itemId
         };
       } else if (type.includes('roles')) {
         url = `${baseUrl.modeAiRoles}/${itemId}`;
         payload = {
-          prompt_template: editingData.prompt_template,
-          interaction_mode_ai_role_id: itemId
+          prompt_template: formattedText,
+          interaction_mode_ai_role_id: itemId,
+          mode_id: type.includes('prospecting') ? "4a72f2c9-cb00-4e7a-83a1-22fd2ec6c6bf" :
+                  type.includes('sales') ? "2dab8507-0523-45ea-a537-4daa105db6a7" :
+                  "1dc1cebb-e716-4c2d-bda6-c177c9686546",
+          ai_role_id: itemId
         };
       } else if (type.includes('industry')) {
         url = `${baseUrl.industrysize}${itemId}`;
         payload = {
-          details: editingData.prompt_template,
+          details: formattedText,
           industry_id: itemId
         };
       } else {
         // Base prompt case
         url = `${baseUrl.getClosing}/${itemId}`;
         payload = {
-          prompt_template: editingData.prompt_template,
+          prompt_template: formattedText,
           mode_id: itemId
         };
       }
@@ -599,7 +654,7 @@ export default function DashboardLayoutBasic(props) {
     getManufacturingModels();
     getPlantModeSize();
     getIndustryDetails();
-  }, []);
+  }, [currentSegment]);
 
   const getHeadingFromPrompt = (promptTemplate) => {
     if (!promptTemplate) return "No Description";
@@ -843,12 +898,12 @@ export default function DashboardLayoutBasic(props) {
                               </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
-                              {item?.prompt_template}
+                              <TextDisplay text={item?.prompt_template} />
                             </AccordionDetails>
                             <AccordionActions>
                               <Button
                                 variant="outlined"
-                                onClick={(e) => handleEditClick(item, 'prospecting')}
+                                onClick={(e) => handleEditClick(item, 'prospecting-base')}
                               >
                                 Edit
                               </Button>
@@ -895,12 +950,12 @@ export default function DashboardLayoutBasic(props) {
                                 </Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {item?.prompt_template}
+                                <TextDisplay text={item?.prompt_template} />
                               </AccordionDetails>
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'prospecting')}
+                                  onClick={(e) => handleEditClick(item, 'prospecting-roles')}
                                 >
                                   Edit
                                 </Button>
@@ -944,10 +999,10 @@ export default function DashboardLayoutBasic(props) {
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
-                            {item?.prompt_template}
+                            <TextDisplay text={item?.prompt_template} />
                           </AccordionDetails>
                           <AccordionActions>
-                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'prospecting')}>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'prospecting-manufacturing')}>
                               Edit
                             </Button>
                             <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'prospecting-manufacturing')}>
@@ -984,10 +1039,10 @@ export default function DashboardLayoutBasic(props) {
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
-                            {item?.prompt_template}
+                            <TextDisplay text={item?.prompt_template} />
                           </AccordionDetails>
                           <AccordionActions>
-                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'prospecting')}>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'prospecting-plant')}>
                               Edit
                             </Button>
                             <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'prospecting-plant')}>
@@ -1022,12 +1077,12 @@ export default function DashboardLayoutBasic(props) {
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
-                            {item?.details}
+                            <TextDisplay text={item?.details} />
                           </AccordionDetails>
                           <AccordionActions>
                             <Button
                               variant="outlined"
-                              onClick={(e) => handleEditClick(item, 'prospecting')}
+                              onClick={(e) => handleEditClick(item, 'prospecting-industry')}
                             >
                               Edit
                             </Button>
@@ -1075,12 +1130,12 @@ export default function DashboardLayoutBasic(props) {
                                 </Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {item?.prompt_template}
+                                <TextDisplay text={item?.prompt_template} />
                               </AccordionDetails>
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'sales')}
+                                  onClick={(e) => handleEditClick(item, 'sales-base')}
                                 >
                                   Edit
                                 </Button>
@@ -1128,12 +1183,12 @@ export default function DashboardLayoutBasic(props) {
                                 </Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {item?.prompt_template}
+                                <TextDisplay text={item?.prompt_template} />
                               </AccordionDetails>
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'sales')}
+                                  onClick={(e) => handleEditClick(item, 'sales-roles')}
                                 >
                                   Edit
                                 </Button>
@@ -1177,10 +1232,10 @@ export default function DashboardLayoutBasic(props) {
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
-                            {item?.prompt_template}
+                            <TextDisplay text={item?.prompt_template} />
                           </AccordionDetails>
                           <AccordionActions>
-                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'sales')}>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'sales-manufacturing')}>
                               Edit
                             </Button>
                             <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'sales-manufacturing')}>
@@ -1217,10 +1272,10 @@ export default function DashboardLayoutBasic(props) {
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
-                            {item?.prompt_template}
+                            <TextDisplay text={item?.prompt_template} />
                           </AccordionDetails>
                           <AccordionActions>
-                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'sales')}>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'sales-plant')}>
                               Edit
                             </Button>
                             <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'sales-plant')}>
@@ -1256,12 +1311,12 @@ export default function DashboardLayoutBasic(props) {
                                 </Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {item?.details}
+                                <TextDisplay text={item?.details} />
                               </AccordionDetails>
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'sales')}
+                                  onClick={(e) => handleEditClick(item, 'sales-industry')}
                                 >
                                   Edit
                                 </Button>
@@ -1311,12 +1366,12 @@ export default function DashboardLayoutBasic(props) {
                                 </Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {item?.prompt_template}
+                                <TextDisplay text={item?.prompt_template} />
                               </AccordionDetails>
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'closing')}
+                                  onClick={(e) => handleEditClick(item, 'closing-base')}
                                 >
                                   Edit
                                 </Button>
@@ -1364,12 +1419,12 @@ export default function DashboardLayoutBasic(props) {
                                 </Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {item?.prompt_template}
+                                <TextDisplay text={item?.prompt_template} />
                               </AccordionDetails>
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'closing')}
+                                  onClick={(e) => handleEditClick(item, 'closing-roles')}
                                 >
                                   Edit
                                 </Button>
@@ -1413,10 +1468,10 @@ export default function DashboardLayoutBasic(props) {
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
-                            {item?.prompt_template}
+                            <TextDisplay text={item?.prompt_template} />
                           </AccordionDetails>
                           <AccordionActions>
-                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'closing')}>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'closing-manufacturing')}>
                               Edit
                             </Button>
                             <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'closing-manufacturing')}>
@@ -1453,10 +1508,10 @@ export default function DashboardLayoutBasic(props) {
                             </Typography>
                           </AccordionSummary>
                           <AccordionDetails>
-                            {item?.prompt_template}
+                            <TextDisplay text={item?.prompt_template} />
                           </AccordionDetails>
                           <AccordionActions>
-                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'closing')}>
+                            <Button variant="outlined" onClick={(e) => handleEditClick(item, 'closing-plant')}>
                               Edit
                             </Button>
                             <Button variant="outlined" color="error" onClick={(e) => handleDeleteClick(item, 'closing-plant')}>
@@ -1492,12 +1547,12 @@ export default function DashboardLayoutBasic(props) {
                                 </Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {item?.details}
+                                <TextDisplay text={item?.details} />
                               </AccordionDetails>
                               <AccordionActions>
                                 <Button
                                   variant="outlined"
-                                  onClick={(e) => handleEditClick(item, 'closing')}
+                                  onClick={(e) => handleEditClick(item, 'closing-industry')}
                                 >
                                   Edit
                                 </Button>
@@ -1543,7 +1598,7 @@ export default function DashboardLayoutBasic(props) {
           }}
         >
           <Typography id="edit-modal-title" variant="h6" component="h2" mb={2}>
-            {editingData.type?.includes('industry') ? 'Edit Industry Details' : 'Edit Prompt Template'}
+            {editingData.type?.includes('industry') ? 'Edit Details' : 'Edit Prompt Template'}
           </Typography>
 
           {editingData.loading ? (
@@ -1552,25 +1607,14 @@ export default function DashboardLayoutBasic(props) {
             </Box>
           ) : (
             <>
+              
               <TextField
                 fullWidth
                 margin="normal"
-                label="Name/Description"
-                value={editingData.description}
-                onChange={(e) =>
-                  setEditingData({
-                    ...editingData,
-                    description: e.target.value,
-                  })
-                }
-              />
-              <TextField
-                fullWidth
-                margin="normal"
-                label={editingData.type?.includes('industry') ? 'Industry Details' : 'Prompt Template'}
+                label={editingData.type?.includes('industry') ? 'Details' : 'Prompt Template'}
                 multiline
                 rows={12}
-                value={editingData.prompt_template}
+                value={editingData.prompt_template?.replace(/\\n\\n/g, '\n\n').replace(/\\n/g, '\n')}
                 onChange={(e) =>
                   setEditingData({
                     ...editingData,
