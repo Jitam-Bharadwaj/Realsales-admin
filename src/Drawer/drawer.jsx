@@ -286,7 +286,7 @@ export default function DashboardLayoutBasic(props) {
   const [deleteType, setDeleteType] = React.useState("");
   const [mods, setMods] = React.useState([]);
   const [mods_Id, setMods_Id] = React.useState({});
-
+console.log(industrySize,mods_Id, "__industrySize")
   const handleNavigation = (segment) => {
     if (segment !== "logout") {
       navigate(`/${segment}`);
@@ -743,6 +743,7 @@ export default function DashboardLayoutBasic(props) {
   }, []);
 
   useEffect(() => {
+    console.log(mods, "__mods__")
     let closing_mode_id = mods
       .filter((v) => v?.closing_mode_id)
       .map((val) => val?.closing_mode_id)[0];
@@ -869,19 +870,19 @@ export default function DashboardLayoutBasic(props) {
 
   let filterIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
-        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+        (item) => item?.industry_id === "7076ec59-1992-4513-86fe-97935bed104b"
       )
     : [];
 
   let filterProsepectingIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
-        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+        (item) => item?.industry_id === "7076ec59-1992-4513-86fe-97935bed104b"
       )
     : [];
 
   let filterSalesIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
-        (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
+        (item) => item?.industry_id === "7076ec59-1992-4513-86fe-97935bed104b"
       )
     : [];
 
