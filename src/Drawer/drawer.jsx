@@ -834,9 +834,7 @@ export default function DashboardLayoutBasic(props) {
       )
     : [];
 
-  let filteredManufatcuringProsepectingData = Array.isArray(
-    manufacturingModels
-  )
+  let filteredManufatcuringProsepectingData = Array.isArray(manufacturingModels)
     ? manufacturingModels.filter(
         (item) =>
           item?.interaction_mode?.mode_id === mods_Id?.prospecting_mode_id
@@ -932,6 +930,24 @@ export default function DashboardLayoutBasic(props) {
         name: name,
         description: addData?.description,
         prompt_template: addData?.prompt_template,
+      });
+      if (data?.data?.mode_id) {
+        showToast.success("Prompt saved successfully!");
+        console.log(data?.data?.mode_id, "<_data_data_mode_id_>");
+        getClosingData(data?.data?.mode_id);
+        setAddData({});
+      }
+    } catch (error) {
+      console.log(error, "error");
+    }
+  };
+
+  const addIndustrysize = async (name) => {
+    try {
+      let data = await axioInstance.post(endpoints?.closing?.industrysize, {
+        name: name,
+        // description: addData?.description,
+        details: addData?.prompt_template,
       });
       if (data?.data?.mode_id) {
         showToast.success("Prompt saved successfully!");
@@ -1326,44 +1342,97 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filterProsepectingIndustry?.map((item) => (
-                        <Accordion
-                          key={item.industry_id}
-                          sx={{ mt: "20px", border: "1px solid #fff" }}
-                        >
-                          <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls={`panel-${item.industry_id}-content`}
-                            id={`panel-${item.industry_id}-header`}
+                      {filterProsepectingIndustry?.length ? (
+                        filterProsepectingIndustry?.map((item) => (
+                          <Accordion
+                            key={item.industry_id}
+                            sx={{ mt: "20px", border: "1px solid #fff" }}
                           >
-                            <Typography component="span">
-                              {item?.name || "No Description"}
-                            </Typography>
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            <TextDisplay text={item?.details} />
-                          </AccordionDetails>
-                          <AccordionActions>
-                            <Button
-                              variant="outlined"
-                              onClick={(e) =>
-                                handleEditClick(item, "prospecting-industry")
-                              }
+                            <AccordionSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls={`panel-${item.industry_id}-content`}
+                              id={`panel-${item.industry_id}-header`}
                             >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="outlined"
-                              color="error"
-                              onClick={(e) =>
-                                handleDeleteClick(item, "prospecting-industry")
-                              }
-                            >
-                              Delete
-                            </Button>
-                          </AccordionActions>
-                        </Accordion>
-                      ))}
+                              <Typography component="span">
+                                {item?.name || "No Description"}
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <TextDisplay text={item?.details} />
+                            </AccordionDetails>
+                            <AccordionActions>
+                              <Button
+                                variant="outlined"
+                                onClick={(e) =>
+                                  handleEditClick(item, "prospecting-industry")
+                                }
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={(e) =>
+                                  handleDeleteClick(
+                                    item,
+                                    "prospecting-industry"
+                                  )
+                                }
+                              >
+                                Delete
+                              </Button>
+                            </AccordionActions>
+                          </Accordion>
+                        ))
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "end",
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Description"}
+                            multiline
+                            rows={4}
+                            value={addData?.description
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                description: e.target.value,
+                              })
+                            }
+                          />
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Prompt Template"}
+                            multiline
+                            rows={8}
+                            value={addData?.prompt_template
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                prompt_template: e.target.value,
+                              })
+                            }
+                          />
+                          <Button
+                            variant="contained"
+                            onClick={() => addIndustrysize("food_and_beverage")}
+                            // disabled={editingData.loading}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      )}
                     </AccordionDetails>
                   </Accordion>
                 </div>
@@ -1681,49 +1750,99 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filterSalesIndustry?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
-                            >
-                              <AccordionSummary
-                                expandIcon={
-                                  <ExpandMoreIcon sx={{ color: "#fff" }} />
-                                }
-                                aria-controls="panel2-content"
-                                id="panel2-header"
+                      {filterSalesIndustry?.length ? (
+                        filterSalesIndustry?.map((item) => {
+                          return (
+                            <>
+                              <Accordion
+                                sx={{ mt: "20px", border: "1px solid #fff" }}
                               >
-                                <Typography component="span">
-                                  {item?.name || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                <TextDisplay text={item?.details} />
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) =>
-                                    handleEditClick(item, "sales-industry")
+                                <AccordionSummary
+                                  expandIcon={
+                                    <ExpandMoreIcon sx={{ color: "#fff" }} />
                                   }
+                                  aria-controls="panel2-content"
+                                  id="panel2-header"
                                 >
-                                  Edit
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={(e) =>
-                                    handleDeleteClick(item, "sales-industry")
-                                  }
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                                  <Typography component="span">
+                                    {item?.name || "No Description"}
+                                  </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                  <TextDisplay text={item?.details} />
+                                </AccordionDetails>
+                                <AccordionActions>
+                                  <Button
+                                    variant="outlined"
+                                    onClick={(e) =>
+                                      handleEditClick(item, "sales-industry")
+                                    }
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={(e) =>
+                                      handleDeleteClick(item, "sales-industry")
+                                    }
+                                  >
+                                    Delete
+                                  </Button>
+                                </AccordionActions>
+                              </Accordion>
+                            </>
+                          );
+                        })
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "end",
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Description"}
+                            multiline
+                            rows={4}
+                            value={addData?.description
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                description: e.target.value,
+                              })
+                            }
+                          />
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Prompt Template"}
+                            multiline
+                            rows={8}
+                            value={addData?.prompt_template
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                prompt_template: e.target.value,
+                              })
+                            }
+                          />
+                          <Button
+                            variant="contained"
+                            onClick={() => addIndustrysize("food_and_beverage")}
+                            // disabled={editingData.loading}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      )}
                     </AccordionDetails>
                   </Accordion>
                 </div>
@@ -2044,49 +2163,102 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Industry Details</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filterIndustry?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
-                            >
-                              <AccordionSummary
-                                expandIcon={
-                                  <ExpandMoreIcon sx={{ color: "#fff" }} />
-                                }
-                                aria-controls="panel2-content"
-                                id="panel2-header"
+                      {filterIndustry?.length ? (
+                        filterIndustry?.map((item) => {
+                          return (
+                            <>
+                              <Accordion
+                                sx={{ mt: "20px", border: "1px solid #fff" }}
                               >
-                                <Typography component="span">
-                                  {item?.name || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                <TextDisplay text={item?.details} />
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) =>
-                                    handleEditClick(item, "closing-industry")
+                                <AccordionSummary
+                                  expandIcon={
+                                    <ExpandMoreIcon sx={{ color: "#fff" }} />
                                   }
+                                  aria-controls="panel2-content"
+                                  id="panel2-header"
                                 >
-                                  Edit
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={(e) =>
-                                    handleDeleteClick(item, "closing-industry")
-                                  }
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                                  <Typography component="span">
+                                    {item?.name || "No Description"}
+                                  </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                  <TextDisplay text={item?.details} />
+                                </AccordionDetails>
+                                <AccordionActions>
+                                  <Button
+                                    variant="outlined"
+                                    onClick={(e) =>
+                                      handleEditClick(item, "closing-industry")
+                                    }
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={(e) =>
+                                      handleDeleteClick(
+                                        item,
+                                        "closing-industry"
+                                      )
+                                    }
+                                  >
+                                    Delete
+                                  </Button>
+                                </AccordionActions>
+                              </Accordion>
+                            </>
+                          );
+                        })
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "end",
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Description"}
+                            multiline
+                            rows={4}
+                            value={addData?.description
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                description: e.target.value,
+                              })
+                            }
+                          />
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Prompt Template"}
+                            multiline
+                            rows={8}
+                            value={addData?.prompt_template
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                prompt_template: e.target.value,
+                              })
+                            }
+                          />
+                          <Button
+                            variant="contained"
+                            onClick={() => addIndustrysize("food_and_beverage")}
+                            // disabled={editingData.loading}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      )}
                     </AccordionDetails>
                   </Accordion>
                 </div>
