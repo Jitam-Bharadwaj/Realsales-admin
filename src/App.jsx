@@ -9,6 +9,8 @@ import Drawer from "./Drawer/drawer";
 import Prompt from "./components/prompt/prompt";
 import Login from "./Auth/login/login";
 import Register from "./Auth/Register/register";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const PrivateRoute = ({ children }) => {
@@ -74,6 +76,7 @@ function App() {
           </Routes>
         </Router>
       </>
+      <ToastContainer />
     </>
   );
 }
