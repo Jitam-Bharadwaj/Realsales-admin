@@ -949,10 +949,9 @@ export default function DashboardLayoutBasic(props) {
         // description: addData?.description,
         details: addData?.prompt_template,
       });
-      if (data?.data?.mode_id) {
+      if (data?.data?.industry_id) {
         showToast.success("Prompt saved successfully!");
-        console.log(data?.data?.mode_id, "<_data_data_mode_id_>");
-        getClosingData(data?.data?.mode_id);
+        console.log(data?.data?.industry_id, "<_data_data_mode_id_>");
         setAddData({});
       }
     } catch (error) {
