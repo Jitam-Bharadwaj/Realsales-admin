@@ -10,5 +10,8 @@ export const endpoints = {
      manufacturingModels:"v1/interaction-mode-manufacturing-models",
      plantModeSize:"v1/interaction-mode-plant-size-impacts",
      industrysize:"v1/industries/"
+  },
+  mods: {
+    interaction_modes: "v1/interaction-modes"
   }
 };
