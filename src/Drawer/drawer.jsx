@@ -38,6 +38,7 @@ import {
   DashboardSidebarPageItem,
 } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
+import { showToast } from "../toastConfig";
 
 // Text formatting functions
 const convertNewlines = (text) => {
@@ -349,7 +350,7 @@ export default function DashboardLayoutBasic(props) {
 
   // getClosing function to fetch data based on segment
 
-  const getClosingData = async () => {
+  const getClosingData = async (modesId) => {
     try {
       console.log("Fetching base prompt data for segment:", currentSegment);
       let modeId;
@@ -357,13 +358,13 @@ export default function DashboardLayoutBasic(props) {
       // Set the appropriate mode_id based on the current segment
       switch (currentSegment) {
         case "prospecting":
-          modeId = mods_Id?.prospecting_mode_id;
+          modeId = modesId ? modesId : mods_Id?.prospecting_mode_id;
           break;
         case "sales":
-          modeId = mods_Id?.discovering_mode_id;
+          modeId = modesId ? modesId : mods_Id?.discovering_mode_id;
           break;
         case "closing":
-          modeId = mods_Id?.closing_mode_id;
+          modeId = modesId ? modesId : mods_Id?.closing_mode_id;
           break;
         default:
           console.error("Unknown segment:", currentSegment);
@@ -771,7 +772,7 @@ export default function DashboardLayoutBasic(props) {
   console.log(mods_Id, "___mods");
 
   // Modify your filter functions to include the heading extraction
-  const filteredClosinData = Array.isArray(closingData)
+  let filteredClosinData = Array.isArray(closingData)
     ? closingData
         .filter((item) => item.mode_id === mods_Id?.closing_mode_id)
         .map((item) => ({
@@ -780,7 +781,7 @@ export default function DashboardLayoutBasic(props) {
         }))
     : [];
 
-  const filteredProspectingData = Array.isArray(closingData)
+  let filteredProspectingData = Array.isArray(closingData)
     ? closingData
         .filter((item) => item.mode_id === mods_Id?.prospecting_mode_id)
         .map((item) => ({
@@ -789,7 +790,7 @@ export default function DashboardLayoutBasic(props) {
         }))
     : [];
 
-  const filteredSalesData = Array.isArray(closingData)
+  let filteredSalesData = Array.isArray(closingData)
     ? closingData
         .filter((item) => item.mode_id === mods_Id?.discovering_mode_id)
         .map((item) => ({
@@ -799,7 +800,7 @@ export default function DashboardLayoutBasic(props) {
     : [];
 
   // Do the same for other filtered data sets
-  const filteredData = Array.isArray(modeAiData)
+  let filteredData = Array.isArray(modeAiData)
     ? modeAiData
         .filter((item) => item.mode_id === mods_Id?.closing_mode_id)
         .map((item) => ({
@@ -808,7 +809,7 @@ export default function DashboardLayoutBasic(props) {
         }))
     : [];
 
-  const filteredProspectingModeData = Array.isArray(modeAiData)
+  let filteredProspectingModeData = Array.isArray(modeAiData)
     ? modeAiData
         .filter((item) => item.mode_id === mods_Id?.prospecting_mode_id)
         .map((item) => ({
@@ -817,7 +818,7 @@ export default function DashboardLayoutBasic(props) {
         }))
     : [];
 
-  const filteredSalesModeData = Array.isArray(modeAiData)
+  let filteredSalesModeData = Array.isArray(modeAiData)
     ? modeAiData
         .filter((item) => item.mode_id === mods_Id?.discovering_mode_id)
         .map((item) => ({
@@ -827,13 +828,13 @@ export default function DashboardLayoutBasic(props) {
     : [];
 
   // filterData for Manufacturing Models based on mode-id
-  const filteredManufatcuringData = Array.isArray(manufacturingModels)
+  let filteredManufatcuringData = Array.isArray(manufacturingModels)
     ? manufacturingModels.filter(
         (item) => item?.interaction_mode?.mode_id === mods_Id?.closing_mode_id
       )
     : [];
 
-  const filteredManufatcuringProsepectingData = Array.isArray(
+  let filteredManufatcuringProsepectingData = Array.isArray(
     manufacturingModels
   )
     ? manufacturingModels.filter(
@@ -842,7 +843,7 @@ export default function DashboardLayoutBasic(props) {
       )
     : [];
 
-  const filteredManufatcuringSalesData = Array.isArray(manufacturingModels)
+  let filteredManufatcuringSalesData = Array.isArray(manufacturingModels)
     ? manufacturingModels.filter(
         (item) =>
           item?.interaction_mode?.mode_id === mods_Id?.discovering_mode_id
@@ -850,17 +851,17 @@ export default function DashboardLayoutBasic(props) {
     : [];
 
   // filterData for Mode Plant size Bases on mode_id
-  const filterPlantsizeModeData = Array.isArray(plantModeSize)
+  let filterPlantsizeModeData = Array.isArray(plantModeSize)
     ? plantModeSize.filter((item) => item?.mode_id === mods_Id?.closing_mode_id)
     : [];
 
-  const filterProspectingPlantsizeModeData = Array.isArray(plantModeSize)
+  let filterProspectingPlantsizeModeData = Array.isArray(plantModeSize)
     ? plantModeSize.filter(
         (item) => item?.mode_id === mods_Id?.prospecting_mode_id
       )
     : [];
 
-  const filterSalesPlantsizeModeData = Array.isArray(plantModeSize)
+  let filterSalesPlantsizeModeData = Array.isArray(plantModeSize)
     ? plantModeSize.filter(
         (item) => item?.mode_id === mods_Id?.discovering_mode_id
       )
@@ -868,19 +869,19 @@ export default function DashboardLayoutBasic(props) {
 
   // filterData for Industry Details Bases on Industry_id
 
-  const filterIndustry = Array.isArray(industrySize)
+  let filterIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
         (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
       )
     : [];
 
-  const filterProsepectingIndustry = Array.isArray(industrySize)
+  let filterProsepectingIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
         (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
       )
     : [];
 
-  const filterSalesIndustry = Array.isArray(industrySize)
+  let filterSalesIndustry = Array.isArray(industrySize)
     ? industrySize.filter(
         (item) => item?.industry_id === "1ce9f0c2-fdb3-4215-91f3-31cba9a64b90"
       )
@@ -933,7 +934,9 @@ export default function DashboardLayoutBasic(props) {
         prompt_template: addData?.prompt_template,
       });
       if (data?.data?.mode_id) {
+        showToast.success("Prompt saved successfully!");
         console.log(data?.data?.mode_id, "<_data_data_mode_id_>");
+        getClosingData(data?.data?.mode_id);
         setAddData({});
       }
     } catch (error) {
@@ -1478,7 +1481,7 @@ export default function DashboardLayoutBasic(props) {
                           />
                           <Button
                             variant="contained"
-                            onClick={() => addModsPrompt("discovery")}
+                            onClick={() => addModsPrompt("discovering")}
                             // disabled={editingData.loading}
                           >
                             Save
