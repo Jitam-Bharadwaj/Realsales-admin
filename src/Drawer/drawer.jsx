@@ -275,6 +275,7 @@ export default function DashboardLayoutBasic(props) {
     type: null,
     loading: false,
   });
+  const [addData, setAddData] = React.useState({});
   const [modeAiData, setModeAiData] = React.useState([]);
   const [manufacturingModels, setmanufacturingModels] = React.useState([]);
   const [plantModeSize, setPlantModeSize] = React.useState([]);
@@ -924,6 +925,22 @@ export default function DashboardLayoutBasic(props) {
     [setLogoutModalOpen]
   ); // Include setLogoutModalOpen in dependencies
 
+  const addModsPrompt = async (name) => {
+    try {
+      let data = await axioInstance.post(endpoints?.mods?.interaction_modes, {
+        name: name,
+        description: addData?.description,
+        prompt_template: addData?.prompt_template,
+      });
+      if (data?.data?.mode_id) {
+        console.log(data?.data?.mode_id, "<_data_data_mode_id_>");
+        setAddData({});
+      }
+    } catch (error) {
+      console.log(error, "error");
+    }
+  };
+
   return (
     <AppProvider
       navigation={NAVIGATION}
@@ -983,7 +1000,13 @@ export default function DashboardLayoutBasic(props) {
             {/* Display content based on current segment */}
             {currentSegment === "prospecting" && (
               <Grid item xs={12} sx={{ width: "90%", pt: "40px" }}>
-                <div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                  }}
+                >
                   <Accordion
                     sx={{
                       width: "100%",
@@ -1003,55 +1026,106 @@ export default function DashboardLayoutBasic(props) {
                         "Base Prompt Data being mapped:",
                         filteredProspectingData
                       )}
-                      {filteredProspectingData?.map((item) => {
-                        console.log("Individual Base Prompt item:", item);
-                        return (
-                          <Accordion
-                            key={item.mode_id}
-                            sx={{ mt: "20px", border: "1px solid #fff" }}
-                          >
-                            <AccordionSummary
-                              expandIcon={
-                                <ExpandMoreIcon sx={{ color: "#fff" }} />
-                              }
-                              aria-controls="panel2-content"
-                              id="panel2-header"
+                      {filteredProspectingData?.length ? (
+                        filteredProspectingData?.map((item) => {
+                          console.log("Individual Base Prompt item:", item);
+                          return (
+                            <Accordion
+                              key={item.mode_id}
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
                             >
-                              <Typography component="span">
-                                {item?.description || "No Description"}
-                              </Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                              <TextDisplay text={item?.prompt_template} />
-                            </AccordionDetails>
-                            <AccordionActions>
-                              <Button
-                                variant="outlined"
-                                onClick={(e) =>
-                                  handleEditClick(item, "prospecting-base")
+                              <AccordionSummary
+                                expandIcon={
+                                  <ExpandMoreIcon sx={{ color: "#fff" }} />
                                 }
+                                aria-controls="panel2-content"
+                                id="panel2-header"
                               >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="outlined"
-                                color="error"
-                                onClick={(e) => {
-                                  console.log(
-                                    "Deleting prospecting item:",
-                                    item
-                                  );
-                                  handleDeleteClick(item, "prospecting-base");
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </AccordionActions>
-                          </Accordion>
-                        );
-                      })}
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                <TextDisplay text={item?.prompt_template} />
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={(e) =>
+                                    handleEditClick(item, "prospecting-base")
+                                  }
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="outlined"
+                                  color="error"
+                                  onClick={(e) => {
+                                    console.log(
+                                      "Deleting prospecting item:",
+                                      item
+                                    );
+                                    handleDeleteClick(item, "prospecting-base");
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          );
+                        })
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "end",
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Description"}
+                            multiline
+                            rows={4}
+                            value={addData?.description
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                description: e.target.value,
+                              })
+                            }
+                          />
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Prompt Template"}
+                            multiline
+                            rows={8}
+                            value={addData?.prompt_template
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                prompt_template: e.target.value,
+                              })
+                            }
+                          />
+                          <Button
+                            variant="contained"
+                            onClick={() => addModsPrompt("prospecting")}
+                            // disabled={editingData.loading}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      )}
                     </AccordionDetails>
                   </Accordion>
+
                   <Accordion
                     sx={{
                       width: "100%",
@@ -1317,50 +1391,100 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredSalesData?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
-                            >
-                              <AccordionSummary
-                                expandIcon={
-                                  <ExpandMoreIcon sx={{ color: "#fff" }} />
-                                }
-                                aria-controls="panel2-content"
-                                id="panel2-header"
+                      {filteredSalesData?.length ? (
+                        filteredSalesData?.map((item) => {
+                          return (
+                            <>
+                              <Accordion
+                                sx={{ mt: "20px", border: "1px solid #fff" }}
                               >
-                                <Typography component="span">
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                <TextDisplay text={item?.prompt_template} />
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) =>
-                                    handleEditClick(item, "sales-base")
+                                <AccordionSummary
+                                  expandIcon={
+                                    <ExpandMoreIcon sx={{ color: "#fff" }} />
                                   }
+                                  aria-controls="panel2-content"
+                                  id="panel2-header"
                                 >
-                                  Edit
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={(e) => {
-                                    console.log("Deleting sales item:", item);
-                                    handleDeleteClick(item, "sales-base");
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                                  <Typography component="span">
+                                    {item?.description || "No Description"}
+                                  </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                  <TextDisplay text={item?.prompt_template} />
+                                </AccordionDetails>
+                                <AccordionActions>
+                                  <Button
+                                    variant="outlined"
+                                    onClick={(e) =>
+                                      handleEditClick(item, "sales-base")
+                                    }
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={(e) => {
+                                      console.log("Deleting sales item:", item);
+                                      handleDeleteClick(item, "sales-base");
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </AccordionActions>
+                              </Accordion>
+                            </>
+                          );
+                        })
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "end",
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Description"}
+                            multiline
+                            rows={4}
+                            value={addData?.description
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                description: e.target.value,
+                              })
+                            }
+                          />
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Prompt Template"}
+                            multiline
+                            rows={8}
+                            value={addData?.prompt_template
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                prompt_template: e.target.value,
+                              })
+                            }
+                          />
+                          <Button
+                            variant="contained"
+                            onClick={() => addModsPrompt("discovery")}
+                            // disabled={editingData.loading}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      )}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion
@@ -1380,49 +1504,99 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredSalesModeData?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
-                            >
-                              <AccordionSummary
-                                expandIcon={
-                                  <ExpandMoreIcon sx={{ color: "#fff" }} />
-                                }
-                                aria-controls="panel2-content"
-                                id="panel2-header"
+                      {filteredSalesModeData?.length ? (
+                        filteredSalesModeData?.map((item) => {
+                          return (
+                            <>
+                              <Accordion
+                                sx={{ mt: "20px", border: "1px solid #fff" }}
                               >
-                                <Typography component="span">
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                <TextDisplay text={item?.prompt_template} />
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) =>
-                                    handleEditClick(item, "sales-roles")
+                                <AccordionSummary
+                                  expandIcon={
+                                    <ExpandMoreIcon sx={{ color: "#fff" }} />
                                   }
+                                  aria-controls="panel2-content"
+                                  id="panel2-header"
                                 >
-                                  Edit
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={(e) =>
-                                    handleDeleteClick(item, "sales-roles")
-                                  }
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                                  <Typography component="span">
+                                    {item?.description || "No Description"}
+                                  </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                  <TextDisplay text={item?.prompt_template} />
+                                </AccordionDetails>
+                                <AccordionActions>
+                                  <Button
+                                    variant="outlined"
+                                    onClick={(e) =>
+                                      handleEditClick(item, "sales-roles")
+                                    }
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={(e) =>
+                                      handleDeleteClick(item, "sales-roles")
+                                    }
+                                  >
+                                    Delete
+                                  </Button>
+                                </AccordionActions>
+                              </Accordion>
+                            </>
+                          );
+                        })
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "end",
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Description"}
+                            multiline
+                            rows={4}
+                            value={addData?.description
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                description: e.target.value,
+                              })
+                            }
+                          />
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Prompt Template"}
+                            multiline
+                            rows={8}
+                            value={addData?.prompt_template
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                prompt_template: e.target.value,
+                              })
+                            }
+                          />
+                          <Button
+                            variant="contained"
+                            onClick={() => addModsPrompt("closing")}
+                            // disabled={editingData.loading}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      )}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion
@@ -1605,7 +1779,13 @@ export default function DashboardLayoutBasic(props) {
 
             {currentSegment === "closing" && (
               <Grid item xs={12} sx={{ width: "90%", pt: "40px" }}>
-                <div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                  }}
+                >
                   <Accordion
                     sx={{
                       width: "100%",
