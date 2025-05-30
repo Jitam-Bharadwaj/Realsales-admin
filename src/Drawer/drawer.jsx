@@ -1504,99 +1504,49 @@ export default function DashboardLayoutBasic(props) {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredSalesModeData?.length ? (
-                        filteredSalesModeData?.map((item) => {
-                          return (
-                            <>
-                              <Accordion
-                                sx={{ mt: "20px", border: "1px solid #fff" }}
+                      {filteredSalesModeData?.map((item) => {
+                        return (
+                          <>
+                            <Accordion
+                              sx={{ mt: "20px", border: "1px solid #fff" }}
+                            >
+                              <AccordionSummary
+                                expandIcon={
+                                  <ExpandMoreIcon sx={{ color: "#fff" }} />
+                                }
+                                aria-controls="panel2-content"
+                                id="panel2-header"
                               >
-                                <AccordionSummary
-                                  expandIcon={
-                                    <ExpandMoreIcon sx={{ color: "#fff" }} />
+                                <Typography component="span">
+                                  {item?.description || "No Description"}
+                                </Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                <TextDisplay text={item?.prompt_template} />
+                              </AccordionDetails>
+                              <AccordionActions>
+                                <Button
+                                  variant="outlined"
+                                  onClick={(e) =>
+                                    handleEditClick(item, "sales-roles")
                                   }
-                                  aria-controls="panel2-content"
-                                  id="panel2-header"
                                 >
-                                  <Typography component="span">
-                                    {item?.description || "No Description"}
-                                  </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                  <TextDisplay text={item?.prompt_template} />
-                                </AccordionDetails>
-                                <AccordionActions>
-                                  <Button
-                                    variant="outlined"
-                                    onClick={(e) =>
-                                      handleEditClick(item, "sales-roles")
-                                    }
-                                  >
-                                    Edit
-                                  </Button>
-                                  <Button
-                                    variant="outlined"
-                                    color="error"
-                                    onClick={(e) =>
-                                      handleDeleteClick(item, "sales-roles")
-                                    }
-                                  >
-                                    Delete
-                                  </Button>
-                                </AccordionActions>
-                              </Accordion>
-                            </>
-                          );
-                        })
-                      ) : (
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "end",
-                          }}
-                        >
-                          <TextField
-                            fullWidth
-                            margin="normal"
-                            label={"Description"}
-                            multiline
-                            rows={4}
-                            value={addData?.description
-                              ?.replace(/\\n\\n/g, "\n\n")
-                              .replace(/\\n/g, "\n")}
-                            onChange={(e) =>
-                              setAddData({
-                                ...addData,
-                                description: e.target.value,
-                              })
-                            }
-                          />
-                          <TextField
-                            fullWidth
-                            margin="normal"
-                            label={"Prompt Template"}
-                            multiline
-                            rows={8}
-                            value={addData?.prompt_template
-                              ?.replace(/\\n\\n/g, "\n\n")
-                              .replace(/\\n/g, "\n")}
-                            onChange={(e) =>
-                              setAddData({
-                                ...addData,
-                                prompt_template: e.target.value,
-                              })
-                            }
-                          />
-                          <Button
-                            variant="contained"
-                            onClick={() => addModsPrompt("closing")}
-                            // disabled={editingData.loading}
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      )}
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="outlined"
+                                  color="error"
+                                  onClick={(e) =>
+                                    handleDeleteClick(item, "sales-roles")
+                                  }
+                                >
+                                  Delete
+                                </Button>
+                              </AccordionActions>
+                            </Accordion>
+                          </>
+                        );
+                      })}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion
@@ -1801,50 +1751,103 @@ export default function DashboardLayoutBasic(props) {
                       <Typography component="span">Base Prompt</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      {filteredClosinData?.map((item) => {
-                        return (
-                          <>
-                            <Accordion
-                              sx={{ mt: "20px", border: "1px solid #fff" }}
-                            >
-                              <AccordionSummary
-                                expandIcon={
-                                  <ExpandMoreIcon sx={{ color: "#fff" }} />
-                                }
-                                aria-controls="panel2-content"
-                                id="panel2-header"
+                      {filteredClosinData?.length ? (
+                        filteredClosinData?.map((item) => {
+                          return (
+                            <>
+                              <Accordion
+                                sx={{ mt: "20px", border: "1px solid #fff" }}
                               >
-                                <Typography component="span">
-                                  {item?.description || "No Description"}
-                                </Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                <TextDisplay text={item?.prompt_template} />
-                              </AccordionDetails>
-                              <AccordionActions>
-                                <Button
-                                  variant="outlined"
-                                  onClick={(e) =>
-                                    handleEditClick(item, "closing-base")
+                                <AccordionSummary
+                                  expandIcon={
+                                    <ExpandMoreIcon sx={{ color: "#fff" }} />
                                   }
+                                  aria-controls="panel2-content"
+                                  id="panel2-header"
                                 >
-                                  Edit
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={(e) => {
-                                    console.log("Deleting closing item:", item);
-                                    handleDeleteClick(item, "closing-base");
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </AccordionActions>
-                            </Accordion>
-                          </>
-                        );
-                      })}
+                                  <Typography component="span">
+                                    {item?.description || "No Description"}
+                                  </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                  <TextDisplay text={item?.prompt_template} />
+                                </AccordionDetails>
+                                <AccordionActions>
+                                  <Button
+                                    variant="outlined"
+                                    onClick={(e) =>
+                                      handleEditClick(item, "closing-base")
+                                    }
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={(e) => {
+                                      console.log(
+                                        "Deleting closing item:",
+                                        item
+                                      );
+                                      handleDeleteClick(item, "closing-base");
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </AccordionActions>
+                              </Accordion>
+                            </>
+                          );
+                        })
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "end",
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Description"}
+                            multiline
+                            rows={4}
+                            value={addData?.description
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                description: e.target.value,
+                              })
+                            }
+                          />
+                          <TextField
+                            fullWidth
+                            margin="normal"
+                            label={"Prompt Template"}
+                            multiline
+                            rows={8}
+                            value={addData?.prompt_template
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              .replace(/\\n/g, "\n")}
+                            onChange={(e) =>
+                              setAddData({
+                                ...addData,
+                                prompt_template: e.target.value,
+                              })
+                            }
+                          />
+                          <Button
+                            variant="contained"
+                            onClick={() => addModsPrompt("closing")}
+                            // disabled={editingData.loading}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      )}
                     </AccordionDetails>
                   </Accordion>
                   <Accordion
