@@ -74,7 +74,7 @@ const NAVIGATION = [
   },
   {
     segment: "reports",
-    title: "Reports",
+    title: "Modes",
     icon: <BarChartIcon />,
     children: [
       {
