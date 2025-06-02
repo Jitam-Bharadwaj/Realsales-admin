@@ -970,12 +970,12 @@ console.log(industrySize,mods_Id, "__industrySize")
       branding={{
         logo: (
           <img
-            src="/logow.png"
+            src="/logo.png"
             alt="Your Company Logo"
-            style={{ height: 40, marginRight: 8 }}
+            style={{ height: 32 }}
           />
         ),
-        title: "",
+        title: "RealSales",
       }}
     >
       <DashboardLayout
