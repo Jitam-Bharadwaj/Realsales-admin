@@ -85,7 +85,7 @@ const NAVIGATION = [
       },
       {
         segment: "sales",
-        title: "Sales",
+        title: "Discovery",
         icon: <DescriptionIcon />,
       },
       {
