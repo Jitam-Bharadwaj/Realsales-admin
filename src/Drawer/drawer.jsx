@@ -48,6 +48,7 @@ import InterpreterModeIcon from "@mui/icons-material/InterpreterMode";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import Diversity3Icon from "@mui/icons-material/Diversity3";
+import ModsFlo from "./Mods";
 
 // Text formatting functions
 const convertNewlines = (text) => {
@@ -82,28 +83,28 @@ const NAVIGATION = [
     title: "Dashboard",
     icon: <DashboardIcon />,
   },
-  {
-    segment: "reports",
-    title: "Modes",
-    icon: <BarChartIcon />,
-    children: [
-      {
-        segment: "prospecting",
-        title: "Prospecting",
-        icon: <DescriptionIcon />,
-      },
-      {
-        segment: "sales",
-        title: "Discovery",
-        icon: <DescriptionIcon />,
-      },
-      {
-        segment: "closing",
-        title: "Closing",
-        icon: <DescriptionIcon />,
-      },
-    ],
-  },
+  // {
+  //   segment: "reports",
+  //   title: "Modes",
+  //   icon: <BarChartIcon />,
+  //   children: [
+  //     {
+  //       segment: "prospecting",
+  //       title: "Prospecting",
+  //       icon: <DescriptionIcon />,
+  //     },
+  //     {
+  //       segment: "sales",
+  //       title: "Discovery",
+  //       icon: <DescriptionIcon />,
+  //     },
+  //     {
+  //       segment: "closing",
+  //       title: "Closing",
+  //       icon: <DescriptionIcon />,
+  //     },
+  //   ],
+  // },
   {
     segment: "modeMgmt",
     title: "Mode Management",
@@ -2290,350 +2291,7 @@ export default function DashboardLayoutBasic(props) {
               </Grid>
             )}
 
-            {/* modeMgmt */}
-            {currentSegment === "modeMgmt" && (
-              <div style={{ width: "100%", pt: "40px" }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Prospecting
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                          {filteredProspectingData?.length
-                            ? filteredProspectingData?.map(
-                                (item) => item?.description.slice(0, 105)+"..."
-                              )
-                            : null}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Discovery
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        {filteredProspectingData?.length
-                            ? filteredProspectingData?.map(
-                                (item) => item?.description.slice(0, 105)+"..."
-                              )
-                            : null}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Closing
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        {filteredProspectingData?.length
-                            ? filteredProspectingData?.map(
-                                (item) => item?.description.slice(0, 105)+"..."
-                              )
-                            : null}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-            {/* industry */}
-            {currentSegment === "industry" && (
-              <div style={{ width: "100%", pt: "40px" }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Prospecting
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Food & Beverage
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Discovery
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Food & Beverage
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Closing
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Food & Beverage
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-            {/* role */}
-            {currentSegment === "role" && (
-              <div style={{ width: "100%", pt: "40px" }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
-                        Prospecting
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
-                        <div className="flex items-center gap-2">
-                          <p className="bg-green-600/90 text-white px-1.5 rounded w-fit">
-                            Plant Manager
-                          </p>
-                          <p className="bg-cyan-400/90 text-white px-1.5 rounded w-fit">
-                            Plant Manager
-                          </p>
-                          <p className="bg-blue-800/60 text-white px-1.5 rounded w-fit">
-                            Manufacturing Manager
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
-                        Discovery
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
-                        <div className="flex items-center gap-2">
-                          <p className="bg-green-600/90 text-white px-1.5 rounded w-fit">
-                            Plant Manager
-                          </p>
-                          <p className="bg-cyan-400/90 text-white px-1.5 rounded w-fit">
-                            Plant Manager
-                          </p>
-                          <p className="bg-blue-800/60 text-white px-1.5 rounded w-fit">
-                            Manufacturing Manager
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
-                        Closing
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
-                        <div className="flex items-center gap-2">
-                          <p className="bg-green-600/90 text-white px-1.5 rounded w-fit">
-                            Plant Manager
-                          </p>
-                          <p className="bg-cyan-400/90 text-white px-1.5 rounded w-fit">
-                            Plant Manager
-                          </p>
-                          <p className="bg-blue-800/60 text-white px-1.5 rounded w-fit">
-                            Manufacturing Manager
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-            {/* experience */}
-            {currentSegment === "experience" && (
-              <div style={{ width: "100%", pt: "40px" }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
-                        Prospecting
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
-                        <div className="flex items-center gap-2">
-                          <p className="bg-blue-800 text-white px-1.5 rounded w-fit">
-                            Senior
-                          </p>
-                          <p className="bg-blue-600 text-white px-1.5 rounded w-fit">
-                            Mid Level
-                          </p>
-                          <p className="bg-blue-400 text-white px-1.5 rounded w-fit">
-                            Junior
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
-                        Discovery
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
-                        <div className="flex items-center gap-2">
-                          <p className="bg-blue-800 text-white px-1.5 rounded w-fit">
-                            Senior
-                          </p>
-                          <p className="bg-blue-600 text-white px-1.5 rounded w-fit">
-                            Mid Level
-                          </p>
-                          <p className="bg-blue-400 text-white px-1.5 rounded w-fit">
-                            Junior
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
-                        Closing
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
-                        <div className="flex items-center gap-2">
-                          <p className="bg-blue-800 text-white px-1.5 rounded w-fit">
-                            Senior
-                          </p>
-                          <p className="bg-blue-600 text-white px-1.5 rounded w-fit">
-                            Mid Level
-                          </p>
-                          <p className="bg-blue-400 text-white px-1.5 rounded w-fit">
-                            Junior
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+            <ModsFlo currentSegment={currentSegment} />
           </Grid>
         </PageContainer>
       </DashboardLayout>
