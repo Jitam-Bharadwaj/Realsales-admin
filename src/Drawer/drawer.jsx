@@ -2300,7 +2300,11 @@ export default function DashboardLayoutBasic(props) {
                         Prospecting
                       </TableCell>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Description
+                          {filteredProspectingData?.length
+                            ? filteredProspectingData?.map(
+                                (item) => item?.description.slice(0, 105)+"..."
+                              )
+                            : null}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2321,7 +2325,11 @@ export default function DashboardLayoutBasic(props) {
                         Discovery
                       </TableCell>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Description
+                        {filteredProspectingData?.length
+                            ? filteredProspectingData?.map(
+                                (item) => item?.description.slice(0, 105)+"..."
+                              )
+                            : null}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2340,7 +2348,11 @@ export default function DashboardLayoutBasic(props) {
                         Closing
                       </TableCell>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Description
+                        {filteredProspectingData?.length
+                            ? filteredProspectingData?.map(
+                                (item) => item?.description.slice(0, 105)+"..."
+                              )
+                            : null}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2365,10 +2377,10 @@ export default function DashboardLayoutBasic(props) {
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Food & Beverage
+                        Prospecting
                       </TableCell>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Prospecting
+                        Food & Beverage
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2386,10 +2398,10 @@ export default function DashboardLayoutBasic(props) {
                   <TableBody>
                     <TableRow>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Food & Beverage
+                        Discovery
                       </TableCell>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Discovery
+                        Food & Beverage
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2405,10 +2417,10 @@ export default function DashboardLayoutBasic(props) {
                     </TableRow>
                     <TableRow>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Food & Beverage
+                        Closing
                       </TableCell>
                       <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Closing
+                        Food & Beverage
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2432,11 +2444,21 @@ export default function DashboardLayoutBasic(props) {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Plant Manager
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
+                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
                         Prospecting
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
+                        <div className="flex items-center gap-2">
+                          <p className="bg-green-600/90 text-white px-1.5 rounded w-fit">
+                            Plant Manager
+                          </p>
+                          <p className="bg-cyan-400/90 text-white px-1.5 rounded w-fit">
+                            Plant Manager
+                          </p>
+                          <p className="bg-blue-800/60 text-white px-1.5 rounded w-fit">
+                            Manufacturing Manager
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2453,11 +2475,21 @@ export default function DashboardLayoutBasic(props) {
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Production Manager
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
+                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
                         Discovery
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
+                        <div className="flex items-center gap-2">
+                          <p className="bg-green-600/90 text-white px-1.5 rounded w-fit">
+                            Plant Manager
+                          </p>
+                          <p className="bg-cyan-400/90 text-white px-1.5 rounded w-fit">
+                            Plant Manager
+                          </p>
+                          <p className="bg-blue-800/60 text-white px-1.5 rounded w-fit">
+                            Manufacturing Manager
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2472,11 +2504,21 @@ export default function DashboardLayoutBasic(props) {
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Manufacturing Manager
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
+                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
                         Closing
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
+                        <div className="flex items-center gap-2">
+                          <p className="bg-green-600/90 text-white px-1.5 rounded w-fit">
+                            Plant Manager
+                          </p>
+                          <p className="bg-cyan-400/90 text-white px-1.5 rounded w-fit">
+                            Plant Manager
+                          </p>
+                          <p className="bg-blue-800/60 text-white px-1.5 rounded w-fit">
+                            Manufacturing Manager
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2500,11 +2542,21 @@ export default function DashboardLayoutBasic(props) {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Senior
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
+                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
                         Prospecting
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
+                        <div className="flex items-center gap-2">
+                          <p className="bg-blue-800 text-white px-1.5 rounded w-fit">
+                            Senior
+                          </p>
+                          <p className="bg-blue-600 text-white px-1.5 rounded w-fit">
+                            Mid Level
+                          </p>
+                          <p className="bg-blue-400 text-white px-1.5 rounded w-fit">
+                            Junior
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell
                         sx={{
@@ -2521,12 +2573,22 @@ export default function DashboardLayoutBasic(props) {
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Senior
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
+                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
                         Discovery
                       </TableCell>
+                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
+                        <div className="flex items-center gap-2">
+                          <p className="bg-blue-800 text-white px-1.5 rounded w-fit">
+                            Senior
+                          </p>
+                          <p className="bg-blue-600 text-white px-1.5 rounded w-fit">
+                            Mid Level
+                          </p>
+                          <p className="bg-blue-400 text-white px-1.5 rounded w-fit">
+                            Junior
+                          </p>
+                        </div>
+                      </TableCell>
                       <TableCell
                         sx={{
                           textAlign: "right",
@@ -2540,127 +2602,21 @@ export default function DashboardLayoutBasic(props) {
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Senior
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
+                      <TableCell sx={{ textAlign: "left", width: "20%" }}>
                         Closing
                       </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Mid Level
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                      Prospecting
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Mid Level
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Discovery
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Mid Level
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Closing
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Junior
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                      Prospecting
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Junior
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                      Discovery
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          color: "green",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Edit
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                        Junior
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left", width: "40%" }}>
-                      Closing
+                      <TableCell sx={{ textAlign: "left", width: "60%" }}>
+                        <div className="flex items-center gap-2">
+                          <p className="bg-blue-800 text-white px-1.5 rounded w-fit">
+                            Senior
+                          </p>
+                          <p className="bg-blue-600 text-white px-1.5 rounded w-fit">
+                            Mid Level
+                          </p>
+                          <p className="bg-blue-400 text-white px-1.5 rounded w-fit">
+                            Junior
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell
                         sx={{
