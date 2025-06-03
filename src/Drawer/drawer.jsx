@@ -78,11 +78,11 @@ const NAVIGATION = [
     kind: "header",
     title: "Main items",
   },
-  {
-    segment: "dashboard",
-    title: "Dashboard",
-    icon: <DashboardIcon />,
-  },
+  // {
+  //   segment: "dashboard",
+  //   title: "Dashboard",
+  //   icon: <DashboardIcon />,
+  // },
   // {
   //   segment: "reports",
   //   title: "Modes",
@@ -292,7 +292,7 @@ const Skeleton = styled("div")(({ theme, height }) => ({
 
 export default function DashboardLayoutBasic(props) {
   const { window } = props;
-  const router = useDemoRouter("/dashboard");
+  const router = useDemoRouter("/modeMgmt");
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [closingData, setGetClosing] = React.useState([]);
