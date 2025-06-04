@@ -12,7 +12,7 @@ import {
     TableRow,
     TextField,
     Modal,
-  } from "@mui/material";
+} from "@mui/material";
 //   import React, { useEffect, useState } from "react";
 //   import { axioInstance } from "../api/axios/axios";
 //   import { endpoints } from "../api/endpoints/endpoints";
@@ -21,17 +21,17 @@ import {
 //   import RotateRightIcon from "@mui/icons-material/RotateRight";
 //   import AddIcon from "@mui/icons-material/Add";
 
-const Experience = ({currentSegment}) => {
+const Experience = ({ currentSegment }) => {
     const convertNewlines = (text) => {
         return text
-          .trim()
-          .replace(/\s*\n\s*/g, "\n") // Clean up spaces around newlines
-          .replace(/\n{3,}/g, "\n\n") // Limit to max 2 consecutive newlines
-          .split("\n\n")
-          .filter((para) => para.trim()) // Remove empty paragraphs
-          .map((paragraph) => paragraph.replace(/\n/g, "\\n"))
-          .join("\\n\\n");
-      };
+            .trim()
+            .replace(/\s*\n\s*/g, "\n") // Clean up spaces around newlines
+            .replace(/\n{3,}/g, "\n\n") // Limit to max 2 consecutive newlines
+            .split("\n\n")
+            .filter((para) => para.trim()) // Remove empty paragraphs
+            .map((paragraph) => paragraph.replace(/\n/g, "\\n"))
+            .join("\\n\\n");
+    };
 
     return (
         <>
@@ -132,7 +132,8 @@ const Experience = ({currentSegment}) => {
                         </TableBody>
                     </Table>
                 </div>
-            )}</>
+            )}
+        </>
     )
 }
 

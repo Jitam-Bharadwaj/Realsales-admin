@@ -13,5 +13,8 @@ export const endpoints = {
   },
   mods: {
     interaction_modes: "v1/interaction-modes"
+  },
+  persona:{
+    persona:"v1/ai-personas",
   }
 };

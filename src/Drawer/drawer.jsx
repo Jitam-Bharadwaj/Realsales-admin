@@ -52,6 +52,8 @@ import ModsFlo from "./Mods";
 import Role from "./Role";
 import Experience from "./Experience";
 import Industry from "./Industry";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import Persona from "./Persona";
 
 // Text formatting functions
 const convertNewlines = (text) => {
@@ -108,6 +110,11 @@ const NAVIGATION = [
   //     },
   //   ],
   // },
+  {
+    segment: "createPersona",
+    title: "Create Persona",
+    icon: <PersonAddIcon />,
+  },
   {
     segment: "modeMgmt",
     title: "Mode Management",
@@ -295,7 +302,7 @@ const Skeleton = styled("div")(({ theme, height }) => ({
 
 export default function DashboardLayoutBasic(props) {
   const { window } = props;
-  const router = useDemoRouter("/modeMgmt");
+  const router = useDemoRouter("/createPersona");
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [closingData, setGetClosing] = React.useState([]);
@@ -2294,6 +2301,7 @@ export default function DashboardLayoutBasic(props) {
               </Grid>
             )}
 
+            <Persona currentSegment={currentSegment} />
             <ModsFlo currentSegment={currentSegment} />
             <Role currentSegment={currentSegment} />
             <Experience currentSegment={currentSegment} />
