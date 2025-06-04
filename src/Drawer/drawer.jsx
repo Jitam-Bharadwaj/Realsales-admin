@@ -49,6 +49,9 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import Diversity3Icon from "@mui/icons-material/Diversity3";
 import ModsFlo from "./Mods";
+import Role from "./Role";
+import Experience from "./Experience";
+import Industry from "./Industry";
 
 // Text formatting functions
 const convertNewlines = (text) => {
@@ -2292,6 +2295,9 @@ export default function DashboardLayoutBasic(props) {
             )}
 
             <ModsFlo currentSegment={currentSegment} />
+            <Role currentSegment={currentSegment} />
+            <Experience currentSegment={currentSegment} />
+            <Industry currentSegment={currentSegment} />
           </Grid>
         </PageContainer>
       </DashboardLayout>
