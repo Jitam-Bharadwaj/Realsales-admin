@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Modal,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { axioInstance } from "../api/axios/axios";
@@ -35,8 +36,28 @@ const ModsFlo = ({ currentSegment }) => {
   const [editingData, setEditingData] = useState({});
   const [deleteId, setDeleteId] = useState({});
   const [addData, setAddData] = useState(false);
+  const [createMode, setCreateMode] = useState({});
 
-  const getAllMods = async () => {
+  console.log(deleteId, "deleteId")
+
+  const createModsPrompt = async () => {
+    try {
+      let data = await axioInstance.post(`${endpoints?.closing?.getClosing}/`, {
+        name: createMode?.name,
+        description: createMode?.description,
+        prompt_template: convertNewlines(createMode?.prompt_template),
+      });
+      if (data?.data) {
+        setCreateMode({});
+        readAllMods();
+      }
+    } catch (error) {
+      console.log(error, "_error_");
+    }
+  }
+
+
+  const readAllMods = async () => {
     try {
       let data = await axioInstance.get(`${endpoints?.closing?.getClosing}/`);
       if (data?.data?.length) {
@@ -53,13 +74,13 @@ const ModsFlo = ({ currentSegment }) => {
         `${endpoints?.closing?.getClosing}/${editingData?.id}`,
         {
           mode_id: editingData?.id,
-          prompt_template: editingData?.prompt_template,
+          prompt_template: convertNewlines(editingData?.prompt_template),
         }
       );
       if (data?.data) {
         if (data?.data?.mode_id) {
           setEditingData({});
-          getAllMods();
+          readAllMods();
         }
       }
     } catch (error) {
@@ -79,7 +100,7 @@ const ModsFlo = ({ currentSegment }) => {
   };
 
   useEffect(() => {
-    getAllMods();
+    readAllMods();
   }, []);
 
   return (
@@ -88,81 +109,167 @@ const ModsFlo = ({ currentSegment }) => {
       {currentSegment === "modeMgmt" && (
         <div style={{ width: "100%", pt: "40px" }}>
           {!editingData?.id ? (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{ textAlign: "left", width: "20%" }}
-                    className="!font-bold"
-                  >
-                    Name
-                  </TableCell>
-                  <TableCell
-                    sx={{ textAlign: "left", width: "60%" }}
-                    className="!font-bold"
-                  >
-                    Description
-                  </TableCell>
-                  <TableCell sx={{ textAlign: "right" }} className="!font-bold">
-                    Action
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {mods?.length ? (
-                  mods?.map((v, i) => (
-                    <TableRow key={i}>
-                      <TableCell sx={{ textAlign: "left" }}>
-                        {v?.name ? v?.name : "--"}
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "left" }}>
-                        {v?.description ? v?.description.slice(0, 100) : "--"}
-                        {v?.description?.length > 100 ? "..." : null}
+            <>
+              {!addData ? <>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        sx={{ textAlign: "left", width: "20%" }}
+                        className="!font-bold"
+                      >
+                        Name
                       </TableCell>
                       <TableCell
-                        sx={{
-                          textAlign: "right",
-                          textDecoration: "underline",
-                          fontWeight: "bold",
-                        }}
+                        sx={{ textAlign: "left", width: "60%" }}
+                        className="!font-bold"
                       >
-                        <div className="flex items-center justify-end gap-2">
-                          <div
-                            className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
-                            onClick={() =>
-                              setEditingData({
-                                prompt_template: v?.prompt_template,
-                                id: v?.mode_id,
-                              })
-                            }
-                          >
-                            <EditIcon className="!text-lg" />
-                          </div>
-                          <div
-                            className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
-                            onClick={() =>
-                              setDeleteId({ name: v?.name, id: v?.mode_id })
-                            }
-                          >
-                            <DeleteIcon className="!text-lg" />
-                          </div>
-                        </div>
+                        Description
+                      </TableCell>
+                      <TableCell sx={{ textAlign: "right" }} className="!font-bold">
+                        Action
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell></TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center h-60">
-                        <RotateRightIcon className="animate-spin !text-5xl" />
-                      </div>
-                    </TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  </TableHead>
+                  <TableBody>
+                    {mods?.length ? (
+                      mods?.map((v, i) => (
+                        <TableRow key={i}>
+                          <TableCell sx={{ textAlign: "left" }}>
+                            {v?.name ? v?.name : "--"}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "left" }}>
+                            {v?.description ? v?.description.slice(0, 100) : "--"}
+                            {v?.description?.length > 100 ? "..." : null}
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              textAlign: "right",
+                              textDecoration: "underline",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            <div className="flex items-center justify-end gap-2">
+                              <div
+                                className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                onClick={() =>
+                                  setEditingData({
+                                    prompt_template: v?.prompt_template,
+                                    id: v?.mode_id,
+                                  })
+                                }
+                              >
+                                <EditIcon className="!text-lg" />
+                              </div>
+                              <div
+                                className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                onClick={() =>
+                                  setDeleteId({ name: v?.name, id: v?.mode_id })
+                                }
+                              >
+                                <DeleteIcon className="!text-lg" />
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell></TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center h-60">
+                            <RotateRightIcon className="animate-spin !text-5xl" />
+                          </div>
+                        </TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+
+                <div className="flex items-center justify-end mt-4">
+                  <div
+                    className="rounded border border-solid border-blue-600 hover:bg-blue-600 text-blue-600 hover:text-white cursor-pointer py-1 px-4 w-fit flex items-center gap-2"
+                    onClick={() => setAddData(true)}
+                  >
+                    <AddIcon className="!text-lg" />
+                    Add
+                  </div>
+                </div>
+              </>
+                :
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "end",
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label={"Name"}
+                    value={createMode?.name}
+                    onChange={(e) =>
+                      setCreateMode({
+                        ...createMode,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label={"Description"}
+                    multiline
+                    rows={3}
+                    value={createMode?.description
+                      ?.replace(/\\n\\n/g, "\n\n")
+                      .replace(/\\n/g, "\n")}
+                    onChange={(e) =>
+                      setCreateMode({
+                        ...createMode,
+                        description: e.target.value,
+                      })
+                    }
+                  />
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label={"Prompt Template"}
+                    multiline
+                    rows={6}
+                    value={createMode?.prompt_template
+                      ?.replace(/\\n\\n/g, "\n\n")
+                      .replace(/\\n/g, "\n")}
+                    onChange={(e) =>
+                      setCreateMode({
+                        ...createMode,
+                        prompt_template: e.target.value,
+                      })
+                    }
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outlined"
+                      className="!border !border-red-600 !bg-transparent w-fit"
+                      onClick={() => {
+                        setCreateMode({});
+                        setAddData(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      className="!border !border-green-500 !bg-green-500 w-fit"
+                      onClick={() => createModsPrompt()}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>}
+            </>
           ) : (
             <div className="flex flex-col gap-2 items-end">
               <TextField
@@ -227,15 +334,6 @@ const ModsFlo = ({ currentSegment }) => {
               </Button>
             </DialogActions>
           </Dialog>
-          <div className="flex items-center justify-end mt-4">
-            <div
-              className="rounded border border-solid border-blue-600 hover:bg-blue-600 text-blue-600 hover:text-white cursor-pointer py-1 px-4 w-fit flex items-center gap-2"
-              onClick={() => setAddData(true)}
-            >
-              <AddIcon className="!text-lg" />
-              Add
-            </div>
-          </div>
         </div>
       )}
       {/* industry */}
