@@ -40,6 +40,17 @@ const ModsFlo = ({ currentSegment }) => {
 
   console.log(deleteId, "deleteId");
 
+  const readAllMods = async () => {
+    try {
+      let data = await axioInstance.get(`${endpoints?.closing?.getClosing}/`);
+      if (data?.data?.length) {
+        setMods(data?.data);
+      }
+    } catch (error) {
+      console.log(error, "_error_");
+    }
+  };
+
   const createModsPrompt = async () => {
     try {
       let data = await axioInstance.post(`${endpoints?.closing?.getClosing}/`, {
@@ -50,17 +61,6 @@ const ModsFlo = ({ currentSegment }) => {
       if (data?.data) {
         setCreateMode({});
         readAllMods();
-      }
-    } catch (error) {
-      console.log(error, "_error_");
-    }
-  };
-
-  const readAllMods = async () => {
-    try {
-      let data = await axioInstance.get(`${endpoints?.closing?.getClosing}/`);
-      if (data?.data?.length) {
-        setMods(data?.data);
       }
     } catch (error) {
       console.log(error, "_error_");
