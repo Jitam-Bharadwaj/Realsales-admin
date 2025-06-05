@@ -1,14 +1,7 @@
 import * as React from "react";
 import { createTheme } from "@mui/material/styles";
 
-import {
-  Button,
-  Modal,
-  Typography,
-  Grid,
-  Box,
-
-} from "@mui/material";
+import { Button, Modal, Typography, Grid, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -23,12 +16,16 @@ import { PageContainer } from "@toolpad/core/PageContainer";
 import InterpreterModeIcon from "@mui/icons-material/InterpreterMode";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import HomeWorkIcon from "@mui/icons-material/HomeWork";
+import FactoryIcon from '@mui/icons-material/Factory';
 import ModsFlo from "./Mods";
 import Role from "./Role";
 import Experience from "./Experience";
 import Industry from "./Industry";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Persona from "./Persona";
+import PlantSize from "./PlantSize";
+import ManufacturingModels from "./ManufacturingModels";
 
 const NAVIGATION = [
   {
@@ -54,6 +51,16 @@ const NAVIGATION = [
     segment: "role",
     title: "Role",
     icon: <ManageAccountsIcon />,
+  },
+  {
+    segment: "plantSize",
+    title: "Plant Size",
+    icon: <HomeWorkIcon />,
+  },
+  {
+    segment: "manufacturingModels",
+    title: "Manufacturing Models",
+    icon: <FactoryIcon />,
   },
   // {
   //   segment: "experience",
@@ -355,6 +362,8 @@ export default function DashboardLayoutBasic(props) {
             <Role currentSegment={currentSegment} />
             <Experience currentSegment={currentSegment} />
             <Industry currentSegment={currentSegment} />
+            <PlantSize currentSegment={currentSegment} />
+            <ManufacturingModels currentSegment={currentSegment} />
           </Grid>
         </PageContainer>
       </DashboardLayout>
