@@ -38,7 +38,7 @@ const ModsFlo = ({ currentSegment }) => {
   const [addData, setAddData] = useState(false);
   const [createMode, setCreateMode] = useState({});
 
-  console.log(deleteId, "deleteId")
+  console.log(deleteId, "deleteId");
 
   const createModsPrompt = async () => {
     try {
@@ -54,8 +54,7 @@ const ModsFlo = ({ currentSegment }) => {
     } catch (error) {
       console.log(error, "_error_");
     }
-  }
-
+  };
 
   const readAllMods = async () => {
     try {
@@ -110,94 +109,105 @@ const ModsFlo = ({ currentSegment }) => {
         <div style={{ width: "100%", pt: "40px" }}>
           {!editingData?.id ? (
             <>
-              {!addData ? <>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell
-                        sx={{ textAlign: "left", width: "20%" }}
-                        className="!font-bold"
-                      >
-                        Name
-                      </TableCell>
-                      <TableCell
-                        sx={{ textAlign: "left", width: "60%" }}
-                        className="!font-bold"
-                      >
-                        Description
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "right" }} className="!font-bold">
-                        Action
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {mods?.length ? (
-                      mods?.map((v, i) => (
-                        <TableRow key={i}>
-                          <TableCell sx={{ textAlign: "left" }}>
-                            {v?.name ? v?.name : "--"}
-                          </TableCell>
-                          <TableCell sx={{ textAlign: "left" }}>
-                            {v?.description ? v?.description.slice(0, 100) : "--"}
-                            {v?.description?.length > 100 ? "..." : null}
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              textAlign: "right",
-                              textDecoration: "underline",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            <div className="flex items-center justify-end gap-2">
-                              <div
-                                className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
-                                onClick={() =>
-                                  setEditingData({
-                                    prompt_template: v?.prompt_template,
-                                    id: v?.mode_id,
-                                  })
-                                }
-                              >
-                                <EditIcon className="!text-lg" />
+              {!addData ? (
+                <>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell
+                          sx={{ textAlign: "left", width: "20%" }}
+                          className="!font-bold"
+                        >
+                          Name
+                        </TableCell>
+                        <TableCell
+                          sx={{ textAlign: "left", width: "60%" }}
+                          className="!font-bold"
+                        >
+                          Description
+                        </TableCell>
+                        <TableCell
+                          sx={{ textAlign: "right" }}
+                          className="!font-bold"
+                        >
+                          Action
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {mods?.length ? (
+                        mods?.map((v, i) => (
+                          <TableRow key={i}>
+                            <TableCell sx={{ textAlign: "left" }}>
+                              {v?.name ? v?.name : "--"}
+                            </TableCell>
+                            <TableCell sx={{ textAlign: "left" }}>
+                              {v?.description
+                                ? v?.description.slice(0, 100)
+                                : "--"}
+                              {v?.description?.length > 100 ? "..." : null}
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                textAlign: "right",
+                                textDecoration: "underline",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              <div className="flex items-center justify-end gap-2">
+                                <div
+                                  className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                  onClick={() =>
+                                    setEditingData({
+                                      prompt_template: v?.prompt_template,
+                                      id: v?.mode_id,
+                                    })
+                                  }
+                                >
+                                  <EditIcon className="!text-lg" />
+                                </div>
+                                <div
+                                  className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                  onClick={() =>
+                                    setDeleteId({
+                                      name: v?.name,
+                                      id: v?.mode_id,
+                                    })
+                                  }
+                                >
+                                  <DeleteIcon className="!text-lg" />
+                                </div>
                               </div>
-                              <div
-                                className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
-                                onClick={() =>
-                                  setDeleteId({ name: v?.name, id: v?.mode_id })
-                                }
-                              >
-                                <DeleteIcon className="!text-lg" />
-                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell></TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-center h-60">
+                              <RotateRightIcon className="animate-spin !text-5xl" />
                             </div>
                           </TableCell>
+                          <TableCell></TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell></TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-center h-60">
-                            <RotateRightIcon className="animate-spin !text-5xl" />
-                          </div>
-                        </TableCell>
-                        <TableCell></TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      )}
+                    </TableBody>
+                  </Table>
 
-                <div className="flex items-center justify-end mt-4">
-                  <div
-                    className="rounded border border-solid border-blue-600 hover:bg-blue-600 text-blue-600 hover:text-white cursor-pointer py-1 px-4 w-fit flex items-center gap-2"
-                    onClick={() => setAddData(true)}
-                  >
-                    <AddIcon className="!text-lg" />
-                    Add
-                  </div>
-                </div>
-              </>
-                :
+                  {mods?.length < 3 && (
+                    <div className="flex items-center justify-end mt-4">
+                      <div
+                        className="rounded border border-solid border-blue-600 hover:bg-blue-600 text-blue-600 hover:text-white cursor-pointer py-1 px-4 w-fit flex items-center gap-2"
+                        onClick={() => setAddData(true)}
+                      >
+                        <AddIcon className="!text-lg" />
+                        Add
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
                 <div
                   style={{
                     display: "flex",
@@ -268,7 +278,8 @@ const ModsFlo = ({ currentSegment }) => {
                       Save
                     </Button>
                   </div>
-                </div>}
+                </div>
+              )}
             </>
           ) : (
             <div className="flex flex-col gap-2 items-end">
