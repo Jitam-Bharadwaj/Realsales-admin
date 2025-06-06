@@ -37,6 +37,7 @@ const ModsFlo = ({ currentSegment }) => {
   const [deleteId, setDeleteId] = useState({});
   const [addData, setAddData] = useState(false);
   const [createMode, setCreateMode] = useState({});
+  const [validationError, setValidationError] = useState({});
 
   console.log(deleteId, "deleteId");
 
@@ -96,6 +97,15 @@ const ModsFlo = ({ currentSegment }) => {
     } catch (error) {
       console.log(error, "_error_");
     }
+  };
+
+  const validateMods = (data) => {
+    const errors = {};
+    if (!data?.name) errors.name = "Name is required";
+    if (!data?.description) errors.description = "Description is required";
+    if (!data?.prompt_template)
+      errors.prompt_template = "Prompt Template is required";
+    return errors;
   };
 
   useEffect(() => {
@@ -220,12 +230,16 @@ const ModsFlo = ({ currentSegment }) => {
                     margin="normal"
                     label={"Name"}
                     value={createMode?.name}
-                    onChange={(e) =>
-                      setCreateMode({
-                        ...createMode,
-                        name: e.target.value,
-                      })
-                    }
+                    onChange={(e) => {
+                      setCreateMode({ ...createMode, name: e.target.value });
+                      if (validationError.name)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          name: undefined,
+                        }));
+                    }}
+                    error={!!validationError.name}
+                    helperText={validationError.name}
                   />
                   <TextField
                     fullWidth
@@ -236,12 +250,19 @@ const ModsFlo = ({ currentSegment }) => {
                     value={createMode?.description
                       ?.replace(/\\n\\n/g, "\n\n")
                       .replace(/\\n/g, "\n")}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setCreateMode({
                         ...createMode,
                         description: e.target.value,
-                      })
-                    }
+                      });
+                      if (validationError.description)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          description: undefined,
+                        }));
+                    }}
+                    error={!!validationError.description}
+                    helperText={validationError.description}
                   />
                   <TextField
                     fullWidth
@@ -252,12 +273,19 @@ const ModsFlo = ({ currentSegment }) => {
                     value={createMode?.prompt_template
                       ?.replace(/\\n\\n/g, "\n\n")
                       .replace(/\\n/g, "\n")}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setCreateMode({
                         ...createMode,
                         prompt_template: e.target.value,
-                      })
-                    }
+                      });
+                      if (validationError.prompt_template)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          prompt_template: undefined,
+                        }));
+                    }}
+                    error={!!validationError.prompt_template}
+                    helperText={validationError.prompt_template}
                   />
                   <div className="flex items-center gap-2">
                     <Button
@@ -266,6 +294,7 @@ const ModsFlo = ({ currentSegment }) => {
                       onClick={() => {
                         setCreateMode({});
                         setAddData(false);
+                        setValidationError({});
                       }}
                     >
                       Cancel
@@ -273,7 +302,15 @@ const ModsFlo = ({ currentSegment }) => {
                     <Button
                       variant="contained"
                       className="!border !border-green-500 !bg-green-500 w-fit"
-                      onClick={() => createModsPrompt()}
+                      onClick={() => {
+                        const errors = validateMods(createMode);
+                        if (Object.keys(errors).length > 0) {
+                          setValidationError(errors);
+                          return;
+                        }
+                        setValidationError({});
+                        createModsPrompt();
+                      }}
                     >
                       Save
                     </Button>
@@ -307,7 +344,10 @@ const ModsFlo = ({ currentSegment }) => {
                 <Button
                   variant="outlined"
                   className="!border !border-red-600 !bg-transparent w-fit"
-                  onClick={() => setEditingData({})}
+                  onClick={() => {
+                    setEditingData({});
+                    setValidationError({});
+                  }}
                 >
                   Cancel
                 </Button>

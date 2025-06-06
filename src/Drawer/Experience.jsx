@@ -33,6 +33,13 @@ const Experience = ({ currentSegment }) => {
             .join("\\n\\n");
     };
 
+    // Example validation state and function for future use:
+    // const [validationError, setValidationError] = useState("");
+    // const validateExperience = (data) => {
+    //   if (!data?.field) return "Field is required";
+    //   return "";
+    // };
+
     return (
         <>
             {/* experience */}

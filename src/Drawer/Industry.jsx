@@ -36,6 +36,7 @@ const Industry = ({ currentSegment }) => {
   const [deleteId, setDeleteId] = useState({});
   const [addData, setAddData] = useState(false);
   const [industries, setIndustries] = useState([]);
+  const [validationError, setValidationError] = useState({});
 
   const readIndustry = async () => {
     try {
@@ -95,6 +96,13 @@ const Industry = ({ currentSegment }) => {
     }
   };
 
+  const validateIndustry = (data) => {
+    const errors = {};
+    if (!data?.name) errors.name = "Name is required";
+    if (!data?.details) errors.details = "Prompt Template is required";
+    return errors;
+  };
+
   console.log(deleteId, "__industries_");
   useEffect(() => {
     readIndustry();
@@ -118,12 +126,12 @@ const Industry = ({ currentSegment }) => {
                 margin="normal"
                 label={"Name"}
                 value={editingData?.name}
-                onChange={(e) =>
-                  setEditingData({
-                    ...editingData,
-                    name: e.target.value,
-                  })
-                }
+                onChange={(e) => {
+                  setEditingData({ ...editingData, name: e.target.value });
+                  if (validationError.name) setValidationError((prev) => ({ ...prev, name: undefined }));
+                }}
+                error={!!validationError.name}
+                helperText={validationError.name}
               />
               <TextField
                 fullWidth
@@ -131,15 +139,13 @@ const Industry = ({ currentSegment }) => {
                 label={"Prompt Template"}
                 multiline
                 rows={6}
-                value={editingData?.details
-                  ?.replace(/\\n\\n/g, "\n\n")
-                  .replace(/\\n/g, "\n")}
-                onChange={(e) =>
-                  setEditingData({
-                    ...editingData,
-                    details: e.target.value,
-                  })
-                }
+                value={editingData?.details?.replace(/\\n\\n/g, "\n\n").replace(/\\n/g, "\n")}
+                onChange={(e) => {
+                  setEditingData({ ...editingData, details: e.target.value });
+                  if (validationError.details) setValidationError((prev) => ({ ...prev, details: undefined }));
+                }}
+                error={!!validationError.details}
+                helperText={validationError.details}
               />
               <div className="flex items-center gap-2">
                 <Button
@@ -148,6 +154,7 @@ const Industry = ({ currentSegment }) => {
                   onClick={() => {
                     setEditingData({});
                     setAddData(false);
+                    setValidationError({});
                   }}
                 >
                   Cancel
@@ -156,6 +163,12 @@ const Industry = ({ currentSegment }) => {
                   variant="contained"
                   className="!border !border-green-500 !bg-green-500 w-fit"
                   onClick={() => {
+                    const errors = validateIndustry(editingData);
+                    if (Object.keys(errors).length > 0) {
+                      setValidationError(errors);
+                      return;
+                    }
+                    setValidationError({});
                     if (editingData?.id) {
                       updateIndustries();
                     } else {

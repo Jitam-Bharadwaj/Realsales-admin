@@ -51,6 +51,7 @@ const Persona = ({ currentSegment }) => {
     manufacturing: true,
     geography: true,
   });
+  const [validationError, setValidationError] = useState({});
 
   console.log(persona, personaId, "persona__");
 
@@ -156,6 +157,20 @@ const Persona = ({ currentSegment }) => {
     }
   };
 
+  const validatePersona = () => {
+    const errors = {};
+    if (!persona?.name) errors.name = "Name is required";
+    if (!persona?.summary) errors.summary = "Summary is required";
+    if (!persona?.industry_id) errors.industry_id = "Industry is required";
+    if (!persona?.plant_size_impact_id)
+      errors.plant_size_impact_id = "Plant Size is required";
+    if (!persona?.ai_role_id) errors.ai_role_id = "Role is required";
+    if (!persona?.manufacturing_model_id)
+      errors.manufacturing_model_id = "Manufacturing Model is required";
+    if (!persona?.geography) errors.geography = "Geography is required";
+    return errors;
+  };
+
   console.log(persona, "_personaData_");
   useEffect(() => {
     readPersona();
@@ -173,12 +188,16 @@ const Persona = ({ currentSegment }) => {
                 margin="normal"
                 label={"Name"}
                 value={persona?.name}
-                onChange={(e) =>
-                  setPersona({
-                    ...persona,
-                    name: e.target.value,
-                  })
-                }
+                onChange={(e) => {
+                  setPersona({ ...persona, name: e.target.value });
+                  if (validationError.name)
+                    setValidationError((prev) => ({
+                      ...prev,
+                      name: undefined,
+                    }));
+                }}
+                error={!!validationError.name}
+                helperText={validationError.name}
               />
               <TextField
                 fullWidth
@@ -190,219 +209,309 @@ const Persona = ({ currentSegment }) => {
                 value={persona?.summary
                   ?.replace(/\\n\\n/g, "\n\n")
                   .replace(/\\n/g, "\n")}
-                onChange={(e) =>
-                  setPersona({
-                    ...persona,
-                    summary: e.target.value,
-                  })
-                }
+                onChange={(e) => {
+                  setPersona({ ...persona, summary: e.target.value });
+                  if (validationError.summary)
+                    setValidationError((prev) => ({
+                      ...prev,
+                      summary: undefined,
+                    }));
+                }}
+                error={!!validationError.summary}
+                helperText={validationError.summary}
               />
 
               {/* Select Industry */}
-              <div className="border border-solid rounded">
-                <div
-                  className="p-3 flex items-center justify-between cursor-pointer"
-                  onClick={() =>
-                    setAiLists((pre) => ({
-                      ...pre,
-                      industry: !aiLists?.industry,
-                    }))
-                  }
-                >
-                  <p>Select Industry</p>
-                  <KeyboardArrowDownIcon
-                    className={`${aiLists?.industry ? "rotate-180" : "rotate-0"}`}
-                  />
-                </div>
-                {aiLists?.industry && (
-                  <>
-                    <hr />
-                    {industriesData?.length
-                      ? industriesData.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
-                            onClick={() =>
-                              setPersona((pre) => ({
-                                ...pre,
-                                industry_id: v?.industry_id,
-                              }))
-                            }
-                          >
+              <div className="w-full flex flex-col items-start gap-2">
+                <div className="w-full border border-solid rounded">
+                  <div
+                    className="p-3 flex items-center justify-between cursor-pointer"
+                    onClick={() => {
+                      setAiLists((pre) => ({
+                        ...pre,
+                        industry: !aiLists?.industry,
+                      }));
+                      if (validationError.industry_id)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          industry_id: undefined,
+                        }));
+                    }}
+                  >
+                    <p>Select Industry</p>
+                    <KeyboardArrowDownIcon
+                      className={`${aiLists?.industry ? "rotate-180" : "rotate-0"}`}
+                    />
+                  </div>
+                  {aiLists?.industry && (
+                    <>
+                      <hr />
+                      {industriesData?.length
+                        ? industriesData.map((v, i) => (
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
-                            />
-                            {v?.name}
-                          </div>
-                        ))
-                      : null}
-                  </>
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  industry_id: v?.industry_id,
+                                }));
+                                if (validationError.industry_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    industry_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                              />
+                              {v?.name}
+                            </div>
+                          ))
+                        : null}
+                    </>
+                  )}
+                </div>
+                {validationError.industry_id && (
+                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                    {validationError.industry_id}
+                  </p>
                 )}
               </div>
 
               {/* Select Plant Size */}
-              <div className="border border-solid rounded">
-                <div
-                  className="p-3 flex items-center justify-between cursor-pointer"
-                  onClick={() =>
-                    setAiLists((pre) => ({
-                      ...pre,
-                      plantSize: !aiLists?.plantSize,
-                    }))
-                  }
-                >
-                  <p>Select Plant Size</p>
-                  <KeyboardArrowDownIcon
-                    className={`${aiLists?.plantSize ? "rotate-180" : "rotate-0"}`}
-                  />
-                </div>
-                {aiLists?.plantSize && (
-                  <>
-                    <hr />
-                    {plant_size_impactsData?.length
-                      ? plant_size_impactsData.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
-                            onClick={() =>
-                              setPersona((pre) => ({
-                                ...pre,
-                                plant_size_impact_id: v?.plant_size_impact_id,
-                              }))
-                            }
-                          >
+              <div className="w-full flex flex-col items-start gap-2">
+                <div className="w-full border border-solid rounded">
+                  <div
+                    className="p-3 flex items-center justify-between cursor-pointer"
+                    onClick={() => {
+                      setAiLists((pre) => ({
+                        ...pre,
+                        plantSize: !aiLists?.plantSize,
+                      }));
+                      if (validationError.plant_size_impact_id)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          plant_size_impact_id: undefined,
+                        }));
+                    }}
+                  >
+                    <p>Select Plant Size</p>
+                    <KeyboardArrowDownIcon
+                      className={`${aiLists?.plantSize ? "rotate-180" : "rotate-0"}`}
+                    />
+                  </div>
+                  {aiLists?.plantSize && (
+                    <>
+                      <hr />
+                      {plant_size_impactsData?.length
+                        ? plant_size_impactsData.map((v, i) => (
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
-                            />
-                            {v?.name}
-                          </div>
-                        ))
-                      : null}
-                  </>
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  plant_size_impact_id: v?.plant_size_impact_id,
+                                }));
+
+                                if (validationError.plant_size_impact_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    plant_size_impact_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                              />
+                              {v?.name}
+                            </div>
+                          ))
+                        : null}
+                    </>
+                  )}
+                </div>
+                {validationError.plant_size_impact_id && (
+                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                    {validationError.plant_size_impact_id}
+                  </p>
                 )}
               </div>
 
               {/* Select Role */}
-              <div className="border border-solid rounded">
-                <div
-                  className="p-3 flex items-center justify-between cursor-pointer"
-                  onClick={() =>
-                    setAiLists((pre) => ({ ...pre, Roles: !aiLists?.Roles }))
-                  }
-                >
-                  <p>Select Role</p>
-                  <KeyboardArrowDownIcon
-                    className={`${aiLists?.Roles ? "rotate-180" : "rotate-0"}`}
-                  />
-                </div>
-                {aiLists?.Roles && (
-                  <>
-                    <hr />
-                    {ai_rolesData?.length
-                      ? ai_rolesData.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
-                            onClick={() =>
-                              setPersona((pre) => ({
-                                ...pre,
-                                ai_role_id: v?.ai_role_id,
-                              }))
-                            }
-                          >
+              <div className="w-full flex flex-col items-start gap-2">
+                <div className="w-full border border-solid rounded">
+                  <div
+                    className="p-3 flex items-center justify-between cursor-pointer"
+                    onClick={() => {
+                      setAiLists((pre) => ({ ...pre, Roles: !aiLists?.Roles }));
+                      if (validationError.ai_role_id)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          ai_role_id: undefined,
+                        }));
+                    }}
+                  >
+                    <p>Select Role</p>
+                    <KeyboardArrowDownIcon
+                      className={`${aiLists?.Roles ? "rotate-180" : "rotate-0"}`}
+                    />
+                  </div>
+                  {aiLists?.Roles && (
+                    <>
+                      <hr />
+                      {ai_rolesData?.length
+                        ? ai_rolesData.map((v, i) => (
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
-                            />
-                            {v?.name}
-                          </div>
-                        ))
-                      : null}
-                  </>
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  ai_role_id: v?.ai_role_id,
+                                }));
+                                if (validationError.ai_role_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    ai_role_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                              />
+                              {v?.name}
+                            </div>
+                          ))
+                        : null}
+                    </>
+                  )}
+                </div>
+                {validationError.ai_role_id && (
+                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                    {validationError.ai_role_id}
+                  </p>
                 )}
               </div>
 
               {/* Select Manufacturing Mode */}
-              <div className="border border-solid rounded">
-                <div
-                  className="p-3 flex items-center justify-between cursor-pointer"
-                  onClick={() =>
-                    setAiLists((pre) => ({
-                      ...pre,
-                      manufacturing: !aiLists?.manufacturing,
-                    }))
-                  }
-                >
-                  <p>Select Manufacturing Mode</p>
-                  <KeyboardArrowDownIcon
-                    className={`${aiLists?.manufacturing ? "rotate-180" : "rotate-0"}`}
-                  />
-                </div>
-                {aiLists?.manufacturing && (
-                  <>
-                    <hr />
-                    {manufacturing_modelsData?.length
-                      ? manufacturing_modelsData.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
-                            onClick={() =>
-                              setPersona((pre) => ({
-                                ...pre,
-                                manufacturing_model_id:
-                                  v?.manufacturing_model_id,
-                              }))
-                            }
-                          >
+              <div className="w-full flex flex-col items-start gap-2">
+                <div className="w-full border border-solid rounded">
+                  <div
+                    className="p-3 flex items-center justify-between cursor-pointer"
+                    onClick={() => {
+                      setAiLists((pre) => ({
+                        ...pre,
+                        manufacturing: !aiLists?.manufacturing,
+                      }));
+                      if (validationError.manufacturing_model_id)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          manufacturing_model_id: undefined,
+                        }));
+                    }}
+                  >
+                    <p>Select Manufacturing Mode</p>
+                    <KeyboardArrowDownIcon
+                      className={`${aiLists?.manufacturing ? "rotate-180" : "rotate-0"}`}
+                    />
+                  </div>
+                  {aiLists?.manufacturing && (
+                    <>
+                      <hr />
+                      {manufacturing_modelsData?.length
+                        ? manufacturing_modelsData.map((v, i) => (
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
-                            />
-                            {v?.name}
-                          </div>
-                        ))
-                      : null}
-                  </>
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  manufacturing_model_id:
+                                    v?.manufacturing_model_id,
+                                }));
+                                if (validationError.manufacturing_model_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    manufacturing_model_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                              />
+                              {v?.name}
+                            </div>
+                          ))
+                        : null}
+                    </>
+                  )}
+                </div>
+                {validationError.manufacturing_model_id && (
+                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                    {validationError.manufacturing_model_id}
+                  </p>
                 )}
               </div>
 
               {/* Select Geography */}
-              <div className="border border-solid rounded">
-                <div
-                  className="p-3 flex items-center justify-between cursor-pointer"
-                  onClick={() =>
-                    setAiLists((pre) => ({
-                      ...pre,
-                      geography: !aiLists?.geography,
-                    }))
-                  }
-                >
-                  <p>Select Geography</p>
-                  <KeyboardArrowDownIcon
-                    className={`${aiLists?.geography ? "rotate-180" : "rotate-0"}`}
-                  />
-                </div>
-                {aiLists?.geography && (
-                  <>
-                    <hr />
-                    {geography?.length
-                      ? geography.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
-                            onClick={() =>
-                              setPersona((pre) => ({
-                                ...pre,
-                                geography: v?.value,
-                              }))
-                            }
-                          >
+              <div className="w-full flex flex-col items-start gap-2">
+                <div className="w-full border border-solid rounded">
+                  <div
+                    className="p-3 flex items-center justify-between cursor-pointer"
+                    onClick={() => {
+                      setAiLists((pre) => ({
+                        ...pre,
+                        geography: !aiLists?.geography,
+                      }));
+                      if (validationError.geography)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          geography: undefined,
+                        }));
+                    }}
+                  >
+                    <p>Select Geography</p>
+                    <KeyboardArrowDownIcon
+                      className={`${aiLists?.geography ? "rotate-180" : "rotate-0"}`}
+                    />
+                  </div>
+                  {aiLists?.geography && (
+                    <>
+                      <hr />
+                      {geography?.length
+                        ? geography.map((v, i) => (
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
-                            />
-                            {v?.name}
-                          </div>
-                        ))
-                      : null}
-                  </>
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  geography: v?.value,
+                                }));
+                                if (validationError.geography)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    geography: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                              />
+                              {v?.name}
+                            </div>
+                          ))
+                        : null}
+                    </>
+                  )}
+                </div>
+                {validationError.geography && (
+                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                    {validationError.geography}
+                  </p>
                 )}
               </div>
             </div>
@@ -427,6 +536,7 @@ const Persona = ({ currentSegment }) => {
                     onClick={() => {
                       setAddPersona(false);
                       setPersona({});
+                      setValidationError({});
                       setPersonaId("");
                       setAiLists({
                         industry: true,
@@ -442,6 +552,12 @@ const Persona = ({ currentSegment }) => {
                   <div
                     className="rounded border border-solid border-blue-600 hover:border-blue-700 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer py-1 px-6 w-fit flex items-center gap-2"
                     onClick={() => {
+                      const errors = validatePersona();
+                      if (Object.keys(errors).length > 0) {
+                        setValidationError(errors);
+                        return;
+                      }
+                      setValidationError({});
                       if (personaId === "") {
                         createPersona();
                       } else {
