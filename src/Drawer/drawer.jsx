@@ -17,7 +17,8 @@ import InterpreterModeIcon from "@mui/icons-material/InterpreterMode";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
-import FactoryIcon from '@mui/icons-material/Factory';
+import FactoryIcon from "@mui/icons-material/Factory";
+import AnnouncementIcon from "@mui/icons-material/Announcement";
 import ModsFlo from "./Mods";
 import Role from "./Role";
 import Experience from "./Experience";
@@ -26,6 +27,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Persona from "./Persona";
 import PlantSize from "./PlantSize";
 import ManufacturingModels from "./ManufacturingModels";
+import GeneralInstruction from "./GeneralInstruction";
 
 const NAVIGATION = [
   {
@@ -62,6 +64,11 @@ const NAVIGATION = [
     title: "Manufacturing Models",
     icon: <FactoryIcon />,
   },
+  // {
+  //   segment: "generalInstruction",
+  //   title: "General Instruction",
+  //   icon: <AnnouncementIcon />,
+  // },
   // {
   //   segment: "experience",
   //   title: "Experience",
@@ -364,6 +371,7 @@ export default function DashboardLayoutBasic(props) {
             <Industry currentSegment={currentSegment} />
             <PlantSize currentSegment={currentSegment} />
             <ManufacturingModels currentSegment={currentSegment} />
+            <GeneralInstruction currentSegment={currentSegment} />
           </Grid>
         </PageContainer>
       </DashboardLayout>
