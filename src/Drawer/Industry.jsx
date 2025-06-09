@@ -37,6 +37,7 @@ const Industry = ({ currentSegment }) => {
   const [addData, setAddData] = useState(false);
   const [industries, setIndustries] = useState([]);
   const [validationError, setValidationError] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const readIndustry = async () => {
     try {
@@ -50,6 +51,7 @@ const Industry = ({ currentSegment }) => {
   };
 
   const createIndustries = async () => {
+    setLoading(true);
     try {
       let data = await axioInstance.post(endpoints.ai.industries, {
         name: editingData?.name,
@@ -62,10 +64,13 @@ const Industry = ({ currentSegment }) => {
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateIndustries = async () => {
+    setLoading(true);
     try {
       let data = await axioInstance.put(
         `${endpoints.ai.industries}${editingData?.id}`,
@@ -81,6 +86,8 @@ const Industry = ({ currentSegment }) => {
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -175,8 +182,9 @@ const Industry = ({ currentSegment }) => {
                       createIndustries();
                     }
                   }}
+                  disabled={loading}
                 >
-                  Save
+                  {loading ? <RotateRightIcon className="animate-spin" /> : "Save"}
                 </Button>
               </div>
             </div>
@@ -193,7 +201,7 @@ const Industry = ({ currentSegment }) => {
                   {industries?.length ? (
                     industries.map((v, i) => (
                       <TableRow key={i}>
-                        <TableCell>{v?.name}</TableCell>
+                        <TableCell className="capitalize">{v?.name.replace(/_/g, " ")}</TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end gap-2">
                             <div
@@ -227,12 +235,11 @@ const Industry = ({ currentSegment }) => {
                   ) : (
                     <TableRow>
                       <TableCell></TableCell>
-                      <TableCell>
+                      <TableCell className="w-full">
                         <div className="flex items-center justify-center h-60">
                           <RotateRightIcon className="animate-spin !text-5xl" />
                         </div>
                       </TableCell>
-                      <TableCell></TableCell>
                     </TableRow>
                   )}
                 </TableBody>

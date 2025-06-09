@@ -52,6 +52,7 @@ const Persona = ({ currentSegment }) => {
     geography: true,
   });
   const [validationError, setValidationError] = useState({});
+  const [loading, setLoading] = useState(false);
 
   console.log(persona, personaId, "persona__");
 
@@ -98,16 +99,10 @@ const Persona = ({ currentSegment }) => {
   };
 
   const createPersona = async () => {
+    setLoading(true);
     try {
       let data = await axioInstance.post(endpoints.persona.persona, {
         ...persona,
-        behavioral_traits: [
-          {
-            name: "string",
-            intensity: 0,
-            description: "string",
-          },
-        ],
       });
       if (data?.data?.persona_id) {
         readPersona("table");
@@ -124,20 +119,16 @@ const Persona = ({ currentSegment }) => {
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
   const updatePersona = async (id) => {
+    setLoading(true);
     try {
       let data = await axioInstance.put(`${endpoints.persona.persona}/${id}`, {
         ...persona,
-        behavioral_traits: [
-          {
-            name: "string",
-            intensity: 0,
-            description: "string",
-          },
-        ],
       });
       if (data?.data?.persona_id) {
         readPersona("table");
@@ -154,13 +145,15 @@ const Persona = ({ currentSegment }) => {
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
   const validatePersona = () => {
     const errors = {};
     if (!persona?.name) errors.name = "Name is required";
-    if (!persona?.summary) errors.summary = "Summary is required";
+    if (!persona?.behavioral_detail) errors.behavioral_detail = "Summary is required";
     if (!persona?.industry_id) errors.industry_id = "Industry is required";
     if (!persona?.plant_size_impact_id)
       errors.plant_size_impact_id = "Plant Size is required";
@@ -199,6 +192,7 @@ const Persona = ({ currentSegment }) => {
                 error={!!validationError.name}
                 helperText={validationError.name}
               />
+              
               <TextField
                 fullWidth
                 className="!m-0"
@@ -206,19 +200,19 @@ const Persona = ({ currentSegment }) => {
                 label={"Summary"}
                 multiline
                 rows={3}
-                value={persona?.summary
+                value={persona?.behavioral_detail
                   ?.replace(/\\n\\n/g, "\n\n")
                   .replace(/\\n/g, "\n")}
                 onChange={(e) => {
-                  setPersona({ ...persona, summary: e.target.value });
-                  if (validationError.summary)
+                  setPersona({ ...persona, behavioral_detail: e.target.value });
+                  if (validationError.behavioral_detail)
                     setValidationError((prev) => ({
                       ...prev,
-                      summary: undefined,
+                      behavioral_detail: undefined,
                     }));
                 }}
-                error={!!validationError.summary}
-                helperText={validationError.summary}
+                error={!!validationError.behavioral_detail}
+                helperText={validationError.behavioral_detail}
               />
 
               {/* Select Industry */}
@@ -250,7 +244,7 @@ const Persona = ({ currentSegment }) => {
                         ? industriesData.map((v, i) => (
                             <div
                               key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
                               onClick={() => {
                                 setPersona((pre) => ({
                                   ...pre,
@@ -266,7 +260,7 @@ const Persona = ({ currentSegment }) => {
                               <div
                                 className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
                               />
-                              {v?.name}
+                              {v?.name.replace(/_/g, " ")}
                             </div>
                           ))
                         : null}
@@ -274,7 +268,9 @@ const Persona = ({ currentSegment }) => {
                   )}
                 </div>
                 {validationError.industry_id && (
-                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                  <p
+                    style={{ color: "red", margin: "0 16px", fontSize: "13px" }}
+                  >
                     {validationError.industry_id}
                   </p>
                 )}
@@ -309,7 +305,7 @@ const Persona = ({ currentSegment }) => {
                         ? plant_size_impactsData.map((v, i) => (
                             <div
                               key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
                               onClick={() => {
                                 setPersona((pre) => ({
                                   ...pre,
@@ -326,7 +322,7 @@ const Persona = ({ currentSegment }) => {
                               <div
                                 className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
                               />
-                              {v?.name}
+                              {v?.name.replace(/_/g, " ")}
                             </div>
                           ))
                         : null}
@@ -334,7 +330,9 @@ const Persona = ({ currentSegment }) => {
                   )}
                 </div>
                 {validationError.plant_size_impact_id && (
-                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                  <p
+                    style={{ color: "red", margin: "0 16px", fontSize: "13px" }}
+                  >
                     {validationError.plant_size_impact_id}
                   </p>
                 )}
@@ -366,7 +364,7 @@ const Persona = ({ currentSegment }) => {
                         ? ai_rolesData.map((v, i) => (
                             <div
                               key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
                               onClick={() => {
                                 setPersona((pre) => ({
                                   ...pre,
@@ -382,7 +380,7 @@ const Persona = ({ currentSegment }) => {
                               <div
                                 className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
                               />
-                              {v?.name}
+                              {v?.name.replace(/_/g, " ")}
                             </div>
                           ))
                         : null}
@@ -390,7 +388,9 @@ const Persona = ({ currentSegment }) => {
                   )}
                 </div>
                 {validationError.ai_role_id && (
-                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                  <p
+                    style={{ color: "red", margin: "0 16px", fontSize: "13px" }}
+                  >
                     {validationError.ai_role_id}
                   </p>
                 )}
@@ -425,7 +425,7 @@ const Persona = ({ currentSegment }) => {
                         ? manufacturing_modelsData.map((v, i) => (
                             <div
                               key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
                               onClick={() => {
                                 setPersona((pre) => ({
                                   ...pre,
@@ -442,7 +442,7 @@ const Persona = ({ currentSegment }) => {
                               <div
                                 className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
                               />
-                              {v?.name}
+                              {v?.name.replace(/_/g, " ")}
                             </div>
                           ))
                         : null}
@@ -450,7 +450,9 @@ const Persona = ({ currentSegment }) => {
                   )}
                 </div>
                 {validationError.manufacturing_model_id && (
-                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                  <p
+                    style={{ color: "red", margin: "0 16px", fontSize: "13px" }}
+                  >
                     {validationError.manufacturing_model_id}
                   </p>
                 )}
@@ -485,7 +487,7 @@ const Persona = ({ currentSegment }) => {
                         ? geography.map((v, i) => (
                             <div
                               key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer`}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
                               onClick={() => {
                                 setPersona((pre) => ({
                                   ...pre,
@@ -501,7 +503,7 @@ const Persona = ({ currentSegment }) => {
                               <div
                                 className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
                               />
-                              {v?.name}
+                              {v?.name.replace(/_/g, " ")}
                             </div>
                           ))
                         : null}
@@ -509,7 +511,9 @@ const Persona = ({ currentSegment }) => {
                   )}
                 </div>
                 {validationError.geography && (
-                  <p style={{ color: "red", margin: "0 16px", fontSize: "13px" }}>
+                  <p
+                    style={{ color: "red", margin: "0 16px", fontSize: "13px" }}
+                  >
                     {validationError.geography}
                   </p>
                 )}
@@ -552,6 +556,7 @@ const Persona = ({ currentSegment }) => {
                   <div
                     className="rounded border border-solid border-blue-600 hover:border-blue-700 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer py-1 px-6 w-fit flex items-center gap-2"
                     onClick={() => {
+                      if (loading) return;
                       const errors = validatePersona();
                       if (Object.keys(errors).length > 0) {
                         setValidationError(errors);
@@ -564,8 +569,16 @@ const Persona = ({ currentSegment }) => {
                         updatePersona(personaId);
                       }
                     }}
+                    style={{
+                      opacity: loading ? 0.7 : 1,
+                      pointerEvents: loading ? "none" : "auto",
+                    }}
                   >
-                    Save
+                    {loading ? (
+                      <RotateRightIcon className="animate-spin" />
+                    ) : (
+                      "Save"
+                    )}
                   </div>
                 </>
               )}
@@ -603,7 +616,7 @@ const Persona = ({ currentSegment }) => {
                     personaData.map((v, i) => (
                       <TableRow key={i}>
                         <TableCell sx={{ textAlign: "left" }}>
-                          {v?.name}
+                          {v?.name.replace(/_/g, " ")}
                         </TableCell>
                         <TableCell sx={{ textAlign: "center" }}>
                           <Chip
@@ -624,7 +637,7 @@ const Persona = ({ currentSegment }) => {
                                 setPersonaId(v?.persona_id);
                                 setPersona({
                                   name: v?.name,
-                                  summary: v?.summary,
+                                  behavioral_detail: v?.behavioral_detail,
                                   industry_id: v?.industry?.industry_id,
                                   ai_role_id: v?.ai_role?.ai_role_id,
                                   manufacturing_model_id:

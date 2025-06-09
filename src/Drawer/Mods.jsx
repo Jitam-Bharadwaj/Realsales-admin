@@ -38,6 +38,7 @@ const ModsFlo = ({ currentSegment }) => {
   const [addData, setAddData] = useState(false);
   const [createMode, setCreateMode] = useState({});
   const [validationError, setValidationError] = useState({});
+  const [loading, setLoading] = useState(false);
 
   console.log(deleteId, "deleteId");
 
@@ -53,6 +54,7 @@ const ModsFlo = ({ currentSegment }) => {
   };
 
   const createModsPrompt = async () => {
+    setLoading(true);
     try {
       let data = await axioInstance.post(`${endpoints?.closing?.getClosing}/`, {
         name: createMode?.name,
@@ -65,10 +67,13 @@ const ModsFlo = ({ currentSegment }) => {
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateMode = async () => {
+    setLoading(true);
     try {
       let data = await axioInstance.put(
         `${endpoints?.closing?.getClosing}/${editingData?.id}`,
@@ -85,6 +90,8 @@ const ModsFlo = ({ currentSegment }) => {
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -311,8 +318,9 @@ const ModsFlo = ({ currentSegment }) => {
                         setValidationError({});
                         createModsPrompt();
                       }}
+                      disabled={loading}
                     >
-                      Save
+                      {loading ? <RotateRightIcon className="animate-spin" /> : "Save"}
                     </Button>
                   </div>
                 </div>
@@ -356,8 +364,9 @@ const ModsFlo = ({ currentSegment }) => {
                   variant="contained"
                   className="!bg-green-600 !text-white w-fit"
                   onClick={() => updateMode()}
+                  disabled={loading}
                 >
-                  Save
+                  {loading ? <RotateRightIcon className="animate-spin" /> : "Save"}
                 </Button>
               </div>
             </div>

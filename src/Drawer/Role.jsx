@@ -37,6 +37,7 @@ const Role = ({ currentSegment }) => {
   const [addData, setAddData] = useState(false);
   const [roles, setRoles] = useState([]);
   const [validationError, setValidationError] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const readRole = async () => {
     try {
@@ -50,10 +51,11 @@ const Role = ({ currentSegment }) => {
   };
 
   const createRole = async () => {
+    setLoading(true);
     try {
       let data = await axioInstance.post(endpoints.ai.ai_roles, {
         name: editingData?.name,
-        details: convertNewlines(editingData?.details),
+        description: convertNewlines(editingData?.description),
       });
       if (data?.data?.ai_role_id) {
         readRole();
@@ -62,16 +64,19 @@ const Role = ({ currentSegment }) => {
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateRole = async () => {
+    setLoading(true);
     try {
       let data = await axioInstance.put(
         `${endpoints.ai.ai_roles}${editingData?.id}`,
         {
           name: editingData?.name,
-          details: convertNewlines(editingData?.details),
+          description: convertNewlines(editingData?.description),
         }
       );
       if (data?.data?.ai_role_id) {
@@ -81,6 +86,8 @@ const Role = ({ currentSegment }) => {
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,7 +106,7 @@ const Role = ({ currentSegment }) => {
   const validateRole = (data) => {
     const errors = {};
     if (!data?.name) errors.name = "Name is required";
-    if (!data?.details) errors.details = "Prompt Template is required";
+    if (!data?.description) errors.description = "Prompt Template is required";
     return errors;
   };
 
@@ -139,13 +146,13 @@ const Role = ({ currentSegment }) => {
                 label={"Prompt Template"}
                 multiline
                 rows={6}
-                value={editingData?.details?.replace(/\\n\\n/g, "\n\n").replace(/\\n/g, "\n")}
+                value={editingData?.description?.replace(/\\n\\n/g, "\n\n").replace(/\\n/g, "\n")}
                 onChange={(e) => {
-                  setEditingData({ ...editingData, details: e.target.value });
-                  if (validationError.details) setValidationError((prev) => ({ ...prev, details: undefined }));
+                  setEditingData({ ...editingData, description: e.target.value });
+                  if (validationError.description) setValidationError((prev) => ({ ...prev, description: undefined }));
                 }}
-                error={!!validationError.details}
-                helperText={validationError.details}
+                error={!!validationError.description}
+                helperText={validationError.description}
               />
               <div className="flex items-center gap-2">
                 <Button
@@ -175,8 +182,9 @@ const Role = ({ currentSegment }) => {
                       createRole();
                     }
                   }}
+                  disabled={loading}
                 >
-                  Save
+                  {loading ? <RotateRightIcon className="animate-spin" /> : "Save"}
                 </Button>
               </div>
             </div>
@@ -193,7 +201,7 @@ const Role = ({ currentSegment }) => {
                   {roles?.length ? (
                     roles.map((v, i) => (
                       <TableRow key={i}>
-                        <TableCell>{v?.name}</TableCell>
+                        <TableCell className="capitalize">{v?.name.replace(/_/g, " ")}</TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end gap-2">
                             <div
@@ -202,7 +210,7 @@ const Role = ({ currentSegment }) => {
                                 setAddData(true);
                                 setEditingData({
                                   name: v?.name,
-                                  details: v?.details,
+                                  description: v?.description,
                                   id: v?.ai_role_id,
                                 });
                               }}
@@ -227,12 +235,11 @@ const Role = ({ currentSegment }) => {
                   ) : (
                     <TableRow>
                       <TableCell></TableCell>
-                      <TableCell>
+                      <TableCell className="w-full">
                         <div className="flex items-center justify-center h-60">
                           <RotateRightIcon className="animate-spin !text-5xl" />
                         </div>
                       </TableCell>
-                      <TableCell></TableCell>
                     </TableRow>
                   )}
                 </TableBody>

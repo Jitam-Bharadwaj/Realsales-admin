@@ -36,6 +36,7 @@ const GeneralInstruction = ({ currentSegment }) => {
   const [deleteId, setDeleteId] = useState({});
   const [addData, setAddData] = useState(false);
   const [manufacturingModels, setManufacturingModels] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const readGeneral = async () => {
     try {
@@ -45,9 +46,12 @@ const GeneralInstruction = ({ currentSegment }) => {
   };
 
   const createGeneral = async () => {
+    setLoading(true);
     try {
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,8 +116,9 @@ const GeneralInstruction = ({ currentSegment }) => {
                   onClick={() => {
                     createGeneral();
                   }}
+                  disabled={loading}
                 >
-                  Save
+                  {loading ? <RotateRightIcon className="animate-spin" /> : "Save"}
                 </Button>
               </div>
             </div>
