@@ -17,7 +17,7 @@ import React, { useEffect, useState } from "react";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
 import EditIcon from "@mui/icons-material/Edit";
-//   import DeleteIcon from "@mui/icons-material/Delete";
+  import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -40,6 +40,7 @@ const Persona = ({ currentSegment }) => {
 
   const [addPersona, setAddPersona] = useState(false);
   const [persona, setPersona] = useState({});
+  const [deleteId, setDeleteId] = useState({});
   const [personaId, setPersonaId] = useState("");
   const [personaData, setPersonaData] = useState([]);
   const [industriesData, setIndustriesData] = useState([]);
@@ -116,16 +117,22 @@ const Persona = ({ currentSegment }) => {
         let data = await axioInstance.get(endpoints.persona.persona);
         if (data?.data?.length > 0) {
           setPersonaData(data?.data);
+        } else {
+          setPersonaData([])
         }
       } else {
         let data = await axioInstance.get(endpoints.persona.persona);
         if (data?.data?.length > 0) {
           setPersonaData(data?.data);
+        } else {
+          setPersonaData([])
         }
 
         let industriData = await axioInstance.get(endpoints.ai.industries);
         if (industriData?.data?.length > 0) {
           setIndustriesData(industriData?.data);
+        } else {
+          setIndustriesData([])
         }
 
         let plant_size_impactData = await axioInstance.get(
@@ -133,11 +140,15 @@ const Persona = ({ currentSegment }) => {
         );
         if (plant_size_impactData?.data?.length > 0) {
           setPlant_size_impactsData(plant_size_impactData?.data);
+        } else {
+          setPlant_size_impactsData([])
         }
 
         let aIrolesData = await axioInstance.get(endpoints.ai.ai_roles);
         if (aIrolesData?.data?.length > 0) {
           setAi_rolesData(aIrolesData?.data);
+        } else {
+          setAi_rolesData([])
         }
 
         let manufacturingModelsData = await axioInstance.get(
@@ -145,6 +156,8 @@ const Persona = ({ currentSegment }) => {
         );
         if (manufacturingModelsData?.data?.length > 0) {
           setManufacturing_modelsData(manufacturingModelsData?.data);
+        } else {
+          setManufacturing_modelsData([])
         }
       }
     } catch (error) {
@@ -201,6 +214,18 @@ const Persona = ({ currentSegment }) => {
       console.log(error, "_error_");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deletePersona = async (id) => {
+    try {
+      let data = await axioInstance.delete(`${endpoints.persona.persona}${id}`);
+      if (data?.status === 204) {
+        readPersona("table");
+        setDeleteId({});
+      }
+    } catch (error) {
+      console.log(error, "_error_");
     }
   };
 
@@ -763,6 +788,18 @@ const Persona = ({ currentSegment }) => {
                             >
                               <EditIcon className="!text-lg" />
                             </div>
+
+                            <div
+                              className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                              onClick={() =>
+                                setDeleteId({
+                                  name: v?.name,
+                                  id: v?.persona_id,
+                                })
+                              }
+                            >
+                              <DeleteIcon className="!text-lg" />
+                            </div>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -782,6 +819,30 @@ const Persona = ({ currentSegment }) => {
               </Table>
             </>
           )}
+
+          <Dialog open={deleteId?.id} onClose={() => setDeleteId({})}>
+            <DialogTitle>Delete Confirmation</DialogTitle>
+            <DialogContent>
+              Are you sure you want to delete <b>{deleteId?.name}</b> prompt?
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="outlined"
+                className="!border !border-green-600 !text-green-600 !bg-transparent w-fit"
+                onClick={() => setDeleteId({})}
+              >
+                Close
+              </Button>
+              <Button
+                variant="contained"
+                className="!bg-red-600 !text-white w-fit"
+                onClick={() => deletePersona(deleteId?.id)}
+                autoFocus
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
         </div>
       )}
     </>
