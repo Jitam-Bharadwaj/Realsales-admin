@@ -19,6 +19,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
+import NotFoundImage from "../../public/404_Image.png";
 
 const Industry = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -36,17 +37,24 @@ const Industry = ({ currentSegment }) => {
   const [deleteId, setDeleteId] = useState({});
   const [addData, setAddData] = useState(false);
   const [industries, setIndustries] = useState([]);
+  const [loadingIndustries, setLoadingIndustries] = useState(false);
   const [validationError, setValidationError] = useState({});
   const [loading, setLoading] = useState(false);
 
   const readIndustry = async () => {
+    setLoadingIndustries(true);
     try {
       let data = await axioInstance.get(endpoints.ai.industries);
       if (data?.data?.length) {
         setIndustries(data?.data);
+      } else {
+        setIndustries([]);
       }
     } catch (error) {
+      setIndustries([]);
       console.log(error, "_error_");
+    } finally {
+      setLoadingIndustries(false);
     }
   };
 
@@ -135,7 +143,11 @@ const Industry = ({ currentSegment }) => {
                 value={editingData?.name}
                 onChange={(e) => {
                   setEditingData({ ...editingData, name: e.target.value });
-                  if (validationError.name) setValidationError((prev) => ({ ...prev, name: undefined }));
+                  if (validationError.name)
+                    setValidationError((prev) => ({
+                      ...prev,
+                      name: undefined,
+                    }));
                 }}
                 error={!!validationError.name}
                 helperText={validationError.name}
@@ -146,10 +158,16 @@ const Industry = ({ currentSegment }) => {
                 label={"Prompt Template"}
                 multiline
                 rows={6}
-                value={editingData?.details?.replace(/\\n\\n/g, "\n\n").replace(/\\n/g, "\n")}
+                value={editingData?.details
+                  ?.replace(/\\n\\n/g, "\n\n")
+                  .replace(/\\n/g, "\n")}
                 onChange={(e) => {
                   setEditingData({ ...editingData, details: e.target.value });
-                  if (validationError.details) setValidationError((prev) => ({ ...prev, details: undefined }));
+                  if (validationError.details)
+                    setValidationError((prev) => ({
+                      ...prev,
+                      details: undefined,
+                    }));
                 }}
                 error={!!validationError.details}
                 helperText={validationError.details}
@@ -184,7 +202,11 @@ const Industry = ({ currentSegment }) => {
                   }}
                   disabled={loading}
                 >
-                  {loading ? <RotateRightIcon className="animate-spin" /> : "Save"}
+                  {loading ? (
+                    <RotateRightIcon className="animate-spin" />
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
               </div>
             </div>
@@ -198,10 +220,20 @@ const Industry = ({ currentSegment }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {industries?.length ? (
+                  {loadingIndustries ? (
+                    <TableRow>
+                      <TableCell colSpan={2} className="w-full">
+                        <div className="flex items-center justify-center h-60">
+                          <RotateRightIcon className="animate-spin !text-5xl" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : industries?.length ? (
                     industries.map((v, i) => (
                       <TableRow key={i}>
-                        <TableCell className="capitalize">{v?.name.replace(/_/g, " ")}</TableCell>
+                        <TableCell className="capitalize">
+                          {v?.name.replace(/_/g, " ")}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end gap-2">
                             <div
@@ -234,10 +266,16 @@ const Industry = ({ currentSegment }) => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell></TableCell>
-                      <TableCell className="w-full">
-                        <div className="flex items-center justify-center h-60">
-                          <RotateRightIcon className="animate-spin !text-5xl" />
+                      <TableCell colSpan={2} className="w-full">
+                        <div className="flex items-center justify-center h-60 relative">
+                          <img
+                            src={NotFoundImage}
+                            alt="404"
+                            className="w-auto h-full"
+                          />
+                          <p className="text-lg absolute bottom-[15%]">
+                            Oops... page not found
+                          </p>
                         </div>
                       </TableCell>
                     </TableRow>

@@ -19,6 +19,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
+import NotFoundImage from "../../public/404_Image.png";
 
 const ModsFlo = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -33,6 +34,7 @@ const ModsFlo = ({ currentSegment }) => {
   };
 
   const [mods, setMods] = useState([]);
+  const [loadingMods, setLoadingMods] = useState(false);
   const [editingData, setEditingData] = useState({});
   const [deleteId, setDeleteId] = useState({});
   const [addData, setAddData] = useState(false);
@@ -43,13 +45,19 @@ const ModsFlo = ({ currentSegment }) => {
   console.log(deleteId, "deleteId");
 
   const readAllMods = async () => {
+    setLoadingMods(true);
     try {
       let data = await axioInstance.get(`${endpoints?.closing?.getClosing}/`);
       if (data?.data?.length) {
         setMods(data?.data);
+      } else {
+        setMods([]);
       }
     } catch (error) {
+      setMods([]);
       console.log(error, "_error_");
+    } finally {
+      setLoadingMods(false);
     }
   };
 
@@ -152,7 +160,17 @@ const ModsFlo = ({ currentSegment }) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {mods?.length ? (
+                      {loadingMods ? (
+                        <TableRow>
+                          <TableCell></TableCell>
+                          <TableCell colSpan={2} className="w-full">
+                            <div className="flex items-center justify-center h-60">
+                              <RotateRightIcon className="animate-spin !text-5xl" />
+                            </div>
+                          </TableCell>
+                          <TableCell></TableCell>
+                        </TableRow>
+                      ) : mods?.length ? (
                         mods?.map((v, i) => (
                           <TableRow key={i}>
                             <TableCell sx={{ textAlign: "left" }}>
@@ -201,9 +219,16 @@ const ModsFlo = ({ currentSegment }) => {
                       ) : (
                         <TableRow>
                           <TableCell></TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center h-60">
-                              <RotateRightIcon className="animate-spin !text-5xl" />
+                          <TableCell colSpan={2} className="w-full">
+                            <div className="flex items-center justify-center h-60 relative">
+                              <img
+                                src={NotFoundImage}
+                                alt="404"
+                                className="w-auto h-full"
+                              />
+                              <p className="text-lg absolute bottom-[15%]">
+                                Oops... page not found
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell></TableCell>
@@ -320,7 +345,11 @@ const ModsFlo = ({ currentSegment }) => {
                       }}
                       disabled={loading}
                     >
-                      {loading ? <RotateRightIcon className="animate-spin" /> : "Save"}
+                      {loading ? (
+                        <RotateRightIcon className="animate-spin" />
+                      ) : (
+                        "Save"
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -366,7 +395,11 @@ const ModsFlo = ({ currentSegment }) => {
                   onClick={() => updateMode()}
                   disabled={loading}
                 >
-                  {loading ? <RotateRightIcon className="animate-spin" /> : "Save"}
+                  {loading ? (
+                    <RotateRightIcon className="animate-spin" />
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
               </div>
             </div>

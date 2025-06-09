@@ -17,12 +17,13 @@ import React, { useEffect, useState } from "react";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
 import EditIcon from "@mui/icons-material/Edit";
-  import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useDropzone } from "react-dropzone";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import NotFoundImage from "../../public/404_Image.png"
 
 const geography = [{ name: "us", value: "us" }];
 
@@ -40,6 +41,7 @@ const Persona = ({ currentSegment }) => {
 
   const [addPersona, setAddPersona] = useState(false);
   const [persona, setPersona] = useState({});
+  const [loadingPersona, setLoadingPersona] = useState(false);
   const [deleteId, setDeleteId] = useState({});
   const [personaId, setPersonaId] = useState("");
   const [personaData, setPersonaData] = useState([]);
@@ -112,27 +114,30 @@ const Persona = ({ currentSegment }) => {
   });
 
   const readPersona = async (control) => {
+    setLoadingPersona(true);
     try {
       if (control === "table") {
         let data = await axioInstance.get(endpoints.persona.persona);
         if (data?.data?.length > 0) {
           setPersonaData(data?.data);
+          setLoadingPersona(false);
         } else {
-          setPersonaData([])
+          setPersonaData([]);
         }
       } else {
         let data = await axioInstance.get(endpoints.persona.persona);
         if (data?.data?.length > 0) {
           setPersonaData(data?.data);
+          setLoadingPersona(false);
         } else {
-          setPersonaData([])
+          setPersonaData([]);
         }
 
         let industriData = await axioInstance.get(endpoints.ai.industries);
         if (industriData?.data?.length > 0) {
           setIndustriesData(industriData?.data);
         } else {
-          setIndustriesData([])
+          setIndustriesData([]);
         }
 
         let plant_size_impactData = await axioInstance.get(
@@ -141,14 +146,14 @@ const Persona = ({ currentSegment }) => {
         if (plant_size_impactData?.data?.length > 0) {
           setPlant_size_impactsData(plant_size_impactData?.data);
         } else {
-          setPlant_size_impactsData([])
+          setPlant_size_impactsData([]);
         }
 
         let aIrolesData = await axioInstance.get(endpoints.ai.ai_roles);
         if (aIrolesData?.data?.length > 0) {
           setAi_rolesData(aIrolesData?.data);
         } else {
-          setAi_rolesData([])
+          setAi_rolesData([]);
         }
 
         let manufacturingModelsData = await axioInstance.get(
@@ -157,11 +162,13 @@ const Persona = ({ currentSegment }) => {
         if (manufacturingModelsData?.data?.length > 0) {
           setManufacturing_modelsData(manufacturingModelsData?.data);
         } else {
-          setManufacturing_modelsData([])
+          setManufacturing_modelsData([]);
         }
       }
     } catch (error) {
       console.log(error, "_error_");
+    } finally {
+      setLoadingPersona(false);
     }
   };
 
@@ -748,62 +755,76 @@ const Persona = ({ currentSegment }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {personaData?.length ? (
-                    personaData.map((v, i) => (
-                      <TableRow key={i}>
-                        <TableCell sx={{ textAlign: "left" }}>
-                          {v?.name.replace(/_/g, " ")}
-                        </TableCell>
-                        <TableCell sx={{ textAlign: "center" }}>
-                          <Chip
-                            label={v?.status_active ? "Active" : "Inactive"}
-                            color={v?.status_active ? "success" : "error"}
-                            size="small"
-                            sx={{
-                              fontWeight: 500,
-                              minWidth: "80px",
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell sx={{ textAlign: "right" }}>
-                          <div className="flex items-center justify-end gap-2">
-                            <div
-                              className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
-                              onClick={() => {
-                                setPersonaId(v?.persona_id);
-                                setPersona({
-                                  name: v?.name,
-                                  behavioral_detail: v?.behavioral_detail,
-                                  industry_id: v?.industry?.industry_id,
-                                  ai_role_id: v?.ai_role?.ai_role_id,
-                                  manufacturing_model_id:
-                                    v?.manufacturing_model
-                                      ?.manufacturing_model_id,
-                                  plant_size_impact_id:
-                                    v?.plant_size_impact?.plant_size_impact_id,
-                                  geography: v?.geography,
-                                });
-                                setAddPersona(true);
+                  {!loadingPersona ? (
+                    personaData?.length ? (
+                      personaData.map((v, i) => (
+                        <TableRow key={i}>
+                          <TableCell sx={{ textAlign: "left" }}>
+                            {v?.name.replace(/_/g, " ")}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            <Chip
+                              label={v?.status_active ? "Active" : "Inactive"}
+                              color={v?.status_active ? "success" : "error"}
+                              size="small"
+                              sx={{
+                                fontWeight: 500,
+                                minWidth: "80px",
                               }}
-                            >
-                              <EditIcon className="!text-lg" />
-                            </div>
+                            />
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "right" }}>
+                            <div className="flex items-center justify-end gap-2">
+                              <div
+                                className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                onClick={() => {
+                                  setPersonaId(v?.persona_id);
+                                  setPersona({
+                                    name: v?.name,
+                                    behavioral_detail: v?.behavioral_detail,
+                                    industry_id: v?.industry?.industry_id,
+                                    ai_role_id: v?.ai_role?.ai_role_id,
+                                    manufacturing_model_id:
+                                      v?.manufacturing_model
+                                        ?.manufacturing_model_id,
+                                    plant_size_impact_id:
+                                      v?.plant_size_impact
+                                        ?.plant_size_impact_id,
+                                    geography: v?.geography,
+                                  });
+                                  setAddPersona(true);
+                                }}
+                              >
+                                <EditIcon className="!text-lg" />
+                              </div>
 
-                            <div
-                              className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
-                              onClick={() =>
-                                setDeleteId({
-                                  name: v?.name,
-                                  id: v?.persona_id,
-                                })
-                              }
-                            >
-                              <DeleteIcon className="!text-lg" />
+                              <div
+                                className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                onClick={() =>
+                                  setDeleteId({
+                                    name: v?.name,
+                                    id: v?.persona_id,
+                                  })
+                                }
+                              >
+                                <DeleteIcon className="!text-lg" />
+                              </div>
                             </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell></TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center h-60 relative">
+                            <img src={NotFoundImage} alt="404" className="w-auto h-full" />
+                            <p className="text-lg absolute bottom-[15%]">Oops... page not found</p>
                           </div>
                         </TableCell>
+                        <TableCell></TableCell>
                       </TableRow>
-                    ))
+                    )
                   ) : (
                     <TableRow>
                       <TableCell></TableCell>
