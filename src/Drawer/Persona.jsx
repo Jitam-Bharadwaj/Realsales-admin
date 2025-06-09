@@ -21,6 +21,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { useDropzone } from "react-dropzone";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const geography = [{ name: "us", value: "us" }];
 
@@ -53,8 +55,60 @@ const Persona = ({ currentSegment }) => {
   });
   const [validationError, setValidationError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  // const [uploadSuccess, setUploadSuccess] = useState(false);
 
   console.log(persona, personaId, "persona__");
+
+  const uploadInterviewBehavior = async (file) => {
+    setUploading(true);
+    setUploadError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      let data = await axioInstance.post(
+        endpoints.persona.interview_behavior,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (data?.data?.persona) {
+        setSelectedFile(null);
+        if (validationError.behavioral_detail)
+          setValidationError((prev) => ({
+            ...prev,
+            behavioral_detail: undefined,
+          }));
+        setPersona({ ...persona, behavioral_detail: data?.data?.persona });
+      }
+    } catch (error) {
+      setUploadError("Failed to upload file.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const onDrop = (acceptedFiles) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      setSelectedFile(acceptedFiles[0]);
+      uploadInterviewBehavior(acceptedFiles[0]);
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: {
+      // "application/pdf": [".pdf"],
+      // "text/plain": [".txt"],
+      "application/msword": [".doc", ".docx"],
+    },
+  });
 
   const readPersona = async (control) => {
     try {
@@ -127,7 +181,7 @@ const Persona = ({ currentSegment }) => {
   const updatePersona = async (id) => {
     setLoading(true);
     try {
-      let data = await axioInstance.put(`${endpoints.persona.persona}/${id}`, {
+      let data = await axioInstance.put(`${endpoints.persona.persona}${id}`, {
         ...persona,
       });
       if (data?.data?.persona_id) {
@@ -153,7 +207,8 @@ const Persona = ({ currentSegment }) => {
   const validatePersona = () => {
     const errors = {};
     if (!persona?.name) errors.name = "Name is required";
-    if (!persona?.behavioral_detail) errors.behavioral_detail = "Summary is required";
+    if (!persona?.behavioral_detail)
+      errors.behavioral_detail = "Summary is required";
     if (!persona?.industry_id) errors.industry_id = "Industry is required";
     if (!persona?.plant_size_impact_id)
       errors.plant_size_impact_id = "Plant Size is required";
@@ -192,28 +247,84 @@ const Persona = ({ currentSegment }) => {
                 error={!!validationError.name}
                 helperText={validationError.name}
               />
-              
-              <TextField
-                fullWidth
-                className="!m-0"
-                margin="normal"
-                label={"Summary"}
-                multiline
-                rows={3}
-                value={persona?.behavioral_detail
-                  ?.replace(/\\n\\n/g, "\n\n")
-                  .replace(/\\n/g, "\n")}
-                onChange={(e) => {
-                  setPersona({ ...persona, behavioral_detail: e.target.value });
-                  if (validationError.behavioral_detail)
-                    setValidationError((prev) => ({
-                      ...prev,
-                      behavioral_detail: undefined,
-                    }));
-                }}
-                error={!!validationError.behavioral_detail}
-                helperText={validationError.behavioral_detail}
-              />
+
+              {persona?.behavioral_detail ? (
+                <TextField
+                  fullWidth
+                  className="!m-0"
+                  margin="normal"
+                  label={"Summary"}
+                  multiline
+                  rows={8}
+                  value={persona?.behavioral_detail
+                    ?.replace(/\\n\\n/g, "\n\n")
+                    .replace(/\\n/g, "\n")}
+                  onChange={(e) => {
+                    setPersona({
+                      ...persona,
+                      behavioral_detail: e.target.value,
+                    });
+                    if (validationError.behavioral_detail)
+                      setValidationError((prev) => ({
+                        ...prev,
+                        behavioral_detail: undefined,
+                      }));
+                  }}
+                  error={!!validationError.behavioral_detail}
+                  helperText={validationError.behavioral_detail}
+                />
+              ) : (
+                <div className="flex flex-col gap-2 items-start w-full">
+                  <p>Summary</p>
+                  <div
+                    {...getRootProps()}
+                    className={`w-full flex flex-col items-center border border-dashed rounded p-4 ${uploading ? "cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    {uploading ? null : <input {...getInputProps()} />}
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <CloudUploadIcon style={{ fontSize: 24 }} />
+                      {isDragActive ? (
+                        <p>Drop the files here ...</p>
+                      ) : (
+                        <p>Drag & drop a file here, or click to select file</p>
+                      )}
+                    </div>
+                    {selectedFile && (
+                      <div style={{ marginTop: 8, color: "#1976d2" }}>
+                        Selected: {selectedFile.name}
+                      </div>
+                    )}
+                    {uploading && (
+                      <div style={{ color: "#1976d2", marginTop: 4 }}>
+                        Uploading...
+                      </div>
+                    )}
+                    {/* {uploadSuccess && (
+                    <div style={{ color: "green", marginTop: 4 }}>
+                      Upload successful!
+                    </div>
+                  )} */}
+                    {uploadError && (
+                      <div style={{ color: "red", marginTop: 4 }}>
+                        {uploadError}
+                      </div>
+                    )}
+                  </div>
+                  {validationError.behavioral_detail && (
+                    <p
+                      style={{
+                        color: "red",
+                        margin: "0 16px",
+                        fontSize: "13px",
+                      }}
+                    >
+                      {validationError.behavioral_detail}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Select Industry */}
               <div className="w-full flex flex-col items-start gap-2">

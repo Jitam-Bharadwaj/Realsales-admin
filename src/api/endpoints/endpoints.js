@@ -15,7 +15,8 @@ export const endpoints = {
     interaction_modes: "v1/interaction-modes",
   },
   persona: {
-    persona: "v1/ai-personas",
+    persona: "v1/ai-personas/",
+    interview_behavior: "v1/interview/get-persona-behavior",
   },
   ai: {
     industries: "/v1/industries/",
