@@ -74,7 +74,9 @@ const ManufacturingModels = ({ currentSegment }) => {
         showToast.success("Manufacturing model created successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to create manufacturing model");
+      showToast.error(
+        error?.response?.data?.message || "Failed to create manufacturing model"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -98,7 +100,9 @@ const ManufacturingModels = ({ currentSegment }) => {
         showToast.success("Manufacturing model updated successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to update manufacturing model");
+      showToast.error(
+        error?.response?.data?.message || "Failed to update manufacturing model"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -116,7 +120,9 @@ const ManufacturingModels = ({ currentSegment }) => {
         showToast.success("Manufacturing model deleted successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to delete manufacturing model");
+      showToast.error(
+        error?.response?.data?.message || "Failed to delete manufacturing model"
+      );
       console.log(error, "_error_");
     }
   };
@@ -228,8 +234,18 @@ const ManufacturingModels = ({ currentSegment }) => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ textAlign: "left" }}>name</TableCell>
-                    <TableCell sx={{ textAlign: "right" }}>Action</TableCell>
+                    <TableCell
+                      sx={{ textAlign: "left" }}
+                      className="!font-bold capitalize"
+                    >
+                      name
+                    </TableCell>
+                    <TableCell
+                      sx={{ textAlign: "right" }}
+                      className="!font-bold capitalize"
+                    >
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

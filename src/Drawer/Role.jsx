@@ -73,7 +73,9 @@ const Role = ({ currentSegment }) => {
         showToast.success("Role created successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to create role");
+      showToast.error(
+        error?.response?.data?.message || "Failed to create role"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -97,7 +99,9 @@ const Role = ({ currentSegment }) => {
         showToast.success("Role updated successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to update role");
+      showToast.error(
+        error?.response?.data?.message || "Failed to update role"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -113,7 +117,9 @@ const Role = ({ currentSegment }) => {
         showToast.success("Role deleted successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to delete role");
+      showToast.error(
+        error?.response?.data?.message || "Failed to delete role"
+      );
       console.log(error, "_error_");
     }
   };
@@ -225,8 +231,18 @@ const Role = ({ currentSegment }) => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ textAlign: "left" }}>name</TableCell>
-                    <TableCell sx={{ textAlign: "right" }}>Action</TableCell>
+                    <TableCell
+                      sx={{ textAlign: "left" }}
+                      className="!font-bold capitalize"
+                    >
+                      name
+                    </TableCell>
+                    <TableCell
+                      sx={{ textAlign: "right" }}
+                      className="!font-bold capitalize"
+                    >
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

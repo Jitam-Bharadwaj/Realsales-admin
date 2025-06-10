@@ -23,7 +23,7 @@ import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useDropzone } from "react-dropzone";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import NotFoundImage from "../../public/404_Image.png"
+import NotFoundImage from "../../public/404_Image.png";
 import { showToast } from "../toastConfig";
 
 const geography = [{ name: "us", value: "us" }];
@@ -194,7 +194,9 @@ const Persona = ({ currentSegment }) => {
         showToast.success("Persona created successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to create persona");
+      showToast.error(
+        error?.response?.data?.message || "Failed to create persona"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -222,7 +224,9 @@ const Persona = ({ currentSegment }) => {
         showToast.success("Persona updated successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to update persona");
+      showToast.error(
+        error?.response?.data?.message || "Failed to update persona"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -238,7 +242,9 @@ const Persona = ({ currentSegment }) => {
         showToast.success("Persona deleted successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to delete persona");
+      showToast.error(
+        error?.response?.data?.message || "Failed to delete persona"
+      );
       console.log(error, "_error_");
     }
   };
@@ -743,19 +749,19 @@ const Persona = ({ currentSegment }) => {
                   <TableRow>
                     <TableCell
                       sx={{ textAlign: "left" }}
-                      className="capitalize"
+                      className="!font-bold capitalize"
                     >
                       name
                     </TableCell>
                     <TableCell
                       sx={{ textAlign: "center" }}
-                      className="capitalize"
+                      className="!font-bold capitalize"
                     >
                       status
                     </TableCell>
                     <TableCell
                       sx={{ textAlign: "right" }}
-                      className="capitalize"
+                      className="!font-bold capitalize"
                     >
                       action
                     </TableCell>
@@ -825,8 +831,14 @@ const Persona = ({ currentSegment }) => {
                         <TableCell></TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center h-60 relative">
-                            <img src={NotFoundImage} alt="404" className="w-auto h-full" />
-                            <p className="text-lg absolute bottom-[15%]">Oops... data not found</p>
+                            <img
+                              src={NotFoundImage}
+                              alt="404"
+                              className="w-auto h-full"
+                            />
+                            <p className="text-lg absolute bottom-[15%]">
+                              Oops... data not found
+                            </p>
                           </div>
                         </TableCell>
                         <TableCell></TableCell>

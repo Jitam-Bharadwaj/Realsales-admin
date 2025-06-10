@@ -73,7 +73,9 @@ const Industry = ({ currentSegment }) => {
         showToast.success("Industry created successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to create industry");
+      showToast.error(
+        error?.response?.data?.message || "Failed to create industry"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -97,7 +99,9 @@ const Industry = ({ currentSegment }) => {
         showToast.success("Industry updated successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to update industry");
+      showToast.error(
+        error?.response?.data?.message || "Failed to update industry"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -113,7 +117,9 @@ const Industry = ({ currentSegment }) => {
         showToast.success("Industry deleted successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to delete industry");
+      showToast.error(
+        error?.response?.data?.message || "Failed to delete industry"
+      );
       console.log(error, "_error_");
     }
   };
@@ -222,8 +228,18 @@ const Industry = ({ currentSegment }) => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ textAlign: "left" }}>name</TableCell>
-                    <TableCell sx={{ textAlign: "right" }}>Action</TableCell>
+                    <TableCell
+                      sx={{ textAlign: "left" }}
+                      className="!font-bold capitalize"
+                    >
+                      name
+                    </TableCell>
+                    <TableCell
+                      sx={{ textAlign: "right" }}
+                      className="!font-bold capitalize"
+                    >
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

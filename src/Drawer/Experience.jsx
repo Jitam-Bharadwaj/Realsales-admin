@@ -48,7 +48,7 @@ const Experience = ({ currentSegment }) => {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ textAlign: "left", width: "20%" }}>
+                                <TableCell sx={{ textAlign: "left", width: "20%" }} className="!font-bold capitalize">
                                     Prospecting
                                 </TableCell>
                                 <TableCell sx={{ textAlign: "left", width: "60%" }}>

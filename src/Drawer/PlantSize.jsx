@@ -73,7 +73,9 @@ const PlantSize = ({ currentSegment }) => {
         showToast.success("Plant size created successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to create plant size");
+      showToast.error(
+        error?.response?.data?.message || "Failed to create plant size"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -97,7 +99,9 @@ const PlantSize = ({ currentSegment }) => {
         showToast.success("Plant size updated successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to update plant size");
+      showToast.error(
+        error?.response?.data?.message || "Failed to update plant size"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -115,7 +119,9 @@ const PlantSize = ({ currentSegment }) => {
         showToast.success("Plant size deleted successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to delete plant size");
+      showToast.error(
+        error?.response?.data?.message || "Failed to delete plant size"
+      );
       console.log(error, "_error_");
     }
   };
@@ -227,8 +233,18 @@ const PlantSize = ({ currentSegment }) => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ textAlign: "left" }}>name</TableCell>
-                    <TableCell sx={{ textAlign: "right" }}>Action</TableCell>
+                    <TableCell
+                      sx={{ textAlign: "left" }}
+                      className="!font-bold capitalize"
+                    >
+                      name
+                    </TableCell>
+                    <TableCell
+                      sx={{ textAlign: "right" }}
+                      className="!font-bold capitalize"
+                    >
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

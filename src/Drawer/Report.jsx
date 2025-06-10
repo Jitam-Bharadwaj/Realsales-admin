@@ -85,7 +85,9 @@ const Report = ({ currentSegment }) => {
         showToast.success("Report created successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to create report");
+      showToast.error(
+        error?.response?.data?.message || "Failed to create report"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -109,7 +111,9 @@ const Report = ({ currentSegment }) => {
         showToast.success("Report updated successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to update report");
+      showToast.error(
+        error?.response?.data?.message || "Failed to update report"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -127,7 +131,9 @@ const Report = ({ currentSegment }) => {
         showToast.success("Report deleted successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to delete report");
+      showToast.error(
+        error?.response?.data?.message || "Failed to delete report"
+      );
       console.log(error, "_error_");
     }
   };
@@ -155,23 +161,34 @@ const Report = ({ currentSegment }) => {
               {!editingData?.id && (
                 <div className="border rounded border-solid w-full flex flex-col">
                   {mods?.length
-                    ? mods.map((v, i) => (
-                        <div
-                          key={i}
-                          className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                          onClick={() => {
-                            setEditingData((pre) => ({
-                              ...pre,
-                              mode_id: v?.mode_id,
-                            }));
-                          }}
-                        >
+                    ? mods.map((v, i) => {
+                        // Check if mode_id is already used in reports (except when editing that report)
+                        const isUsed = reports.some(
+                          (r) =>
+                            r.mode_id === v.mode_id &&
+                            (!editingData?.id ||
+                              editingData?.mode_id !== v.mode_id)
+                        );
+                        return (
                           <div
-                            className={`rounded-full w-4 h-4 ${editingData?.mode_id === v?.mode_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                          />
-                          {v?.name?.replace(/_/g, " ")}
-                        </div>
-                      ))
+                            key={i}
+                            className={`p-3 border-b border-solid flex items-center gap-2 capitalize ${isUsed ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                            onClick={() => {
+                              if (isUsed) return; // Prevent selection if disabled
+                              setEditingData((pre) => ({
+                                ...pre,
+                                mode_id: v?.mode_id,
+                              }));
+                            }}
+                            style={isUsed ? { pointerEvents: "none" } : {}}
+                          >
+                            <div
+                              className={`rounded-full w-4 h-4 ${editingData?.mode_id === v?.mode_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                            />
+                            {v?.name?.replace(/_/g, " ")}
+                          </div>
+                        );
+                      })
                     : null}
                 </div>
               )}
@@ -241,8 +258,18 @@ const Report = ({ currentSegment }) => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ textAlign: "left" }}>name</TableCell>
-                    <TableCell sx={{ textAlign: "right" }}>Action</TableCell>
+                    <TableCell
+                      sx={{ textAlign: "left" }}
+                      className="!font-bold capitalize"
+                    >
+                      name
+                    </TableCell>
+                    <TableCell
+                      sx={{ textAlign: "right" }}
+                      className="!font-bold capitalize"
+                    >
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

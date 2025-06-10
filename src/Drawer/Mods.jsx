@@ -76,7 +76,9 @@ const ModsFlo = ({ currentSegment }) => {
         showToast.success("Mode created successfully");
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to create mode");
+      showToast.error(
+        error?.response?.data?.message || "Failed to create mode"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -101,7 +103,9 @@ const ModsFlo = ({ currentSegment }) => {
         }
       }
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to update mode");
+      showToast.error(
+        error?.response?.data?.message || "Failed to update mode"
+      );
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -116,7 +120,9 @@ const ModsFlo = ({ currentSegment }) => {
       setDeleteId({});
       showToast.success("Mode deleted successfully");
     } catch (error) {
-      showToast.error(error?.response?.data?.message || "Failed to delete mode");
+      showToast.error(
+        error?.response?.data?.message || "Failed to delete mode"
+      );
       console.log(error, "_error_");
     }
   };
@@ -148,19 +154,19 @@ const ModsFlo = ({ currentSegment }) => {
                       <TableRow>
                         <TableCell
                           sx={{ textAlign: "left", width: "20%" }}
-                          className="!font-bold"
+                          className="!font-bold capitalize"
                         >
                           Name
                         </TableCell>
                         <TableCell
                           sx={{ textAlign: "left", width: "60%" }}
-                          className="!font-bold"
+                          className="!font-bold capitalize"
                         >
                           Description
                         </TableCell>
                         <TableCell
                           sx={{ textAlign: "right" }}
-                          className="!font-bold"
+                          className="!font-bold capitalize"
                         >
                           Action
                         </TableCell>
@@ -180,7 +186,10 @@ const ModsFlo = ({ currentSegment }) => {
                       ) : mods?.length ? (
                         mods?.map((v, i) => (
                           <TableRow key={i}>
-                            <TableCell sx={{ textAlign: "left" }} className="capitalize">
+                            <TableCell
+                              sx={{ textAlign: "left" }}
+                              className="capitalize"
+                            >
                               {v?.name ? v?.name : "--"}
                             </TableCell>
                             <TableCell sx={{ textAlign: "left" }}>
