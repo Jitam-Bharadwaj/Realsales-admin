@@ -322,15 +322,15 @@ const Report = ({ currentSegment }) => {
           <Dialog open={deleteId?.id} onClose={() => setDeleteId({})}>
             <DialogTitle>Delete Confirmation</DialogTitle>
             <DialogContent>
-              Are you sure you want to delete{" "}
+              Are you sure you want to delete&nbsp;
               <b>
                 {mods?.length
                   ? mods
                       .filter((val) => val?.mode_id === deleteId?.mode_id)
                       .map((value) => value?.name)
                   : null}
-              </b>{" "}
-              prompt?
+              </b>
+              &nbsp;prompt?
             </DialogContent>
             <DialogActions>
               <Button

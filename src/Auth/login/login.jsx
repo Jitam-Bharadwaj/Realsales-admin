@@ -14,7 +14,7 @@ import { endpoints } from "../../api/endpoints/endpoints";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // Snackbar state
   const [snackbar, setSnackbar] = useState({
@@ -40,8 +40,7 @@ const Login = () => {
       setLoading(true);
       const res = await axioInstance.post(`${endpoints.auth.login}`, payload);
       localStorage.setItem("x-access-token", res?.data?.token);
-      console.log(res?.status,'login')
-      
+      console.log(res?.status, "login");
 
       setLoading(false);
       reset();
@@ -53,8 +52,8 @@ const Login = () => {
         severity: "success",
       });
 
-      if(res?.status === 200){
-        navigate("/drawer")
+      if (res?.status === 200) {
+        navigate("/drawer");
       }
 
       // You can do further actions here like redirecting user or storing token
@@ -99,8 +98,17 @@ const Login = () => {
             color: "#fbdc5c",
           }}
         >
-          <Typography sx={{ color: "#fbdc5c" }}>Please Enter Your Details</Typography>
-          <Typography sx={{ fontSize: "28px", fontWeight: "600", pb: "20px", color: "#fbdc5c" }}>
+          <Typography sx={{ color: "#fbdc5c" }}>
+            Please Enter Your Details
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: "28px",
+              fontWeight: "600",
+              pb: "20px",
+              color: "#fbdc5c",
+            }}
+          >
             Welcome Back!
           </Typography>
 
@@ -108,7 +116,7 @@ const Login = () => {
             fullWidth
             label="Email Address"
             type="email"
-            sx={{ 
+            sx={{
               pb: "20px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
@@ -150,7 +158,7 @@ const Login = () => {
             fullWidth
             label="Password"
             type="password"
-            sx={{ 
+            sx={{
               pb: "40px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
@@ -192,8 +200,8 @@ const Login = () => {
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ 
-              padding: "12px 0px", 
+            sx={{
+              padding: "12px 0px",
               borderRadius: "8px",
               bgcolor: "#fbdc5c",
               color: "#000000",
@@ -206,10 +214,15 @@ const Login = () => {
             {loading ? "Signing in..." : "Sign-in"}
           </Button>
 
-          <Typography sx={{ textAlign: "center", paddingTop: "20px", color: "#fbdc5c" }}>
-            Don't have an account?{" "}
+          <Typography
+            sx={{ textAlign: "center", paddingTop: "20px", color: "#fbdc5c" }}
+          >
+            Don't have an account?&nbsp;
             <span>
-              <Link style={{ textDecoration: "none", color: "#fbdc5c" }} to="/register">
+              <Link
+                style={{ textDecoration: "none", color: "#fbdc5c" }}
+                to="/register"
+              >
                 Sign-up
               </Link>
             </span>
