@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
+import { showToast } from "../toastConfig";
 
 const Industry = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -69,8 +70,10 @@ const Industry = ({ currentSegment }) => {
         readIndustry();
         setEditingData({});
         setAddData(false);
+        showToast.success("Industry created successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to create industry");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -91,8 +94,10 @@ const Industry = ({ currentSegment }) => {
         readIndustry();
         setEditingData({});
         setAddData(false);
+        showToast.success("Industry updated successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to update industry");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -105,8 +110,10 @@ const Industry = ({ currentSegment }) => {
       if (data?.status === 204) {
         readIndustry();
         setDeleteId({});
+        showToast.success("Industry deleted successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to delete industry");
       console.log(error, "_error_");
     }
   };

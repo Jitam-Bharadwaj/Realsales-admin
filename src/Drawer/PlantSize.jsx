@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
+import { showToast } from "../toastConfig";
 
 const PlantSize = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -69,8 +70,10 @@ const PlantSize = ({ currentSegment }) => {
         readPlantSize();
         setEditingData({});
         setAddData(false);
+        showToast.success("Plant size created successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to create plant size");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -91,8 +94,10 @@ const PlantSize = ({ currentSegment }) => {
         readPlantSize();
         setEditingData({});
         setAddData(false);
+        showToast.success("Plant size updated successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to update plant size");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -107,8 +112,10 @@ const PlantSize = ({ currentSegment }) => {
       if (data?.status === 204) {
         readPlantSize();
         setDeleteId({});
+        showToast.success("Plant size deleted successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to delete plant size");
       console.log(error, "_error_");
     }
   };

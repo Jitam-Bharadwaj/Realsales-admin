@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
+import { showToast } from "../toastConfig";
 
 const Report = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -81,8 +82,10 @@ const Report = ({ currentSegment }) => {
         readReport();
         setEditingData({});
         setAddData(false);
+        showToast.success("Report created successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to create report");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -103,8 +106,10 @@ const Report = ({ currentSegment }) => {
         readReport();
         setEditingData({});
         setAddData(false);
+        showToast.success("Report updated successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to update report");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -119,8 +124,10 @@ const Report = ({ currentSegment }) => {
       if (data?.status === 204) {
         readReport();
         setDeleteId({});
+        showToast.success("Report deleted successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to delete report");
       console.log(error, "_error_");
     }
   };

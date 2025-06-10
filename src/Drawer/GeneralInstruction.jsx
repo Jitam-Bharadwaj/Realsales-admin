@@ -19,6 +19,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
+import { showToast } from "../toastConfig";
 
 const GeneralInstruction = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -41,6 +42,7 @@ const GeneralInstruction = ({ currentSegment }) => {
   const readGeneral = async () => {
     try {
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to fetch general instructions");
       console.log(error, "_error_");
     }
   };
@@ -49,6 +51,7 @@ const GeneralInstruction = ({ currentSegment }) => {
     setLoading(true);
     try {
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to create general instruction");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -58,6 +61,7 @@ const GeneralInstruction = ({ currentSegment }) => {
   const updateGeneral = async () => {
     try {
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to update general instruction");
       console.log(error, "_error_");
     }
   };
@@ -65,6 +69,7 @@ const GeneralInstruction = ({ currentSegment }) => {
   const deleteGeneral = async (id) => {
     try {
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to delete general instruction");
       console.log(error, "_error_");
     }
   };

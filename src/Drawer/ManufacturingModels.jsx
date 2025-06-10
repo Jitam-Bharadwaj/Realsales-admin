@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
+import { showToast } from "../toastConfig";
 
 const ManufacturingModels = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -70,8 +71,10 @@ const ManufacturingModels = ({ currentSegment }) => {
         readManufacturingModels();
         setEditingData({});
         setAddData(false);
+        showToast.success("Manufacturing model created successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to create manufacturing model");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -92,8 +95,10 @@ const ManufacturingModels = ({ currentSegment }) => {
         readManufacturingModels();
         setEditingData({});
         setAddData(false);
+        showToast.success("Manufacturing model updated successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to update manufacturing model");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -108,8 +113,10 @@ const ManufacturingModels = ({ currentSegment }) => {
       if (data?.status === 204) {
         readManufacturingModels();
         setDeleteId({});
+        showToast.success("Manufacturing model deleted successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to delete manufacturing model");
       console.log(error, "_error_");
     }
   };

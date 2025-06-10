@@ -24,6 +24,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useDropzone } from "react-dropzone";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import NotFoundImage from "../../public/404_Image.png"
+import { showToast } from "../toastConfig";
 
 const geography = [{ name: "us", value: "us" }];
 
@@ -190,8 +191,10 @@ const Persona = ({ currentSegment }) => {
           manufacturing: true,
           geography: true,
         });
+        showToast.success("Persona created successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to create persona");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -216,8 +219,10 @@ const Persona = ({ currentSegment }) => {
           manufacturing: true,
           geography: true,
         });
+        showToast.success("Persona updated successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to update persona");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -230,8 +235,10 @@ const Persona = ({ currentSegment }) => {
       if (data?.status === 204) {
         readPersona("table");
         setDeleteId({});
+        showToast.success("Persona deleted successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to delete persona");
       console.log(error, "_error_");
     }
   };

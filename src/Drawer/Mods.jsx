@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
+import { showToast } from "../toastConfig";
 
 const ModsFlo = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -72,8 +73,10 @@ const ModsFlo = ({ currentSegment }) => {
       if (data?.data) {
         setCreateMode({});
         readAllMods();
+        showToast.success("Mode created successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to create mode");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -94,9 +97,11 @@ const ModsFlo = ({ currentSegment }) => {
         if (data?.data?.mode_id) {
           setEditingData({});
           readAllMods();
+          showToast.success("Mode updated successfully");
         }
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to update mode");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -109,7 +114,9 @@ const ModsFlo = ({ currentSegment }) => {
         `${endpoints?.closing?.getClosing}/${id}`
       );
       setDeleteId({});
+      showToast.success("Mode deleted successfully");
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to delete mode");
       console.log(error, "_error_");
     }
   };

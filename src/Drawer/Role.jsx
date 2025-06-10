@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
+import { showToast } from "../toastConfig";
 
 const Role = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -69,8 +70,10 @@ const Role = ({ currentSegment }) => {
         readRole();
         setEditingData({});
         setAddData(false);
+        showToast.success("Role created successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to create role");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -91,8 +94,10 @@ const Role = ({ currentSegment }) => {
         readRole();
         setEditingData({});
         setAddData(false);
+        showToast.success("Role updated successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to update role");
       console.log(error, "_error_");
     } finally {
       setLoading(false);
@@ -105,8 +110,10 @@ const Role = ({ currentSegment }) => {
       if (data?.status === 204) {
         readRole();
         setDeleteId({});
+        showToast.success("Role deleted successfully");
       }
     } catch (error) {
+      showToast.error(error?.response?.data?.message || "Failed to delete role");
       console.log(error, "_error_");
     }
   };
@@ -300,7 +307,7 @@ const Role = ({ currentSegment }) => {
           <Dialog open={deleteId?.id} onClose={() => setDeleteId({})}>
             <DialogTitle>Delete Confirmation</DialogTitle>
             <DialogContent>
-              Are you sure you want to delete <b>{deleteId?.name}</b> prompt?
+              Are you sure you want to delete <b>{deleteId?.name}</b> report?
             </DialogContent>
             <DialogActions>
               <Button
