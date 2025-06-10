@@ -43,8 +43,7 @@ const Register = () => {
     try {
       setLoading(true);
       const res = await axioInstance.post(endpoints.auth.register, payload);
-      
-      
+
       setLoading(false);
       reset();
 
@@ -89,8 +88,17 @@ const Register = () => {
             color: "#fbdc5c",
           }}
         >
-          <Typography sx={{ color: "#fbdc5c" }}>Please Enter Your Details</Typography>
-          <Typography sx={{ fontSize: "28px", fontWeight: "600", pb: "20px", color: "#fbdc5c" }}>
+          <Typography sx={{ color: "#fbdc5c" }}>
+            Please Enter Your Details
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: "28px",
+              fontWeight: "600",
+              pb: "20px",
+              color: "#fbdc5c",
+            }}
+          >
             Please Register First!
           </Typography>
 
@@ -98,7 +106,7 @@ const Register = () => {
             fullWidth
             label="Email Address"
             type="email"
-            sx={{ 
+            sx={{
               pb: "15px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
@@ -139,7 +147,7 @@ const Register = () => {
             fullWidth
             label="First Name"
             type="text"
-            sx={{ 
+            sx={{
               pb: "15px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
@@ -174,7 +182,7 @@ const Register = () => {
             fullWidth
             label="Last Name"
             type="text"
-            sx={{ 
+            sx={{
               pb: "15px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
@@ -209,7 +217,7 @@ const Register = () => {
             fullWidth
             label="Phone"
             type="tel"
-            sx={{ 
+            sx={{
               pb: "15px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
@@ -250,7 +258,7 @@ const Register = () => {
             fullWidth
             label="Password"
             type="password"
-            sx={{ 
+            sx={{
               pb: "30px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
@@ -291,8 +299,8 @@ const Register = () => {
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ 
-              padding: "10px 0px", 
+            sx={{
+              padding: "10px 0px",
               borderRadius: "8px",
               bgcolor: "#fbdc5c",
               color: "#000000",
@@ -305,8 +313,10 @@ const Register = () => {
             {loading ? "Submitting..." : "SIGN-UP"}
           </Button>
 
-          <Typography sx={{ textAlign: "center", paddingTop: "20px", color: "#fbdc5c" }}>
-            Already have an account?{" "}
+          <Typography
+            sx={{ textAlign: "center", paddingTop: "20px", color: "#fbdc5c" }}
+          >
+            Already have an account?&nbsp;
             <Link style={{ textDecoration: "none", color: "#fbdc5c" }} to="/">
               Sign-in
             </Link>
