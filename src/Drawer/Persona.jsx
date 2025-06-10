@@ -401,7 +401,7 @@ const Persona = ({ currentSegment }) => {
                               }}
                             >
                               <div
-                                className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                                className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
                               />
                               {v?.name.replace(/_/g, " ")}
                             </div>
@@ -463,7 +463,7 @@ const Persona = ({ currentSegment }) => {
                               }}
                             >
                               <div
-                                className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                                className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
                               />
                               {v?.name.replace(/_/g, " ")}
                             </div>
@@ -521,7 +521,7 @@ const Persona = ({ currentSegment }) => {
                               }}
                             >
                               <div
-                                className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                                className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
                               />
                               {v?.name.replace(/_/g, " ")}
                             </div>
@@ -583,7 +583,7 @@ const Persona = ({ currentSegment }) => {
                               }}
                             >
                               <div
-                                className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                                className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
                               />
                               {v?.name.replace(/_/g, " ")}
                             </div>
@@ -644,7 +644,7 @@ const Persona = ({ currentSegment }) => {
                               }}
                             >
                               <div
-                                className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-cyan-400 bg-cyan-400" : "border-2 border-solid border-cyan-400"}`}
+                                className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
                               />
                               {v?.name.replace(/_/g, " ")}
                             </div>
@@ -819,7 +819,7 @@ const Persona = ({ currentSegment }) => {
                         <TableCell>
                           <div className="flex items-center justify-center h-60 relative">
                             <img src={NotFoundImage} alt="404" className="w-auto h-full" />
-                            <p className="text-lg absolute bottom-[15%]">Oops... page not found</p>
+                            <p className="text-lg absolute bottom-[15%]">Oops... data not found</p>
                           </div>
                         </TableCell>
                         <TableCell></TableCell>

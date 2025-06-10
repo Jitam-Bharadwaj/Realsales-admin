@@ -280,7 +280,7 @@ const ManufacturingModels = ({ currentSegment }) => {
                             className="w-auto h-full"
                           />
                           <p className="text-lg absolute bottom-[15%]">
-                            Oops... page not found
+                            Oops... data not found
                           </p>
                         </div>
                       </TableCell>

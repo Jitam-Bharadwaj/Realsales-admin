@@ -21,7 +21,7 @@ import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
 
-const Role = ({ currentSegment }) => {
+const Report = ({ currentSegment }) => {
   const convertNewlines = (text) => {
     return text
       .trim()
@@ -36,37 +36,49 @@ const Role = ({ currentSegment }) => {
   const [editingData, setEditingData] = useState({});
   const [deleteId, setDeleteId] = useState({});
   const [addData, setAddData] = useState(false);
-  const [roles, setRoles] = useState([]);
-  const [loadingRoles, setLoadingRoles] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(false);
   const [validationError, setValidationError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [mods, setMods] = useState([]);
 
-  const readRole = async () => {
-    setLoadingRoles(true);
+  const readMods = async () => {
     try {
-      let data = await axioInstance.get(endpoints.ai.ai_roles);
-      if (data?.data?.length) {
-        setRoles(data?.data);
-      } else {
-        setRoles([]);
+      let data = await axioInstance.get(endpoints.mods.interaction_modes);
+      if (data?.data.length) {
+        setMods(data?.data);
       }
     } catch (error) {
-      setRoles([]);
       console.log(error, "_error_");
-    } finally {
-      setLoadingRoles(false);
     }
   };
 
-  const createRole = async () => {
+  const readReport = async () => {
+    setLoadingReports(true);
+    try {
+      let data = await axioInstance.get(endpoints.report.modeReport);
+      if (data?.data?.length) {
+        setReports(data?.data);
+      } else {
+        setReports([]);
+      }
+    } catch (error) {
+      setReports([]);
+      console.log(error, "_error_");
+    } finally {
+      setLoadingReports(false);
+    }
+  };
+
+  const createReports = async () => {
     setLoading(true);
     try {
-      let data = await axioInstance.post(endpoints.ai.ai_roles, {
-        name: editingData?.name,
-        description: convertNewlines(editingData?.description),
+      let data = await axioInstance.post(endpoints.report.modeReport, {
+        mode_id: editingData?.mode_id,
+        prompt_template: convertNewlines(editingData?.prompt_template),
       });
-      if (data?.data?.ai_role_id) {
-        readRole();
+      if (data?.data?.report_detail_id) {
+        readReport();
         setEditingData({});
         setAddData(false);
       }
@@ -77,18 +89,18 @@ const Role = ({ currentSegment }) => {
     }
   };
 
-  const updateRole = async () => {
+  const updateReports = async () => {
     setLoading(true);
     try {
       let data = await axioInstance.put(
-        `${endpoints.ai.ai_roles}${editingData?.id}`,
+        `${endpoints.report.modeReport}${editingData?.id}`,
         {
-          name: editingData?.name,
-          description: convertNewlines(editingData?.description),
+          mode_id: editingData?.mode_id,
+          prompt_template: convertNewlines(editingData?.prompt_template),
         }
       );
-      if (data?.data?.ai_role_id) {
-        readRole();
+      if (data?.data?.report_detail_id) {
+        readReport();
         setEditingData({});
         setAddData(false);
       }
@@ -99,11 +111,13 @@ const Role = ({ currentSegment }) => {
     }
   };
 
-  const deleteRole = async (id) => {
+  const deleteReports = async (id) => {
     try {
-      let data = await axioInstance.delete(`${endpoints.ai.ai_roles}${id}`);
+      let data = await axioInstance.delete(
+        `${endpoints.report.modeReport}${id}`
+      );
       if (data?.status === 204) {
-        readRole();
+        readReport();
         setDeleteId({});
       }
     } catch (error) {
@@ -111,69 +125,71 @@ const Role = ({ currentSegment }) => {
     }
   };
 
-  const validateRole = (data) => {
+  const validateReports = (data) => {
     const errors = {};
-    if (!data?.name) errors.name = "Name is required";
-    if (!data?.description) errors.description = "Prompt Template is required";
+    if (!data?.mode_id) errors.mode_id = "Name is required";
+    if (!data?.prompt_template)
+      errors.prompt_template = "Prompt Template is required";
     return errors;
   };
 
-  console.log(deleteId, "__industries_");
   useEffect(() => {
-    readRole();
+    readReport();
+    readMods();
   }, []);
 
   return (
     <>
-      {/* role */}
-      {currentSegment === "role" && (
+      {/* report */}
+      {currentSegment === "report" && (
         <div style={{ width: "100%", pt: "40px" }}>
           {addData ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "end",
-              }}
-            >
-              <TextField
-                fullWidth
-                margin="normal"
-                label={"Name"}
-                value={editingData?.name}
-                onChange={(e) => {
-                  setEditingData({ ...editingData, name: e.target.value });
-                  if (validationError.name)
-                    setValidationError((prev) => ({
-                      ...prev,
-                      name: undefined,
-                    }));
-                }}
-                error={!!validationError.name}
-                helperText={validationError.name}
-              />
+            <div className="flex flex-col items-end ">
+              {!editingData?.id && (
+                <div className="border rounded border-solid w-full flex flex-col">
+                  {mods?.length
+                    ? mods.map((v, i) => (
+                        <div
+                          key={i}
+                          className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                          onClick={() => {
+                            setEditingData((pre) => ({
+                              ...pre,
+                              mode_id: v?.mode_id,
+                            }));
+                          }}
+                        >
+                          <div
+                            className={`rounded-full w-4 h-4 ${editingData?.mode_id === v?.mode_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                          />
+                          {v?.name?.replace(/_/g, " ")}
+                        </div>
+                      ))
+                    : null}
+                </div>
+              )}
               <TextField
                 fullWidth
                 margin="normal"
                 label={"Prompt Template"}
                 multiline
                 rows={6}
-                value={editingData?.description
+                value={editingData?.prompt_template
                   ?.replace(/\\n\\n/g, "\n\n")
                   .replace(/\\n/g, "\n")}
                 onChange={(e) => {
                   setEditingData({
                     ...editingData,
-                    description: e.target.value,
+                    prompt_template: e.target.value,
                   });
-                  if (validationError.description)
+                  if (validationError.prompt_template)
                     setValidationError((prev) => ({
                       ...prev,
-                      description: undefined,
+                      prompt_template: undefined,
                     }));
                 }}
-                error={!!validationError.description}
-                helperText={validationError.description}
+                error={!!validationError.prompt_template}
+                helperText={validationError.prompt_template}
               />
               <div className="flex items-center gap-2">
                 <Button
@@ -191,16 +207,16 @@ const Role = ({ currentSegment }) => {
                   variant="contained"
                   className="!border !border-green-500 !bg-green-500 w-fit"
                   onClick={() => {
-                    const errors = validateRole(editingData);
+                    const errors = validateReports(editingData);
                     if (Object.keys(errors).length > 0) {
                       setValidationError(errors);
                       return;
                     }
                     setValidationError({});
                     if (editingData?.id) {
-                      updateRole();
+                      updateReports();
                     } else {
-                      createRole();
+                      createReports();
                     }
                   }}
                   disabled={loading}
@@ -223,7 +239,7 @@ const Role = ({ currentSegment }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {loadingRoles ? (
+                  {loadingReports ? (
                     <TableRow>
                       <TableCell colSpan={2} className="w-full">
                         <div className="flex items-center justify-center h-60">
@@ -231,11 +247,15 @@ const Role = ({ currentSegment }) => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ) : roles?.length ? (
-                    roles.map((v, i) => (
+                  ) : reports?.length ? (
+                    reports.map((v, i) => (
                       <TableRow key={i}>
                         <TableCell className="capitalize">
-                          {v?.name.replace(/_/g, " ")}
+                          {mods?.length
+                            ? mods
+                                .filter((val) => val?.mode_id === v?.mode_id)
+                                .map((value) => value?.name)
+                            : null}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end gap-2">
@@ -244,9 +264,9 @@ const Role = ({ currentSegment }) => {
                               onClick={() => {
                                 setAddData(true);
                                 setEditingData({
-                                  name: v?.name,
-                                  description: v?.description,
-                                  id: v?.ai_role_id,
+                                  mode_id: v?.mode_id,
+                                  prompt_template: v?.prompt_template,
+                                  id: v?.report_detail_id,
                                 });
                               }}
                             >
@@ -256,8 +276,8 @@ const Role = ({ currentSegment }) => {
                               className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
                               onClick={() =>
                                 setDeleteId({
-                                  name: v?.name,
-                                  id: v?.ai_role_id,
+                                  mode_id: v?.mode_id,
+                                  id: v?.report_detail_id,
                                 })
                               }
                             >
@@ -286,21 +306,31 @@ const Role = ({ currentSegment }) => {
                 </TableBody>
               </Table>
 
-              <div className="flex items-center justify-end mt-4">
-                <div
-                  className="rounded border border-solid border-blue-600 hover:bg-blue-600 text-blue-600 hover:text-white cursor-pointer py-1 px-4 w-fit flex items-center gap-2"
-                  onClick={() => setAddData(true)}
-                >
-                  <AddIcon className="!text-lg" />
-                  Add
+              {reports?.length < 3 && (
+                <div className="flex items-center justify-end mt-4">
+                  <div
+                    className="rounded border border-solid border-blue-600 hover:bg-blue-600 text-blue-600 hover:text-white cursor-pointer py-1 px-4 w-fit flex items-center gap-2"
+                    onClick={() => setAddData(true)}
+                  >
+                    <AddIcon className="!text-lg" />
+                    Add
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
           <Dialog open={deleteId?.id} onClose={() => setDeleteId({})}>
             <DialogTitle>Delete Confirmation</DialogTitle>
             <DialogContent>
-              Are you sure you want to delete <b>{deleteId?.name}</b> prompt?
+              Are you sure you want to delete{" "}
+              <b>
+                {mods?.length
+                  ? mods
+                      .filter((val) => val?.mode_id === deleteId?.mode_id)
+                      .map((value) => value?.name)
+                  : null}
+              </b>{" "}
+              prompt?
             </DialogContent>
             <DialogActions>
               <Button
@@ -313,7 +343,7 @@ const Role = ({ currentSegment }) => {
               <Button
                 variant="contained"
                 className="!bg-red-600 !text-white w-fit"
-                onClick={() => deleteRole(deleteId?.id)}
+                onClick={() => deleteReports(deleteId?.id)}
                 autoFocus
               >
                 Delete
@@ -326,4 +356,4 @@ const Role = ({ currentSegment }) => {
   );
 };
 
-export default Role;
+export default Report;

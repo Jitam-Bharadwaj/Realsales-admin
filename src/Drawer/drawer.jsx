@@ -28,6 +28,8 @@ import Persona from "./Persona";
 import PlantSize from "./PlantSize";
 import ManufacturingModels from "./ManufacturingModels";
 import GeneralInstruction from "./GeneralInstruction";
+import SummarizeIcon from "@mui/icons-material/Summarize";
+import Report from "./Report";
 
 const NAVIGATION = [
   {
@@ -63,6 +65,11 @@ const NAVIGATION = [
     segment: "manufacturingModels",
     title: "Manufacturing Models",
     icon: <FactoryIcon />,
+  },
+  {
+    segment: "report",
+    title: "Report",
+    icon: <SummarizeIcon />,
   },
   // {
   //   segment: "generalInstruction",
@@ -372,6 +379,7 @@ export default function DashboardLayoutBasic(props) {
             <PlantSize currentSegment={currentSegment} />
             <ManufacturingModels currentSegment={currentSegment} />
             <GeneralInstruction currentSegment={currentSegment} />
+            <Report currentSegment={currentSegment} />
           </Grid>
         </PageContainer>
       </DashboardLayout>

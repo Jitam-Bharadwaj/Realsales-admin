@@ -24,4 +24,7 @@ export const endpoints = {
     ai_roles: "/v1/ai-roles/",
     manufacturing_models: "/v1/manufacturing-models/",
   },
+  report: {
+    modeReport: "/v1/interaction-mode-report-details/"
+  }
 };
