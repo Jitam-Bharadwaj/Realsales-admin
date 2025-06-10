@@ -173,7 +173,7 @@ const ModsFlo = ({ currentSegment }) => {
                       ) : mods?.length ? (
                         mods?.map((v, i) => (
                           <TableRow key={i}>
-                            <TableCell sx={{ textAlign: "left" }}>
+                            <TableCell sx={{ textAlign: "left" }} className="capitalize">
                               {v?.name ? v?.name : "--"}
                             </TableCell>
                             <TableCell sx={{ textAlign: "left" }}>
