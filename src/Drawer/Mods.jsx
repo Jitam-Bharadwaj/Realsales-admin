@@ -34,6 +34,20 @@ const ModsFlo = ({ currentSegment }) => {
       .join("\\n\\n");
   };
 
+  const kewards = [
+    { value: "{industry}" },
+    { value: "{name}" },
+    { value: "{plant_size_impact_details}" },
+    { value: "{experience_level}" },
+    { value: "{industry_details}" },
+    { value: "{manufacturing_model_details}" },
+    { value: "{plant_size_impact}" },
+    { value: "{role_details}" },
+    { value: "{manufacturing_model}" },
+    { value: "{role}" },
+    { value: "{behavioral_detail}" },
+  ];
+
   const [mods, setMods] = useState([]);
   const [loadingMods, setLoadingMods] = useState(false);
   const [editingData, setEditingData] = useState({});
@@ -42,6 +56,10 @@ const ModsFlo = ({ currentSegment }) => {
   const [createMode, setCreateMode] = useState({});
   const [validationError, setValidationError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [textFieldRef, setTextFieldRef] = useState(null);
+  const [caretPos, setCaretPos] = useState(null);
+  const DRAG_KEY = "keward-drag-value";
+  const [createTextFieldRef, setCreateTextFieldRef] = useState(null);
 
   console.log(deleteId, "deleteId");
 
@@ -70,8 +88,9 @@ const ModsFlo = ({ currentSegment }) => {
         description: createMode?.description,
         prompt_template: convertNewlines(createMode?.prompt_template),
       });
-      if (data?.data) {
+      if (data?.data?.mode_id) {
         setCreateMode({});
+        setAddData(false)
         readAllMods();
         showToast.success("Mode created successfully");
       }
@@ -118,6 +137,7 @@ const ModsFlo = ({ currentSegment }) => {
         `${endpoints?.closing?.getClosing}/${id}`
       );
       setDeleteId({});
+      readAllMods();
       showToast.success("Mode deleted successfully");
     } catch (error) {
       showToast.error(
@@ -134,6 +154,50 @@ const ModsFlo = ({ currentSegment }) => {
     if (!data?.prompt_template)
       errors.prompt_template = "Prompt Template is required";
     return errors;
+  };
+
+  // Helper to insert text at caret
+  const insertAtCaret = (text, value, setValue) => {
+    if (textFieldRef) {
+      const start = textFieldRef.selectionStart;
+      const end = textFieldRef.selectionEnd;
+      const newValue = text.slice(0, start) + value + text.slice(end);
+      // Save scroll position
+      const scrollTop = textFieldRef.scrollTop;
+      setValue(newValue);
+      // Move caret after inserted keward and restore scroll
+      setTimeout(() => {
+        textFieldRef.focus();
+        textFieldRef.setSelectionRange(start + value.length, start + value.length);
+        textFieldRef.scrollTop = scrollTop;
+      }, 0);
+    } else {
+      setValue(text + value);
+    }
+  };
+
+  // Helper to insert text at caret for create mode
+  const insertAtCaretCreate = (text, value, setValue) => {
+    if (createTextFieldRef) {
+      const start = createTextFieldRef.selectionStart;
+      const end = createTextFieldRef.selectionEnd;
+      const newValue = text.slice(0, start) + value + text.slice(end);
+      // Save scroll position
+      const scrollTop = createTextFieldRef.scrollTop;
+      setValue(newValue);
+      setTimeout(() => {
+        createTextFieldRef.focus();
+        createTextFieldRef.setSelectionRange(start + value.length, start + value.length);
+        createTextFieldRef.scrollTop = scrollTop;
+      }, 0);
+    } else {
+      setValue(text + value);
+    }
+  };
+
+  const allKeywordsPresent = (template) => {
+    if (!template) return false;
+    return kewards.every(kw => template.includes(kw.value));
   };
 
   useEffect(() => {
@@ -312,29 +376,75 @@ const ModsFlo = ({ currentSegment }) => {
                     error={!!validationError.description}
                     helperText={validationError.description}
                   />
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label={"Prompt Template"}
-                    multiline
-                    rows={6}
-                    value={createMode?.prompt_template
-                      ?.replace(/\\n\\n/g, "\n\n")
-                      .replace(/\\n/g, "\n")}
-                    onChange={(e) => {
-                      setCreateMode({
-                        ...createMode,
-                        prompt_template: e.target.value,
-                      });
-                      if (validationError.prompt_template)
-                        setValidationError((prev) => ({
-                          ...prev,
-                          prompt_template: undefined,
-                        }));
+                  <div
+                    onDrop={e => {
+                      e.preventDefault();
+                      const keward = e.dataTransfer.getData(DRAG_KEY);
+                      if (keward) {
+                        insertAtCaretCreate(
+                          createMode.prompt_template?.replace(/\\n\\n/g, "\n\n").replace(/\\n/g, "\n") || "",
+                          keward,
+                          val => setCreateMode({ ...createMode, prompt_template: val })
+                        );
+                      }
                     }}
-                    error={!!validationError.prompt_template}
-                    helperText={validationError.prompt_template}
-                  />
+                    onDragOver={e => e.preventDefault()}
+                    style={{ width: '100%' }}
+                  >
+                    <TextField
+                      fullWidth
+                      margin="normal"
+                      label={"Prompt Template"}
+                      multiline
+                      rows={6}
+                      value={createMode?.prompt_template
+                        ?.replace(/\\n\\n/g, "\n\n")
+                        .replace(/\\n/g, "\n")}
+                      inputRef={ref => setCreateTextFieldRef(ref)}
+                      onClick={e => setCaretPos(e.target.selectionStart)}
+                      onKeyUp={e => setCaretPos(e.target.selectionStart)}
+                      onChange={(e) => {
+                        setCreateMode({
+                          ...createMode,
+                          prompt_template: e.target.value,
+                        });
+                        if (validationError.prompt_template)
+                          setValidationError((prev) => ({
+                            ...prev,
+                            prompt_template: undefined,
+                          }));
+                      }}
+                      error={!!validationError.prompt_template || (!allKeywordsPresent(createMode?.prompt_template) && !!createMode?.prompt_template)}
+                      helperText={
+                        validationError.prompt_template
+                          ? validationError.prompt_template
+                          : (!allKeywordsPresent(createMode?.prompt_template) && !!createMode?.prompt_template)
+                          ? `Missing keywords: ${kewards.filter(kw => !(createMode?.prompt_template || "").includes(kw.value)).map(kw => kw.value).join(', ')}`
+                          : ''
+                      }
+                    />
+                  </div>
+                  <div className="flex gap-3 flex-wrap mt-2">
+                    {kewards?.length
+                      ? kewards.map((v, i) => {
+                          const isDisabled = (createMode?.prompt_template || "").includes(v.value);
+                          return (
+                            <div
+                              className={`px-2 py-1 border border-solid border-[#d7a100] rounded ${isDisabled ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "cursor-pointer text-[#d7a100]"}`}
+                              key={i}
+                              draggable={!isDisabled}
+                              onDragStart={isDisabled ? undefined : e => {
+                                e.dataTransfer.setData(DRAG_KEY, v.value);
+                              }}
+                              title={isDisabled ? "Already used" : "Drag to insert"}
+                              style={isDisabled ? { pointerEvents: "none", opacity: 0.5 } : {}}
+                            >
+                              {v?.value}
+                            </div>
+                          );
+                        })
+                      : null}
+                  </div>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outlined"
@@ -359,7 +469,7 @@ const ModsFlo = ({ currentSegment }) => {
                         setValidationError({});
                         createModsPrompt();
                       }}
-                      disabled={loading}
+                      disabled={loading || !allKeywordsPresent(createMode?.prompt_template)}
                     >
                       {loading ? (
                         <RotateRightIcon className="animate-spin" />
@@ -373,26 +483,72 @@ const ModsFlo = ({ currentSegment }) => {
             </>
           ) : (
             <div className="flex flex-col gap-2 items-end">
-              <TextField
-                fullWidth
-                margin="normal"
-                label={
-                  editingData.type?.includes("industry")
-                    ? "Details"
-                    : "Prompt Template"
-                }
-                multiline
-                rows={12}
-                value={editingData.prompt_template
-                  ?.replace(/\\n\\n/g, "\n\n")
-                  .replace(/\\n/g, "\n")}
-                onChange={(e) =>
-                  setEditingData({
-                    ...editingData,
-                    prompt_template: e.target.value,
-                  })
-                }
-              />
+              <div
+                onDrop={e => {
+                  e.preventDefault();
+                  const keward = e.dataTransfer.getData(DRAG_KEY);
+                  if (keward) {
+                    insertAtCaret(
+                      editingData.prompt_template?.replace(/\\n\\n/g, "\n\n").replace(/\\n/g, "\n") || "",
+                      keward,
+                      val => setEditingData({ ...editingData, prompt_template: val })
+                    );
+                  }
+                }}
+                onDragOver={e => e.preventDefault()}
+                style={{ width: '100%' }}
+              >
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label={
+                    editingData.type?.includes("industry")
+                      ? "Details"
+                      : "Prompt Template"
+                  }
+                  multiline
+                  rows={12}
+                  value={editingData.prompt_template
+                    ?.replace(/\\n\\n/g, "\n\n")
+                    .replace(/\\n/g, "\n")}
+                  inputRef={ref => setTextFieldRef(ref)}
+                  onClick={e => setCaretPos(e.target.selectionStart)}
+                  onKeyUp={e => setCaretPos(e.target.selectionStart)}
+                  onChange={e =>
+                    setEditingData({
+                      ...editingData,
+                      prompt_template: e.target.value,
+                    })
+                  }
+                  error={!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template}
+                  helperText={
+                    (!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template)
+                      ? `Missing keywords: ${kewards.filter(kw => !(editingData?.prompt_template || "").includes(kw.value)).map(kw => kw.value).join(', ')}`
+                      : ''
+                  }
+                />
+              </div>
+              <div className="flex gap-3 flex-wrap">
+                {kewards?.length
+                  ? kewards.map((v, i) => {
+                      const isDisabled = (editingData?.prompt_template || "").includes(v.value);
+                      return (
+                        <div
+                          className={`px-2 py-1 border border-solid border-[#d7a100] rounded ${isDisabled ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "cursor-pointer text-[#d7a100]"}`}
+                          key={i}
+                          draggable={!isDisabled}
+                          onDragStart={isDisabled ? undefined : e => {
+                            e.dataTransfer.setData(DRAG_KEY, v.value);
+                          }}
+                          title={isDisabled ? "Already used" : "Drag to insert"}
+                          style={isDisabled ? { pointerEvents: "none", opacity: 0.5 } : {}}
+                        >
+                          {v?.value}
+                        </div>
+                      );
+                    })
+                  : null}
+              </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outlined"
@@ -409,7 +565,7 @@ const ModsFlo = ({ currentSegment }) => {
                   variant="contained"
                   className="!bg-green-600 !text-white w-fit"
                   onClick={() => updateMode()}
-                  disabled={loading}
+                  disabled={loading || !allKeywordsPresent(editingData?.prompt_template)}
                 >
                   {loading ? (
                     <RotateRightIcon className="animate-spin" />
