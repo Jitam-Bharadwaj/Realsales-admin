@@ -12,7 +12,7 @@ import {
   TextField,
   Modal,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
 import EditIcon from "@mui/icons-material/Edit";
@@ -41,6 +41,8 @@ const Role = ({ currentSegment }) => {
   const [loadingRoles, setLoadingRoles] = useState(false);
   const [validationError, setValidationError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const textFieldRef = useRef(null);
 
   const readRole = async () => {
     setLoadingRoles(true);
@@ -171,19 +173,41 @@ const Role = ({ currentSegment }) => {
                 label={"Prompt Template"}
                 multiline
                 rows={6}
+                inputRef={textFieldRef}
                 value={editingData?.description
                   ?.replace(/\\n\\n/g, "\n\n")
                   .replace(/\\n/g, "\n")}
+                onKeyDown={(e) => {
+                  const textarea = e.target;
+                  const cursorPosition = textarea.selectionStart;
+                  const scrollTop = textarea.scrollTop;
+                  
+                  requestAnimationFrame(() => {
+                    textarea.selectionStart = cursorPosition;
+                    textarea.selectionEnd = cursorPosition;
+                    textarea.scrollTop = scrollTop;
+                  });
+                }}
                 onChange={(e) => {
+                  const textarea = e.target;
+                  const cursorPosition = textarea.selectionStart;
+                  const scrollTop = textarea.scrollTop;
+                  
                   setEditingData({
                     ...editingData,
-                    description: e.target.value,
+                    description: e.target.value.replace(/"/g, "'"),
                   });
                   if (validationError.description)
                     setValidationError((prev) => ({
                       ...prev,
                       description: undefined,
                     }));
+                  
+                  requestAnimationFrame(() => {
+                    textarea.selectionStart = cursorPosition;
+                    textarea.selectionEnd = cursorPosition;
+                    textarea.scrollTop = scrollTop;
+                  });
                 }}
                 error={!!validationError.description}
                 helperText={validationError.description}

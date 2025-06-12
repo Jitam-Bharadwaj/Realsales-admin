@@ -38,7 +38,7 @@ const ModsFlo = ({ currentSegment }) => {
     { value: "{industry}" },
     { value: "{name}" },
     { value: "{plant_size_impact_details}" },
-    { value: "{experience_level}" },
+    // { value: "{experience_level}" },
     { value: "{industry_details}" },
     { value: "{manufacturing_model_details}" },
     { value: "{plant_size_impact}" },
@@ -404,15 +404,24 @@ const ModsFlo = ({ currentSegment }) => {
                       onClick={e => setCaretPos(e.target.selectionStart)}
                       onKeyUp={e => setCaretPos(e.target.selectionStart)}
                       onChange={(e) => {
+                        const scrollTop = createTextFieldRef?.scrollTop;
+                        const selectionStart = createTextFieldRef?.selectionStart;
+                        const selectionEnd = createTextFieldRef?.selectionEnd;
                         setCreateMode({
                           ...createMode,
-                          prompt_template: e.target.value,
+                          prompt_template: e.target.value.replace(/"/g, "'"),
                         });
                         if (validationError.prompt_template)
                           setValidationError((prev) => ({
                             ...prev,
                             prompt_template: undefined,
                           }));
+                        requestAnimationFrame(() => {
+                          if (createTextFieldRef) {
+                            createTextFieldRef.scrollTop = scrollTop;
+                            createTextFieldRef.setSelectionRange(selectionStart, selectionEnd);
+                          }
+                        });
                       }}
                       error={!!validationError.prompt_template || (!allKeywordsPresent(createMode?.prompt_template) && !!createMode?.prompt_template)}
                       helperText={
@@ -514,12 +523,21 @@ const ModsFlo = ({ currentSegment }) => {
                   inputRef={ref => setTextFieldRef(ref)}
                   onClick={e => setCaretPos(e.target.selectionStart)}
                   onKeyUp={e => setCaretPos(e.target.selectionStart)}
-                  onChange={e =>
+                  onChange={e => {
+                    const scrollTop = textFieldRef?.scrollTop;
+                    const selectionStart = textFieldRef?.selectionStart;
+                    const selectionEnd = textFieldRef?.selectionEnd;
                     setEditingData({
                       ...editingData,
-                      prompt_template: e.target.value,
-                    })
-                  }
+                      prompt_template: e.target.value.replace(/"/g, "'"),
+                    });
+                    requestAnimationFrame(() => {
+                      if (textFieldRef) {
+                        textFieldRef.scrollTop = scrollTop;
+                        textFieldRef.setSelectionRange(selectionStart, selectionEnd);
+                      }
+                    });
+                  }}
                   error={!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template}
                   helperText={
                     (!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template)

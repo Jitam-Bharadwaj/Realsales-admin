@@ -12,7 +12,7 @@ import {
   TextField,
   Modal,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
 import EditIcon from "@mui/icons-material/Edit";
@@ -42,6 +42,8 @@ const Report = ({ currentSegment }) => {
   const [validationError, setValidationError] = useState({});
   const [loading, setLoading] = useState(false);
   const [mods, setMods] = useState([]);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const textFieldRef = useRef(null);
 
   const readMods = async () => {
     try {
@@ -198,19 +200,41 @@ const Report = ({ currentSegment }) => {
                 label={"Prompt Template"}
                 multiline
                 rows={6}
+                inputRef={textFieldRef}
                 value={editingData?.prompt_template
                   ?.replace(/\\n\\n/g, "\n\n")
                   .replace(/\\n/g, "\n")}
+                onKeyDown={(e) => {
+                  const textarea = e.target;
+                  const cursorPosition = textarea.selectionStart;
+                  const scrollTop = textarea.scrollTop;
+                  
+                  requestAnimationFrame(() => {
+                    textarea.selectionStart = cursorPosition;
+                    textarea.selectionEnd = cursorPosition;
+                    textarea.scrollTop = scrollTop;
+                  });
+                }}
                 onChange={(e) => {
+                  const textarea = e.target;
+                  const cursorPosition = textarea.selectionStart;
+                  const scrollTop = textarea.scrollTop;
+                  
                   setEditingData({
                     ...editingData,
-                    prompt_template: e.target.value,
+                    prompt_template: e.target.value.replace(/"/g, "'"),
                   });
                   if (validationError.prompt_template)
                     setValidationError((prev) => ({
                       ...prev,
                       prompt_template: undefined,
                     }));
+                  
+                  requestAnimationFrame(() => {
+                    textarea.selectionStart = cursorPosition;
+                    textarea.selectionEnd = cursorPosition;
+                    textarea.scrollTop = scrollTop;
+                  });
                 }}
                 error={!!validationError.prompt_template}
                 helperText={validationError.prompt_template}
