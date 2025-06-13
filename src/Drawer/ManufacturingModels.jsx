@@ -21,6 +21,8 @@ import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
 import { showToast } from "../toastConfig";
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 
 const ManufacturingModels = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -44,6 +46,7 @@ const ManufacturingModels = ({ currentSegment }) => {
   const [loading, setLoading] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const textFieldRef = useRef(null);
+  const [showMore, setShowMore] = useState(false);
 
   const readManufacturingModels = async () => {
     setLoadingManufacturingModels(true);
@@ -73,6 +76,7 @@ const ManufacturingModels = ({ currentSegment }) => {
         readManufacturingModels();
         setEditingData({});
         setAddData(false);
+        setShowMore(false);
         showToast.success("Manufacturing model created successfully");
       }
     } catch (error) {
@@ -99,6 +103,7 @@ const ManufacturingModels = ({ currentSegment }) => {
         readManufacturingModels();
         setEditingData({});
         setAddData(false);
+        setShowMore(false);
         showToast.success("Manufacturing model updated successfully");
       }
     } catch (error) {
@@ -119,6 +124,7 @@ const ManufacturingModels = ({ currentSegment }) => {
       if (data?.status === 204) {
         readManufacturingModels();
         setDeleteId({});
+        setShowMore(false);
         showToast.success("Manufacturing model deleted successfully");
       }
     } catch (error) {
@@ -170,51 +176,63 @@ const ManufacturingModels = ({ currentSegment }) => {
                 error={!!validationError.name}
                 helperText={validationError.name}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                label={"Prompt Template"}
-                multiline
-                rows={6}
-                inputRef={textFieldRef}
-                value={editingData?.description
-                  ?.replace(/\\n\\n/g, "\n\n")
-                  .replace(/\\n/g, "\n")}
-                onKeyDown={(e) => {
-                  const textarea = e.target;
-                  const cursorPosition = textarea.selectionStart;
-                  const scrollTop = textarea.scrollTop;
-                  
-                  requestAnimationFrame(() => {
-                    textarea.selectionStart = cursorPosition;
-                    textarea.selectionEnd = cursorPosition;
-                    textarea.scrollTop = scrollTop;
-                  });
-                }}
-                onChange={(e) => {
-                  const textarea = e.target;
-                  const cursorPosition = textarea.selectionStart;
-                  const scrollTop = textarea.scrollTop;
-                  
-                  setEditingData({
-                    ...editingData,
-                    description: e.target.value.replace(/"/g, "'"),
-                  });
-                  if (validationError.description)
-                    setValidationError((prev) => ({
-                      ...prev,
-                      description: undefined,
-                    }));
-                  
-                  requestAnimationFrame(() => {
-                    textarea.selectionStart = cursorPosition;
-                    textarea.selectionEnd = cursorPosition;
-                    textarea.scrollTop = scrollTop;
-                  });
-                }}
-                error={!!validationError.description}
-                helperText={validationError.description}
-              />
+              <div className="relative w-full">
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label={"Prompt Template"}
+                  multiline
+                  rows={showMore ? null : 6}
+                  inputRef={textFieldRef}
+                  value={editingData?.description
+                    ?.replace(/\\n\\n/g, "\n\n")
+                    .replace(/\\n/g, "\n")}
+                  onKeyDown={(e) => {
+                    const textarea = e.target;
+                    const cursorPosition = textarea.selectionStart;
+                    const scrollTop = textarea.scrollTop;
+                    
+                    requestAnimationFrame(() => {
+                      textarea.selectionStart = cursorPosition;
+                      textarea.selectionEnd = cursorPosition;
+                      textarea.scrollTop = scrollTop;
+                    });
+                  }}
+                  onChange={(e) => {
+                    const textarea = e.target;
+                    const cursorPosition = textarea.selectionStart;
+                    const scrollTop = textarea.scrollTop;
+                    
+                    setEditingData({
+                      ...editingData,
+                      description: e.target.value.replace(/"/g, "'"),
+                    });
+                    if (validationError.description)
+                      setValidationError((prev) => ({
+                        ...prev,
+                        description: undefined,
+                      }));
+                    
+                    requestAnimationFrame(() => {
+                      textarea.selectionStart = cursorPosition;
+                      textarea.selectionEnd = cursorPosition;
+                      textarea.scrollTop = scrollTop;
+                    });
+                  }}
+                  error={!!validationError.description}
+                  helperText={validationError.description}
+                />
+                <div
+                  className="absolute right-3 bottom-0.5 bg-green-500 w-10 py-0.5 rounded flex items-center justify-center cursor-pointer"
+                  onClick={() => setShowMore(!showMore)}
+                >
+                  {!showMore ? (
+                    <UnfoldMoreIcon className="!w-3.5 !h-3.5" />
+                  ) : (
+                    <UnfoldLessIcon className="!w-3.5 !h-3.5" />
+                  )}
+                </div>
+              </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outlined"

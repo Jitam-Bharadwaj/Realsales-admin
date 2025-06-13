@@ -20,6 +20,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import { showToast } from "../toastConfig";
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 
 const GeneralInstruction = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -38,6 +40,7 @@ const GeneralInstruction = ({ currentSegment }) => {
   const [addData, setAddData] = useState(false);
   const [manufacturingModels, setManufacturingModels] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   const readGeneral = async () => {
     try {
@@ -91,19 +94,31 @@ const GeneralInstruction = ({ currentSegment }) => {
                 alignItems: "end",
               }}
             >
-              <TextField
-                fullWidth
-                margin="normal"
-                label={"General Instruction"}
-                multiline
-                rows={6}
-                value={editingData?.details
-                  ?.replace(/\\n\\n/g, "\n\n")
-                  .replace(/\\n/g, "\n")}
-                onChange={(e) => {
-                  setEditingData({ ...editingData, details: e.target.value });
-                }}
-              />
+              <div className="relative w-full">
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label={"General Instruction"}
+                  multiline
+                  rows={showMore ? null : 6}
+                  value={editingData?.details
+                    ?.replace(/\\n\\n/g, "\n\n")
+                    .replace(/\\n/g, "\n")}
+                  onChange={(e) => {
+                    setEditingData({ ...editingData, details: e.target.value });
+                  }}
+                />
+                <div
+                  className="absolute right-3 bottom-0.5 bg-green-500 w-10 py-0.5 rounded flex items-center justify-center cursor-pointer"
+                  onClick={() => setShowMore(!showMore)}
+                >
+                  {!showMore ? (
+                    <UnfoldMoreIcon className="!w-3.5 !h-3.5" />
+                  ) : (
+                    <UnfoldLessIcon className="!w-3.5 !h-3.5" />
+                  )}
+                </div>
+              </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outlined"
@@ -111,6 +126,7 @@ const GeneralInstruction = ({ currentSegment }) => {
                   onClick={() => {
                     setEditingData({});
                     setAddData(false);
+                    setShowMore(false);
                   }}
                 >
                   Cancel

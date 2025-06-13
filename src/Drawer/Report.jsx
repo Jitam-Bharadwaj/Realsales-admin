@@ -21,6 +21,8 @@ import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
 import { showToast } from "../toastConfig";
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 
 const Report = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -44,6 +46,7 @@ const Report = ({ currentSegment }) => {
   const [mods, setMods] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const textFieldRef = useRef(null);
+  const [showMore, setShowMore] = useState(false);
 
   const readMods = async () => {
     try {
@@ -194,51 +197,63 @@ const Report = ({ currentSegment }) => {
                     : null}
                 </div>
               )}
-              <TextField
-                fullWidth
-                margin="normal"
-                label={"Prompt Template"}
-                multiline
-                rows={6}
-                inputRef={textFieldRef}
-                value={editingData?.prompt_template
-                  ?.replace(/\\n\\n/g, "\n\n")
-                  .replace(/\\n/g, "\n")}
-                onKeyDown={(e) => {
-                  const textarea = e.target;
-                  const cursorPosition = textarea.selectionStart;
-                  const scrollTop = textarea.scrollTop;
-                  
-                  requestAnimationFrame(() => {
-                    textarea.selectionStart = cursorPosition;
-                    textarea.selectionEnd = cursorPosition;
-                    textarea.scrollTop = scrollTop;
-                  });
-                }}
-                onChange={(e) => {
-                  const textarea = e.target;
-                  const cursorPosition = textarea.selectionStart;
-                  const scrollTop = textarea.scrollTop;
-                  
-                  setEditingData({
-                    ...editingData,
-                    prompt_template: e.target.value.replace(/"/g, "'"),
-                  });
-                  if (validationError.prompt_template)
-                    setValidationError((prev) => ({
-                      ...prev,
-                      prompt_template: undefined,
-                    }));
-                  
-                  requestAnimationFrame(() => {
-                    textarea.selectionStart = cursorPosition;
-                    textarea.selectionEnd = cursorPosition;
-                    textarea.scrollTop = scrollTop;
-                  });
-                }}
-                error={!!validationError.prompt_template}
-                helperText={validationError.prompt_template}
-              />
+              <div className="relative w-full">
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label={"Prompt Template"}
+                  multiline
+                  rows={showMore ? null : 6}
+                  inputRef={textFieldRef}
+                  value={editingData?.prompt_template
+                    ?.replace(/\\n\\n/g, "\n\n")
+                    .replace(/\\n/g, "\n")}
+                  onKeyDown={(e) => {
+                    const textarea = e.target;
+                    const cursorPosition = textarea.selectionStart;
+                    const scrollTop = textarea.scrollTop;
+                    
+                    requestAnimationFrame(() => {
+                      textarea.selectionStart = cursorPosition;
+                      textarea.selectionEnd = cursorPosition;
+                      textarea.scrollTop = scrollTop;
+                    });
+                  }}
+                  onChange={(e) => {
+                    const textarea = e.target;
+                    const cursorPosition = textarea.selectionStart;
+                    const scrollTop = textarea.scrollTop;
+                    
+                    setEditingData({
+                      ...editingData,
+                      prompt_template: e.target.value.replace(/"/g, "'"),
+                    });
+                    if (validationError.prompt_template)
+                      setValidationError((prev) => ({
+                        ...prev,
+                        prompt_template: undefined,
+                      }));
+                    
+                    requestAnimationFrame(() => {
+                      textarea.selectionStart = cursorPosition;
+                      textarea.selectionEnd = cursorPosition;
+                      textarea.scrollTop = scrollTop;
+                    });
+                  }}
+                  error={!!validationError.prompt_template}
+                  helperText={validationError.prompt_template}
+                />
+                <div
+                  className="absolute right-3 bottom-0.5 bg-green-500 w-10 py-0.5 rounded flex items-center justify-center cursor-pointer"
+                  onClick={() => setShowMore(!showMore)}
+                >
+                  {!showMore ? (
+                    <UnfoldMoreIcon className="!w-3.5 !h-3.5" />
+                  ) : (
+                    <UnfoldLessIcon className="!w-3.5 !h-3.5" />
+                  )}
+                </div>
+              </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outlined"
@@ -246,7 +261,7 @@ const Report = ({ currentSegment }) => {
                   onClick={() => {
                     setEditingData({});
                     setAddData(false);
-                    setValidationError({});
+                    setShowMore(false);
                   }}
                 >
                   Cancel
