@@ -21,6 +21,8 @@ import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
 import NotFoundImage from "../../public/404_Image.png";
 import { showToast } from "../toastConfig";
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 
 const ModsFlo = ({ currentSegment }) => {
   const convertNewlines = (text) => {
@@ -60,6 +62,7 @@ const ModsFlo = ({ currentSegment }) => {
   const [caretPos, setCaretPos] = useState(null);
   const DRAG_KEY = "keward-drag-value";
   const [createTextFieldRef, setCreateTextFieldRef] = useState(null);
+  const [showMore, setShowMore] = useState(false);
 
   console.log(deleteId, "deleteId");
 
@@ -90,7 +93,7 @@ const ModsFlo = ({ currentSegment }) => {
       });
       if (data?.data?.mode_id) {
         setCreateMode({});
-        setAddData(false)
+        setAddData(false);
         readAllMods();
         showToast.success("Mode created successfully");
       }
@@ -168,7 +171,10 @@ const ModsFlo = ({ currentSegment }) => {
       // Move caret after inserted keward and restore scroll
       setTimeout(() => {
         textFieldRef.focus();
-        textFieldRef.setSelectionRange(start + value.length, start + value.length);
+        textFieldRef.setSelectionRange(
+          start + value.length,
+          start + value.length
+        );
         textFieldRef.scrollTop = scrollTop;
       }, 0);
     } else {
@@ -187,7 +193,10 @@ const ModsFlo = ({ currentSegment }) => {
       setValue(newValue);
       setTimeout(() => {
         createTextFieldRef.focus();
-        createTextFieldRef.setSelectionRange(start + value.length, start + value.length);
+        createTextFieldRef.setSelectionRange(
+          start + value.length,
+          start + value.length
+        );
         createTextFieldRef.scrollTop = scrollTop;
       }, 0);
     } else {
@@ -197,14 +206,14 @@ const ModsFlo = ({ currentSegment }) => {
 
   const allKeywordsPresent = (template) => {
     if (!template) return false;
-    return kewards.every(kw => template.includes(kw.value));
+    return kewards.every((kw) => template.includes(kw.value));
   };
 
   const hasInvalidKeywords = (template) => {
     if (!template) return false;
     const regex = /{[^}]+}/g;
     const matches = template.match(regex) || [];
-    return matches.some(match => !kewards.some(kw => kw.value === match));
+    return matches.some((match) => !kewards.some((kw) => kw.value === match));
   };
 
   useEffect(() => {
@@ -384,35 +393,43 @@ const ModsFlo = ({ currentSegment }) => {
                     helperText={validationError.description}
                   />
                   <div
-                    onDrop={e => {
+                    onDrop={(e) => {
                       e.preventDefault();
                       const keward = e.dataTransfer.getData(DRAG_KEY);
                       if (keward) {
                         insertAtCaretCreate(
-                          createMode.prompt_template?.replace(/\\n\\n/g, "\n\n").replace(/\\n/g, "\n") || "",
+                          createMode.prompt_template
+                            ?.replace(/\\n\\n/g, "\n\n")
+                            .replace(/\\n/g, "\n") || "",
                           keward,
-                          val => setCreateMode({ ...createMode, prompt_template: val })
+                          (val) =>
+                            setCreateMode({
+                              ...createMode,
+                              prompt_template: val,
+                            })
                         );
                       }
                     }}
-                    onDragOver={e => e.preventDefault()}
-                    style={{ width: '100%' }}
+                    onDragOver={(e) => e.preventDefault()}
+                    style={{ width: "100%" }}
+                    className="relative"
                   >
                     <TextField
                       fullWidth
                       margin="normal"
                       label={"Prompt Template"}
                       multiline
-                      rows={6}
+                      rows={showMore ? null : 6}
                       value={createMode?.prompt_template
                         ?.replace(/\\n\\n/g, "\n\n")
                         .replace(/\\n/g, "\n")}
-                      inputRef={ref => setCreateTextFieldRef(ref)}
-                      onClick={e => setCaretPos(e.target.selectionStart)}
-                      onKeyUp={e => setCaretPos(e.target.selectionStart)}
+                      inputRef={(ref) => setCreateTextFieldRef(ref)}
+                      onClick={(e) => setCaretPos(e.target.selectionStart)}
+                      onKeyUp={(e) => setCaretPos(e.target.selectionStart)}
                       onChange={(e) => {
                         const scrollTop = createTextFieldRef?.scrollTop;
-                        const selectionStart = createTextFieldRef?.selectionStart;
+                        const selectionStart =
+                          createTextFieldRef?.selectionStart;
                         const selectionEnd = createTextFieldRef?.selectionEnd;
                         setCreateMode({
                           ...createMode,
@@ -426,36 +443,76 @@ const ModsFlo = ({ currentSegment }) => {
                         requestAnimationFrame(() => {
                           if (createTextFieldRef) {
                             createTextFieldRef.scrollTop = scrollTop;
-                            createTextFieldRef.setSelectionRange(selectionStart, selectionEnd);
+                            createTextFieldRef.setSelectionRange(
+                              selectionStart,
+                              selectionEnd
+                            );
                           }
                         });
                       }}
-                      error={!!validationError.prompt_template || (!allKeywordsPresent(createMode?.prompt_template) && !!createMode?.prompt_template) || hasInvalidKeywords(createMode?.prompt_template)}
+                      error={
+                        !!validationError.prompt_template ||
+                        (!allKeywordsPresent(createMode?.prompt_template) &&
+                          !!createMode?.prompt_template) ||
+                        hasInvalidKeywords(createMode?.prompt_template)
+                      }
                       helperText={
                         validationError.prompt_template
                           ? validationError.prompt_template
                           : hasInvalidKeywords(createMode?.prompt_template)
-                          ? "Invalid keywords detected. Please use only the provided keywords."
-                          : (!allKeywordsPresent(createMode?.prompt_template) && !!createMode?.prompt_template)
-                          ? `Missing keywords: ${kewards.filter(kw => !(createMode?.prompt_template || "").includes(kw.value)).map(kw => kw.value).join(', ')}`
-                          : ''
+                            ? "Invalid keywords detected. Please use only the provided keywords."
+                            : !allKeywordsPresent(
+                                  createMode?.prompt_template
+                                ) && !!createMode?.prompt_template
+                              ? `Missing keywords: ${kewards
+                                  .filter(
+                                    (kw) =>
+                                      !(
+                                        createMode?.prompt_template || ""
+                                      ).includes(kw.value)
+                                  )
+                                  .map((kw) => kw.value)
+                                  .join(", ")}`
+                              : ""
                       }
                     />
+                    <div
+                      className="absolute right-3 bottom-0.5 bg-green-500 w-10 py-0.5 rounded flex items-center justify-center cursor-pointer"
+                      onClick={() => setShowMore(!showMore)}
+                    >
+                      {!showMore ? (
+                        <UnfoldMoreIcon className="!w-3.5 !h-3.5" />
+                      ) : (
+                        <UnfoldLessIcon className="!w-3.5 !h-3.5" />
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-3 flex-wrap mt-2">
                     {kewards?.length
                       ? kewards.map((v, i) => {
-                          const isDisabled = (createMode?.prompt_template || "").includes(v.value);
+                          const isDisabled = (
+                            createMode?.prompt_template || ""
+                          ).includes(v.value);
                           return (
                             <div
                               className={`px-2 py-1 border border-solid border-[#d7a100] rounded ${isDisabled ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "cursor-pointer text-[#d7a100]"}`}
                               key={i}
                               draggable={!isDisabled}
-                              onDragStart={isDisabled ? undefined : e => {
-                                e.dataTransfer.setData(DRAG_KEY, v.value);
-                              }}
-                              title={isDisabled ? "Already used" : "Drag to insert"}
-                              style={isDisabled ? { pointerEvents: "none", opacity: 0.5 } : {}}
+                              onDragStart={
+                                isDisabled
+                                  ? undefined
+                                  : (e) => {
+                                      e.dataTransfer.setData(DRAG_KEY, v.value);
+                                    }
+                              }
+                              title={
+                                isDisabled ? "Already used" : "Drag to insert"
+                              }
+                              style={
+                                isDisabled
+                                  ? { pointerEvents: "none", opacity: 0.5 }
+                                  : {}
+                              }
                             >
                               {v?.value}
                             </div>
@@ -487,7 +544,10 @@ const ModsFlo = ({ currentSegment }) => {
                         setValidationError({});
                         createModsPrompt();
                       }}
-                      disabled={loading || !allKeywordsPresent(createMode?.prompt_template)}
+                      disabled={
+                        loading ||
+                        !allKeywordsPresent(createMode?.prompt_template)
+                      }
                     >
                       {loading ? (
                         <RotateRightIcon className="animate-spin" />
@@ -502,19 +562,23 @@ const ModsFlo = ({ currentSegment }) => {
           ) : (
             <div className="flex flex-col gap-2 items-end">
               <div
-                onDrop={e => {
+                onDrop={(e) => {
                   e.preventDefault();
                   const keward = e.dataTransfer.getData(DRAG_KEY);
                   if (keward) {
                     insertAtCaret(
-                      editingData.prompt_template?.replace(/\\n\\n/g, "\n\n").replace(/\\n/g, "\n") || "",
+                      editingData.prompt_template
+                        ?.replace(/\\n\\n/g, "\n\n")
+                        .replace(/\\n/g, "\n") || "",
                       keward,
-                      val => setEditingData({ ...editingData, prompt_template: val })
+                      (val) =>
+                        setEditingData({ ...editingData, prompt_template: val })
                     );
                   }
                 }}
-                onDragOver={e => e.preventDefault()}
-                style={{ width: '100%' }}
+                onDragOver={(e) => e.preventDefault()}
+                style={{ width: "100%" }}
+                className="relative"
               >
                 <TextField
                   fullWidth
@@ -525,14 +589,14 @@ const ModsFlo = ({ currentSegment }) => {
                       : "Prompt Template"
                   }
                   multiline
-                  rows={12}
+                  rows={showMore ? null : 12}
                   value={editingData.prompt_template
                     ?.replace(/\\n\\n/g, "\n\n")
                     .replace(/\\n/g, "\n")}
-                  inputRef={ref => setTextFieldRef(ref)}
-                  onClick={e => setCaretPos(e.target.selectionStart)}
-                  onKeyUp={e => setCaretPos(e.target.selectionStart)}
-                  onChange={e => {
+                  inputRef={(ref) => setTextFieldRef(ref)}
+                  onClick={(e) => setCaretPos(e.target.selectionStart)}
+                  onKeyUp={(e) => setCaretPos(e.target.selectionStart)}
+                  onChange={(e) => {
                     const scrollTop = textFieldRef?.scrollTop;
                     const selectionStart = textFieldRef?.selectionStart;
                     const selectionEnd = textFieldRef?.selectionEnd;
@@ -543,34 +607,70 @@ const ModsFlo = ({ currentSegment }) => {
                     requestAnimationFrame(() => {
                       if (textFieldRef) {
                         textFieldRef.scrollTop = scrollTop;
-                        textFieldRef.setSelectionRange(selectionStart, selectionEnd);
+                        textFieldRef.setSelectionRange(
+                          selectionStart,
+                          selectionEnd
+                        );
                       }
                     });
                   }}
-                  error={!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template || hasInvalidKeywords(editingData?.prompt_template)}
+                  error={
+                    (!allKeywordsPresent(editingData?.prompt_template) &&
+                      !!editingData?.prompt_template) ||
+                    hasInvalidKeywords(editingData?.prompt_template)
+                  }
                   helperText={
                     hasInvalidKeywords(editingData?.prompt_template)
                       ? "Invalid keywords detected. Please use only the provided keywords."
-                      : (!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template)
-                      ? `Missing keywords: ${kewards.filter(kw => !(editingData?.prompt_template || "").includes(kw.value)).map(kw => kw.value).join(', ')}`
-                      : ''
+                      : !allKeywordsPresent(editingData?.prompt_template) &&
+                          !!editingData?.prompt_template
+                        ? `Missing keywords: ${kewards
+                            .filter(
+                              (kw) =>
+                                !(editingData?.prompt_template || "").includes(
+                                  kw.value
+                                )
+                            )
+                            .map((kw) => kw.value)
+                            .join(", ")}`
+                        : ""
                   }
                 />
+                <div
+                  className="absolute right-3 bottom-0.5 bg-green-500 w-10 py-0.5 rounded flex items-center justify-center cursor-pointer"
+                  onClick={() => setShowMore(!showMore)}
+                >
+                  {!showMore ? (
+                    <UnfoldMoreIcon className="!w-3.5 !h-3.5" />
+                  ) : (
+                    <UnfoldLessIcon className="!w-3.5 !h-3.5" />
+                  )}
+                </div>
               </div>
               <div className="flex gap-3 flex-wrap">
                 {kewards?.length
                   ? kewards.map((v, i) => {
-                      const isDisabled = (editingData?.prompt_template || "").includes(v.value);
+                      const isDisabled = (
+                        editingData?.prompt_template || ""
+                      ).includes(v.value);
                       return (
                         <div
                           className={`px-2 py-1 border border-solid border-[#d7a100] rounded ${isDisabled ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "cursor-pointer text-[#d7a100]"}`}
                           key={i}
                           draggable={!isDisabled}
-                          onDragStart={isDisabled ? undefined : e => {
-                            e.dataTransfer.setData(DRAG_KEY, v.value);
-                          }}
+                          onDragStart={
+                            isDisabled
+                              ? undefined
+                              : (e) => {
+                                  e.dataTransfer.setData(DRAG_KEY, v.value);
+                                }
+                          }
                           title={isDisabled ? "Already used" : "Drag to insert"}
-                          style={isDisabled ? { pointerEvents: "none", opacity: 0.5 } : {}}
+                          style={
+                            isDisabled
+                              ? { pointerEvents: "none", opacity: 0.5 }
+                              : {}
+                          }
                         >
                           {v?.value}
                         </div>
@@ -594,7 +694,9 @@ const ModsFlo = ({ currentSegment }) => {
                   variant="contained"
                   className="!bg-green-600 !text-white w-fit"
                   onClick={() => updateMode()}
-                  disabled={loading || !allKeywordsPresent(editingData?.prompt_template)}
+                  disabled={
+                    loading || !allKeywordsPresent(editingData?.prompt_template)
+                  }
                 >
                   {loading ? (
                     <RotateRightIcon className="animate-spin" />
