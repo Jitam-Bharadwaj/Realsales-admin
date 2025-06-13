@@ -200,6 +200,13 @@ const ModsFlo = ({ currentSegment }) => {
     return kewards.every(kw => template.includes(kw.value));
   };
 
+  const hasInvalidKeywords = (template) => {
+    if (!template) return false;
+    const regex = /{[^}]+}/g;
+    const matches = template.match(regex) || [];
+    return matches.some(match => !kewards.some(kw => kw.value === match));
+  };
+
   useEffect(() => {
     readAllMods();
   }, []);
@@ -423,10 +430,12 @@ const ModsFlo = ({ currentSegment }) => {
                           }
                         });
                       }}
-                      error={!!validationError.prompt_template || (!allKeywordsPresent(createMode?.prompt_template) && !!createMode?.prompt_template)}
+                      error={!!validationError.prompt_template || (!allKeywordsPresent(createMode?.prompt_template) && !!createMode?.prompt_template) || hasInvalidKeywords(createMode?.prompt_template)}
                       helperText={
                         validationError.prompt_template
                           ? validationError.prompt_template
+                          : hasInvalidKeywords(createMode?.prompt_template)
+                          ? "Invalid keywords detected. Please use only the provided keywords."
                           : (!allKeywordsPresent(createMode?.prompt_template) && !!createMode?.prompt_template)
                           ? `Missing keywords: ${kewards.filter(kw => !(createMode?.prompt_template || "").includes(kw.value)).map(kw => kw.value).join(', ')}`
                           : ''
@@ -538,9 +547,11 @@ const ModsFlo = ({ currentSegment }) => {
                       }
                     });
                   }}
-                  error={!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template}
+                  error={!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template || hasInvalidKeywords(editingData?.prompt_template)}
                   helperText={
-                    (!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template)
+                    hasInvalidKeywords(editingData?.prompt_template)
+                      ? "Invalid keywords detected. Please use only the provided keywords."
+                      : (!allKeywordsPresent(editingData?.prompt_template) && !!editingData?.prompt_template)
                       ? `Missing keywords: ${kewards.filter(kw => !(editingData?.prompt_template || "").includes(kw.value)).map(kw => kw.value).join(', ')}`
                       : ''
                   }

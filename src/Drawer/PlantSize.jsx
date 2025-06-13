@@ -183,7 +183,7 @@ const PlantSize = ({ currentSegment }) => {
                   const textarea = e.target;
                   const cursorPosition = textarea.selectionStart;
                   const scrollTop = textarea.scrollTop;
-                  
+
                   requestAnimationFrame(() => {
                     textarea.selectionStart = cursorPosition;
                     textarea.selectionEnd = cursorPosition;
@@ -194,7 +194,7 @@ const PlantSize = ({ currentSegment }) => {
                   const textarea = e.target;
                   const cursorPosition = textarea.selectionStart;
                   const scrollTop = textarea.scrollTop;
-                  
+
                   setEditingData({
                     ...editingData,
                     description: e.target.value.replace(/"/g, "'"),
@@ -204,7 +204,7 @@ const PlantSize = ({ currentSegment }) => {
                       ...prev,
                       description: undefined,
                     }));
-                  
+
                   requestAnimationFrame(() => {
                     textarea.selectionStart = cursorPosition;
                     textarea.selectionEnd = cursorPosition;
@@ -284,7 +284,14 @@ const PlantSize = ({ currentSegment }) => {
                     plantSize.map((v, i) => (
                       <TableRow key={i}>
                         <TableCell className="capitalize">
-                          {v?.name.replace(/_/g, " ")}
+                          {v?.name.replace(/_/g, " ")}&nbsp;
+                          {v?.name === "small"
+                            ? "(1-500)"
+                            : v?.name === "medium"
+                              ? "(501-5,000)"
+                              : v?.name === "large"
+                                ? "(5,000+)"
+                                : ""}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end gap-2">
