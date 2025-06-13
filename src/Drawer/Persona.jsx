@@ -13,7 +13,7 @@ import {
   Modal,
   Chip,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
 import EditIcon from "@mui/icons-material/Edit";
@@ -62,6 +62,8 @@ const Persona = ({ currentSegment }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const textFieldRef = useRef(null);
   // const [uploadSuccess, setUploadSuccess] = useState(false);
 
   console.log(persona, personaId, "persona__");
@@ -301,19 +303,44 @@ const Persona = ({ currentSegment }) => {
                   label={"Summary"}
                   multiline
                   rows={8}
+                  inputRef={textFieldRef}
                   value={persona?.behavioral_detail
                     ?.replace(/\\n\\n/g, "\n\n")
-                    .replace(/\\n/g, "\n")}
+                    ?.replace(/\\n/g, "\n")}
+                  onKeyDown={(e) => {
+                    const textarea = e.target;
+                    const cursorPosition = textarea.selectionStart;
+                    const scrollTop = textarea.scrollTop;
+                    
+                    // Store cursor position and scroll position
+                    requestAnimationFrame(() => {
+                      textarea.selectionStart = cursorPosition;
+                      textarea.selectionEnd = cursorPosition;
+                      textarea.scrollTop = scrollTop;
+                    });
+                  }}
                   onChange={(e) => {
+                    const textarea = e.target;
+                    const cursorPosition = textarea.selectionStart;
+                    const scrollTop = textarea.scrollTop;
+                    
                     setPersona({
                       ...persona,
-                      behavioral_detail: e.target.value,
+                      behavioral_detail: e.target.value.replace(/"/g, "'"),
                     });
+                    
                     if (validationError.behavioral_detail)
                       setValidationError((prev) => ({
                         ...prev,
                         behavioral_detail: undefined,
                       }));
+                    
+                    // Restore cursor position and scroll position
+                    requestAnimationFrame(() => {
+                      textarea.selectionStart = cursorPosition;
+                      textarea.selectionEnd = cursorPosition;
+                      textarea.scrollTop = scrollTop;
+                    });
                   }}
                   error={!!validationError.behavioral_detail}
                   helperText={validationError.behavioral_detail}
