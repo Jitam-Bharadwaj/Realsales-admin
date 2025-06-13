@@ -213,7 +213,11 @@ const ModsFlo = ({ currentSegment }) => {
     if (!template) return false;
     const regex = /{[^}]+}/g;
     const matches = template.match(regex) || [];
-    return matches.some((match) => !kewards.some((kw) => kw.value === match));
+    const invalidKeywords = matches.filter(match => !kewards.some(kw => kw.value === match));
+    return {
+      hasInvalid: invalidKeywords.length > 0,
+      invalidKeywords
+    };
   };
 
   useEffect(() => {
@@ -454,13 +458,13 @@ const ModsFlo = ({ currentSegment }) => {
                         !!validationError.prompt_template ||
                         (!allKeywordsPresent(createMode?.prompt_template) &&
                           !!createMode?.prompt_template) ||
-                        hasInvalidKeywords(createMode?.prompt_template)
+                        hasInvalidKeywords(createMode?.prompt_template).hasInvalid
                       }
                       helperText={
                         validationError.prompt_template
                           ? validationError.prompt_template
-                          : hasInvalidKeywords(createMode?.prompt_template)
-                            ? "Invalid keywords detected. Please use only the provided keywords."
+                          : hasInvalidKeywords(createMode?.prompt_template).hasInvalid
+                            ? `Invalid keywords detected: ${hasInvalidKeywords(createMode?.prompt_template).invalidKeywords.join(", ")}. Please use only the provided keywords.`
                             : !allKeywordsPresent(
                                   createMode?.prompt_template
                                 ) && !!createMode?.prompt_template
@@ -617,11 +621,11 @@ const ModsFlo = ({ currentSegment }) => {
                   error={
                     (!allKeywordsPresent(editingData?.prompt_template) &&
                       !!editingData?.prompt_template) ||
-                    hasInvalidKeywords(editingData?.prompt_template)
+                    hasInvalidKeywords(editingData?.prompt_template).hasInvalid
                   }
                   helperText={
-                    hasInvalidKeywords(editingData?.prompt_template)
-                      ? "Invalid keywords detected. Please use only the provided keywords."
+                    hasInvalidKeywords(editingData?.prompt_template).hasInvalid
+                      ? `Invalid keywords detected: ${hasInvalidKeywords(editingData?.prompt_template).invalidKeywords.join(", ")}. Please use only the provided keywords.`
                       : !allKeywordsPresent(editingData?.prompt_template) &&
                           !!editingData?.prompt_template
                         ? `Missing keywords: ${kewards
