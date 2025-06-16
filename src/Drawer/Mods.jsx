@@ -48,6 +48,8 @@ const ModsFlo = ({ currentSegment }) => {
     { value: "{manufacturing_model}" },
     { value: "{role}" },
     { value: "{behavioral_detail}" },
+    { value: "{company_size}" },
+    { value: "{company_size_details}" },
   ];
 
   const [mods, setMods] = useState([]);
@@ -213,10 +215,12 @@ const ModsFlo = ({ currentSegment }) => {
     if (!template) return false;
     const regex = /{[^}]+}/g;
     const matches = template.match(regex) || [];
-    const invalidKeywords = matches.filter(match => !kewards.some(kw => kw.value === match));
+    const invalidKeywords = matches.filter(
+      (match) => !kewards.some((kw) => kw.value === match)
+    );
     return {
       hasInvalid: invalidKeywords.length > 0,
-      invalidKeywords
+      invalidKeywords,
     };
   };
 
@@ -458,12 +462,14 @@ const ModsFlo = ({ currentSegment }) => {
                         !!validationError.prompt_template ||
                         (!allKeywordsPresent(createMode?.prompt_template) &&
                           !!createMode?.prompt_template) ||
-                        hasInvalidKeywords(createMode?.prompt_template).hasInvalid
+                        hasInvalidKeywords(createMode?.prompt_template)
+                          .hasInvalid
                       }
                       helperText={
                         validationError.prompt_template
                           ? validationError.prompt_template
-                          : hasInvalidKeywords(createMode?.prompt_template).hasInvalid
+                          : hasInvalidKeywords(createMode?.prompt_template)
+                                .hasInvalid
                             ? `Invalid keywords detected: ${hasInvalidKeywords(createMode?.prompt_template).invalidKeywords.join(", ")}. Please use only the provided keywords.`
                             : !allKeywordsPresent(
                                   createMode?.prompt_template

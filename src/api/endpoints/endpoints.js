@@ -21,10 +21,11 @@ export const endpoints = {
   ai: {
     industries: "/v1/industries/",
     plant_size_impacts: "/v1/plant-size-impacts/",
+    company_size_impacts: "/v1/company-size-impacts/",
     ai_roles: "/v1/ai-roles/",
     manufacturing_models: "/v1/manufacturing-models/",
   },
   report: {
-    modeReport: "/v1/interaction-mode-report-details/"
-  }
+    modeReport: "/v1/interaction-mode-report-details/",
+  },
 };

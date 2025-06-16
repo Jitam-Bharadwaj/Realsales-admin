@@ -29,7 +29,9 @@ import PlantSize from "./PlantSize";
 import ManufacturingModels from "./ManufacturingModels";
 import GeneralInstruction from "./GeneralInstruction";
 import SummarizeIcon from "@mui/icons-material/Summarize";
+import ApartmentIcon from "@mui/icons-material/Apartment";
 import Report from "./Report";
+import CompanySize from "./CompanySize";
 
 const NAVIGATION = [
   {
@@ -60,6 +62,11 @@ const NAVIGATION = [
     segment: "plantSize",
     title: "Plant Size",
     icon: <HomeWorkIcon />,
+  },
+  {
+    segment: "CompanySize",
+    title: "Company Size",
+    icon: <ApartmentIcon />,
   },
   {
     segment: "manufacturingModels",
@@ -377,6 +384,7 @@ export default function DashboardLayoutBasic(props) {
             <Experience currentSegment={currentSegment} />
             <Industry currentSegment={currentSegment} />
             <PlantSize currentSegment={currentSegment} />
+            <CompanySize currentSegment={currentSegment} />
             <ManufacturingModels currentSegment={currentSegment} />
             <GeneralInstruction currentSegment={currentSegment} />
             <Report currentSegment={currentSegment} />
