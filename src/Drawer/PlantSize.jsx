@@ -303,13 +303,13 @@ const PlantSize = ({ currentSegment }) => {
                       <TableRow key={i}>
                         <TableCell className="capitalize">
                           {v?.name.replace(/_/g, " ")}&nbsp;
-                          {v?.name === "small"
+                          {/* {v?.name === "small"
                             ? "(1-500)"
                             : v?.name === "medium"
                               ? "(501-5,000)"
                               : v?.name === "large"
                                 ? "(5,000+)"
-                                : ""}
+                                : ""} */}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end gap-2">
