@@ -50,7 +50,7 @@ const CompanySize = ({ currentSegment }) => {
   const readCompanySize = async () => {
     setLoadingCompanySize(true);
     try {
-      let data = await axioInstance.get(endpoints.ai.company_size_impacts);
+      let data = await axioInstance.get(endpoints.ai.company_size);
       if (data?.data?.length) {
         setCompanySize(data?.data);
       } else {
@@ -67,11 +67,11 @@ const CompanySize = ({ currentSegment }) => {
   const createCompanySize = async () => {
     setLoading(true);
     try {
-      let data = await axioInstance.post(endpoints.ai.company_size_impacts, {
+      let data = await axioInstance.post(endpoints.ai.company_size, {
         name: editingData?.name,
         description: convertNewlines(editingData?.description),
       });
-      if (data?.data?.company_size_impact_id) {
+      if (data?.data?.company_size_id) {
         readCompanySize();
         setEditingData({});
         setAddData(false);
@@ -92,13 +92,13 @@ const CompanySize = ({ currentSegment }) => {
     setLoading(true);
     try {
       let data = await axioInstance.put(
-        `${endpoints.ai.company_size_impacts}${editingData?.id}`,
+        `${endpoints.ai.company_size}${editingData?.id}`,
         {
           name: editingData?.name,
           description: convertNewlines(editingData?.description),
         }
       );
-      if (data?.data?.company_size_impact_id) {
+      if (data?.data?.company_size_id) {
         readCompanySize();
         setEditingData({});
         setAddData(false);
@@ -118,7 +118,7 @@ const CompanySize = ({ currentSegment }) => {
   const deleteCompanySize = async (id) => {
     try {
       let data = await axioInstance.delete(
-        `${endpoints.ai.company_size_impacts}${id}`
+        `${endpoints.ai.company_size}${id}`
       );
       if (data?.status === 204) {
         readCompanySize();
@@ -320,7 +320,7 @@ const CompanySize = ({ currentSegment }) => {
                                 setEditingData({
                                   name: v?.name,
                                   description: v?.description,
-                                  id: v?.company_size_impact_id,
+                                  id: v?.company_size_id,
                                 });
                               }}
                             >
@@ -331,7 +331,7 @@ const CompanySize = ({ currentSegment }) => {
                               onClick={() =>
                                 setDeleteId({
                                   name: v?.name,
-                                  id: v?.company_size_impact_id,
+                                  id: v?.company_size_id,
                                 })
                               }
                             >

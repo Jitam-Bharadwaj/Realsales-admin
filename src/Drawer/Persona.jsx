@@ -12,6 +12,7 @@ import {
   TextField,
   Modal,
   Chip,
+  Avatar,
 } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
 import { axioInstance } from "../api/axios/axios";
@@ -48,6 +49,7 @@ const Persona = ({ currentSegment }) => {
   const [personaData, setPersonaData] = useState([]);
   const [industriesData, setIndustriesData] = useState([]);
   const [plant_size_impactsData, setPlant_size_impactsData] = useState([]);
+  const [company_sizes_data, setCompany_sizes_data] = useState([]);
   const [ai_rolesData, setAi_rolesData] = useState([]);
   const [manufacturing_modelsData, setManufacturing_modelsData] = useState([]);
   const [aiLists, setAiLists] = useState({
@@ -56,6 +58,7 @@ const Persona = ({ currentSegment }) => {
     Roles: true,
     manufacturing: true,
     geography: true,
+    companySize: true,
   });
   const [validationError, setValidationError] = useState({});
   const [loading, setLoading] = useState(false);
@@ -64,7 +67,11 @@ const Persona = ({ currentSegment }) => {
   const [uploadError, setUploadError] = useState("");
   const [scrollPosition, setScrollPosition] = useState(0);
   const textFieldRef = useRef(null);
-  // const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
+  const [uploadingProfile, setUploadingProfile] = useState(false);
+  const [profileUploadError, setProfileUploadError] = useState("");
+  const [profileFile, setProfileFile] = useState();
 
   console.log(persona, personaId, "persona__");
 
@@ -116,6 +123,67 @@ const Persona = ({ currentSegment }) => {
     },
   });
 
+  const uploadProfilePicture = async (id, file) => {
+    setUploadingProfile(true);
+    setProfileUploadError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      let data = await axioInstance.post(
+        `${endpoints.persona.persona}${id}/upload-profile-pic`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (data?.data?.profile_pic) {
+        readPersona("table");
+        setAddPersona(false);
+        setPersona({});
+        setPersonaId("");
+        setProfilePicture(null);
+        setProfilePicturePreview(null);
+        setProfileFile(null);
+        setAiLists({
+          industry: true,
+          plantSize: true,
+          Roles: true,
+          manufacturing: true,
+          geography: true,
+          companySize: true,
+        });
+      }
+    } catch (error) {
+      setProfileUploadError("Failed to upload profile picture.");
+    } finally {
+      setUploadingProfile(false);
+    }
+  };
+
+  const onProfileDrop = (acceptedFiles) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      const file = acceptedFiles[0];
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setProfilePicturePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      // uploadProfilePicture(file);
+      setProfileFile(file)
+    }
+  };
+
+  const { getRootProps: getProfileRootProps, getInputProps: getProfileInputProps, isDragActive: isProfileDragActive } = useDropzone({
+    onDrop: onProfileDrop,
+    multiple: false,
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+    },
+  });
+
   const readPersona = async (control) => {
     setLoadingPersona(true);
     try {
@@ -152,6 +220,15 @@ const Persona = ({ currentSegment }) => {
           setPlant_size_impactsData([]);
         }
 
+        let company_sizes_data = await axioInstance.get(
+          endpoints.ai.company_size
+        );
+        if (company_sizes_data?.data?.length > 0) {
+          setCompany_sizes_data(company_sizes_data?.data);
+        } else {
+          setCompany_sizes_data([]);
+        }
+
         let aIrolesData = await axioInstance.get(endpoints.ai.ai_roles);
         if (aIrolesData?.data?.length > 0) {
           setAi_rolesData(aIrolesData?.data);
@@ -182,17 +259,25 @@ const Persona = ({ currentSegment }) => {
         ...persona,
       });
       if (data?.data?.persona_id) {
-        readPersona("table");
-        setAddPersona(false);
-        setPersona({});
-        setPersonaId("");
-        setAiLists({
-          industry: true,
-          plantSize: true,
-          Roles: true,
-          manufacturing: true,
-          geography: true,
-        });
+        if (profileFile) {
+          await uploadProfilePicture(data?.data?.persona_id, profileFile);
+        } else {
+          readPersona("table");
+          setAddPersona(false);
+          setPersona({});
+          setPersonaId("");
+          setProfilePicture(null);
+          setProfilePicturePreview(null);
+          setProfileFile(null);
+          setAiLists({
+            industry: true,
+            plantSize: true,
+            Roles: true,
+            manufacturing: true,
+            geography: true,
+            companySize: true,
+          });
+        }
         showToast.success("Persona created successfully");
       }
     } catch (error) {
@@ -212,17 +297,25 @@ const Persona = ({ currentSegment }) => {
         ...persona,
       });
       if (data?.data?.persona_id) {
-        readPersona("table");
-        setAddPersona(false);
-        setPersona({});
-        setPersonaId("");
-        setAiLists({
-          industry: true,
-          plantSize: true,
-          Roles: true,
-          manufacturing: true,
-          geography: true,
-        });
+        if (profileFile) {
+          await uploadProfilePicture(data?.data?.persona_id, profileFile);
+        } else {
+          readPersona("table");
+          setAddPersona(false);
+          setPersona({});
+          setPersonaId("");
+          setProfilePicture(null);
+          setProfilePicturePreview(null);
+          setProfileFile(null);
+          setAiLists({
+            industry: true,
+            plantSize: true,
+            Roles: true,
+            manufacturing: true,
+            geography: true,
+            companySize: true,
+          });
+        }
         showToast.success("Persona updated successfully");
       }
     } catch (error) {
@@ -259,6 +352,8 @@ const Persona = ({ currentSegment }) => {
     if (!persona?.industry_id) errors.industry_id = "Industry is required";
     if (!persona?.plant_size_impact_id)
       errors.plant_size_impact_id = "Plant Size is required";
+    if (!persona?.company_size_id)
+      errors.company_size_id = "Company Size is required";
     if (!persona?.ai_role_id) errors.ai_role_id = "Role is required";
     if (!persona?.manufacturing_model_id)
       errors.manufacturing_model_id = "Manufacturing Model is required";
@@ -277,6 +372,48 @@ const Persona = ({ currentSegment }) => {
         <div style={{ width: "100%", pt: "40px" }}>
           {addPersona && (
             <div className="flex flex-col gap-4 my-4">
+              {/* Profile Picture Upload */}
+              <div className="flex flex-col gap-2 items-start w-full">
+                <p>Profile Picture</p>
+                <div
+                  {...getProfileRootProps()}
+                  className={`w-full flex flex-col items-center border border-dashed rounded p-4 ${uploadingProfile ? "cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  {uploadingProfile ? null : <input {...getProfileInputProps()} />}
+                  <div className="flex flex-col items-center gap-4">
+                    {(profilePicturePreview || persona?.profile_pic) && (
+                      <Avatar
+                        src={profilePicturePreview || persona?.profile_pic}
+                        sx={{ width: 100, height: 100 }}
+                      />
+                    )}
+                    <div className="flex items-center gap-2">
+                      <CloudUploadIcon style={{ fontSize: 24 }} />
+                      {isProfileDragActive ? (
+                        <p>Drop the image here ...</p>
+                      ) : (
+                        <p>Drag & drop a profile picture here, or click to select</p>
+                      )}
+                    </div>
+                    {profilePicture && (
+                      <div style={{ color: "#1976d2" }}>
+                        Selected: {profilePicture.name}
+                      </div>
+                    )}
+                    {uploadingProfile && (
+                      <div style={{ color: "#1976d2" }}>
+                        Uploading...
+                      </div>
+                    )}
+                    {profileUploadError && (
+                      <div style={{ color: "red" }}>
+                        {profileUploadError}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <TextField
                 fullWidth
                 className="!m-0"
@@ -311,7 +448,7 @@ const Persona = ({ currentSegment }) => {
                     const textarea = e.target;
                     const cursorPosition = textarea.selectionStart;
                     const scrollTop = textarea.scrollTop;
-                    
+
                     // Store cursor position and scroll position
                     requestAnimationFrame(() => {
                       textarea.selectionStart = cursorPosition;
@@ -323,18 +460,18 @@ const Persona = ({ currentSegment }) => {
                     const textarea = e.target;
                     const cursorPosition = textarea.selectionStart;
                     const scrollTop = textarea.scrollTop;
-                    
+
                     setPersona({
                       ...persona,
                       behavioral_detail: e.target.value.replace(/"/g, "'"),
                     });
-                    
+
                     if (validationError.behavioral_detail)
                       setValidationError((prev) => ({
                         ...prev,
                         behavioral_detail: undefined,
                       }));
-                    
+
                     // Restore cursor position and scroll position
                     requestAnimationFrame(() => {
                       textarea.selectionStart = cursorPosition;
@@ -425,27 +562,27 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {industriesData?.length
                         ? industriesData.map((v, i) => (
-                            <div
-                              key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                              onClick={() => {
-                                setPersona((pre) => ({
-                                  ...pre,
-                                  industry_id: v?.industry_id,
+                          <div
+                            key={i}
+                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                            onClick={() => {
+                              setPersona((pre) => ({
+                                ...pre,
+                                industry_id: v?.industry_id,
+                              }));
+                              if (validationError.industry_id)
+                                setValidationError((prev) => ({
+                                  ...prev,
+                                  industry_id: undefined,
                                 }));
-                                if (validationError.industry_id)
-                                  setValidationError((prev) => ({
-                                    ...prev,
-                                    industry_id: undefined,
-                                  }));
-                              }}
-                            >
-                              <div
-                                className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                              />
-                              {v?.name.replace(/_/g, " ")}
-                            </div>
-                          ))
+                            }}
+                          >
+                            <div
+                              className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                            />
+                            {v?.name.replace(/_/g, " ")}
+                          </div>
+                        ))
                         : null}
                     </>
                   )}
@@ -455,6 +592,67 @@ const Persona = ({ currentSegment }) => {
                     style={{ color: "red", margin: "0 16px", fontSize: "13px" }}
                   >
                     {validationError.industry_id}
+                  </p>
+                )}
+              </div>
+
+              {/* Select Company Size */}
+              <div className="w-full flex flex-col items-start gap-2">
+                <div className="w-full border border-solid rounded">
+                  <div
+                    className="p-3 flex items-center justify-between cursor-pointer"
+                    onClick={() => {
+                      setAiLists((pre) => ({
+                        ...pre,
+                        companySize: !aiLists?.companySize,
+                      }));
+                      if (validationError.company_size_id)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          company_size_id: undefined,
+                        }));
+                    }}
+                  >
+                    <p>Select Company Size</p>
+                    <KeyboardArrowDownIcon
+                      className={`${aiLists?.companySize ? "rotate-180" : "rotate-0"}`}
+                    />
+                  </div>
+                  {aiLists?.companySize && (
+                    <>
+                      <hr />
+                      {company_sizes_data?.length
+                        ? company_sizes_data.map((v, i) => (
+                            <div
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  company_size_id: v?.company_size_id,
+                                }));
+                                if (validationError.company_size_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    company_size_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.company_size_id === v?.company_size_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                              />
+                              {v?.name.replace(/_/g, " ")}
+                            </div>
+                          ))
+                        : null}
+                    </>
+                  )}
+                </div>
+                {validationError.company_size_id && (
+                  <p
+                    style={{ color: "red", margin: "0 16px", fontSize: "13px" }}
+                  >
+                    {validationError.company_size_id}
                   </p>
                 )}
               </div>
@@ -486,28 +684,28 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {plant_size_impactsData?.length
                         ? plant_size_impactsData.map((v, i) => (
-                            <div
-                              key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                              onClick={() => {
-                                setPersona((pre) => ({
-                                  ...pre,
-                                  plant_size_impact_id: v?.plant_size_impact_id,
-                                }));
+                          <div
+                            key={i}
+                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                            onClick={() => {
+                              setPersona((pre) => ({
+                                ...pre,
+                                plant_size_impact_id: v?.plant_size_impact_id,
+                              }));
 
-                                if (validationError.plant_size_impact_id)
-                                  setValidationError((prev) => ({
-                                    ...prev,
-                                    plant_size_impact_id: undefined,
-                                  }));
-                              }}
-                            >
-                              <div
-                                className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                              />
-                              {v?.name.replace(/_/g, " ")}
-                            </div>
-                          ))
+                              if (validationError.plant_size_impact_id)
+                                setValidationError((prev) => ({
+                                  ...prev,
+                                  plant_size_impact_id: undefined,
+                                }));
+                            }}
+                          >
+                            <div
+                              className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                            />
+                            {v?.name.replace(/_/g, " ")}
+                          </div>
+                        ))
                         : null}
                     </>
                   )}
@@ -545,27 +743,27 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {ai_rolesData?.length
                         ? ai_rolesData.map((v, i) => (
-                            <div
-                              key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                              onClick={() => {
-                                setPersona((pre) => ({
-                                  ...pre,
-                                  ai_role_id: v?.ai_role_id,
+                          <div
+                            key={i}
+                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                            onClick={() => {
+                              setPersona((pre) => ({
+                                ...pre,
+                                ai_role_id: v?.ai_role_id,
+                              }));
+                              if (validationError.ai_role_id)
+                                setValidationError((prev) => ({
+                                  ...prev,
+                                  ai_role_id: undefined,
                                 }));
-                                if (validationError.ai_role_id)
-                                  setValidationError((prev) => ({
-                                    ...prev,
-                                    ai_role_id: undefined,
-                                  }));
-                              }}
-                            >
-                              <div
-                                className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                              />
-                              {v?.name.replace(/_/g, " ")}
-                            </div>
-                          ))
+                            }}
+                          >
+                            <div
+                              className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                            />
+                            {v?.name.replace(/_/g, " ")}
+                          </div>
+                        ))
                         : null}
                     </>
                   )}
@@ -606,28 +804,28 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {manufacturing_modelsData?.length
                         ? manufacturing_modelsData.map((v, i) => (
-                            <div
-                              key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                              onClick={() => {
-                                setPersona((pre) => ({
-                                  ...pre,
-                                  manufacturing_model_id:
-                                    v?.manufacturing_model_id,
+                          <div
+                            key={i}
+                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                            onClick={() => {
+                              setPersona((pre) => ({
+                                ...pre,
+                                manufacturing_model_id:
+                                  v?.manufacturing_model_id,
+                              }));
+                              if (validationError.manufacturing_model_id)
+                                setValidationError((prev) => ({
+                                  ...prev,
+                                  manufacturing_model_id: undefined,
                                 }));
-                                if (validationError.manufacturing_model_id)
-                                  setValidationError((prev) => ({
-                                    ...prev,
-                                    manufacturing_model_id: undefined,
-                                  }));
-                              }}
-                            >
-                              <div
-                                className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                              />
-                              {v?.name.replace(/_/g, " ")}
-                            </div>
-                          ))
+                            }}
+                          >
+                            <div
+                              className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                            />
+                            {v?.name.replace(/_/g, " ")}
+                          </div>
+                        ))
                         : null}
                     </>
                   )}
@@ -668,27 +866,27 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {geography?.length
                         ? geography.map((v, i) => (
-                            <div
-                              key={i}
-                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                              onClick={() => {
-                                setPersona((pre) => ({
-                                  ...pre,
-                                  geography: v?.value,
+                          <div
+                            key={i}
+                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                            onClick={() => {
+                              setPersona((pre) => ({
+                                ...pre,
+                                geography: v?.value,
+                              }));
+                              if (validationError.geography)
+                                setValidationError((prev) => ({
+                                  ...prev,
+                                  geography: undefined,
                                 }));
-                                if (validationError.geography)
-                                  setValidationError((prev) => ({
-                                    ...prev,
-                                    geography: undefined,
-                                  }));
-                              }}
-                            >
-                              <div
-                                className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                              />
-                              {v?.name.replace(/_/g, " ")}
-                            </div>
-                          ))
+                            }}
+                          >
+                            <div
+                              className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                            />
+                            {v?.name.replace(/_/g, " ")}
+                          </div>
+                        ))
                         : null}
                     </>
                   )}
@@ -731,6 +929,7 @@ const Persona = ({ currentSegment }) => {
                         Roles: true,
                         manufacturing: true,
                         geography: true,
+                        companySize: true,
                       });
                     }}
                   >
@@ -778,6 +977,12 @@ const Persona = ({ currentSegment }) => {
                       sx={{ textAlign: "left" }}
                       className="!font-bold capitalize"
                     >
+                      profile
+                    </TableCell>
+                    <TableCell
+                      sx={{ textAlign: "left" }}
+                      className="!font-bold capitalize"
+                    >
                       name
                     </TableCell>
                     <TableCell
@@ -799,6 +1004,12 @@ const Persona = ({ currentSegment }) => {
                     personaData?.length ? (
                       personaData.map((v, i) => (
                         <TableRow key={i}>
+                          <TableCell sx={{ textAlign: "left" }}>
+                            <Avatar
+                              src={v?.profile_pic}
+                              sx={{ width: 40, height: 40 }}
+                            />
+                          </TableCell>
                           <TableCell sx={{ textAlign: "left" }}>
                             {v?.name.replace(/_/g, " ")}
                           </TableCell>
@@ -830,7 +1041,9 @@ const Persona = ({ currentSegment }) => {
                                     plant_size_impact_id:
                                       v?.plant_size_impact
                                         ?.plant_size_impact_id,
+                                    company_size_id: v?.company_size_new?.company_size_id,
                                     geography: v?.geography,
+                                    profile_pic: v?.profile_pic
                                   });
                                   setAddPersona(true);
                                 }}
@@ -869,6 +1082,7 @@ const Persona = ({ currentSegment }) => {
                           </div>
                         </TableCell>
                         <TableCell></TableCell>
+                        <TableCell></TableCell>
                       </TableRow>
                     )
                   ) : (
@@ -879,6 +1093,7 @@ const Persona = ({ currentSegment }) => {
                           <RotateRightIcon className="animate-spin !text-5xl" />
                         </div>
                       </TableCell>
+                      <TableCell></TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   )}
