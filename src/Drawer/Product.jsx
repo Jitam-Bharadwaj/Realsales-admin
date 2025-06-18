@@ -79,7 +79,7 @@ import {
       try {
         let data = await axioInstance.post(endpoints.ai.product, {
           name: editingData?.name,
-          description: convertNewlines(editingData?.description),
+          details: convertNewlines(editingData?.details),
           industry_id: editingData?.industry_id,
         });
         if (data?.data?.product_id) {
@@ -106,7 +106,7 @@ import {
           `${endpoints.ai.product}${editingData?.id}`,
           {
             name: editingData?.name,
-            description: convertNewlines(editingData?.description),
+            details: convertNewlines(editingData?.details),
             industry_id: editingData?.industry_id,
           }
         );
@@ -149,7 +149,7 @@ import {
     const validateProduct = (data) => {
       const errors = {};
       if (!data?.name) errors.name = "Name is required";
-      if (!data?.description) errors.description = "Prompt Template is required";
+      if (!data?.details) errors.details = "Prompt Template is required";
       if (!data?.industry_id) errors.industry_id = "Industry is required";
       return errors;
     };
@@ -197,7 +197,7 @@ import {
                     multiline
                     rows={showMore ? null : 6}
                     inputRef={textFieldRef}
-                    value={editingData?.description
+                    value={editingData?.details
                       ?.replace(/\\n\\n/g, "\n\n")
                       .replace(/\\n/g, "\n")}
                     onKeyDown={(e) => {
@@ -218,12 +218,12 @@ import {
   
                       setEditingData({
                         ...editingData,
-                        description: e.target.value.replace(/"/g, "'"),
+                        details: e.target.value.replace(/"/g, "'"),
                       });
-                      if (validationError.description)
+                      if (validationError.details)
                         setValidationError((prev) => ({
                           ...prev,
-                          description: undefined,
+                          details: undefined,
                         }));
   
                       requestAnimationFrame(() => {
@@ -232,8 +232,8 @@ import {
                         textarea.scrollTop = scrollTop;
                       });
                     }}
-                    error={!!validationError.description}
-                    helperText={validationError.description}
+                    error={!!validationError.details}
+                    helperText={validationError.details}
                   />
                   <div
                     className="absolute right-3 bottom-0.5 bg-green-500 w-10 py-0.5 rounded flex items-center justify-center cursor-pointer"
@@ -401,7 +401,7 @@ import {
                                   setAddData(true);
                                   setEditingData({
                                     name: v?.name,
-                                    description: v?.description,
+                                    details: v?.details,
                                     id: v?.product_id,
                                     industry_id: v?.industry_id,
                                   });
