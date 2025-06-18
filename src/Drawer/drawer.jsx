@@ -32,6 +32,8 @@ import SummarizeIcon from "@mui/icons-material/Summarize";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import Report from "./Report";
 import CompanySize from "./CompanySize";
+import CategoryIcon from '@mui/icons-material/Category';
+import Product from "./Product";
 
 const NAVIGATION = [
   {
@@ -67,6 +69,11 @@ const NAVIGATION = [
     segment: "CompanySize",
     title: "Company Size",
     icon: <ApartmentIcon />,
+  },
+  {
+    segment: "product",
+    title: "Product",
+    icon: <CategoryIcon />,
   },
   {
     segment: "manufacturingModels",
@@ -361,15 +368,15 @@ export default function DashboardLayoutBasic(props) {
           },
           // Modify style for default text/icon color with higher specificity
           ".MuiListItem-root .MuiListItemText-primary, .MuiListItem-root .MuiListItemIcon-root":
-            {
-              color: "text.primary",
-            },
+          {
+            color: "text.primary",
+          },
           // Keep override for selected state (ensuring specificity)
           "& .Mui-selected .MuiListItemText-primary, & .Mui-selected .MuiListItemIcon-root":
-            {
-              color: "#000000",
-              fill: "#000000",
-            },
+          {
+            color: "#000000",
+            fill: "#000000",
+          },
           // Keep style for the AppBar root
           "& .MuiAppBar-root": {
             bgcolor: "background.paper",
@@ -385,6 +392,7 @@ export default function DashboardLayoutBasic(props) {
             <Industry currentSegment={currentSegment} />
             <PlantSize currentSegment={currentSegment} />
             <CompanySize currentSegment={currentSegment} />
+            <Product currentSegment={currentSegment} />
             <ManufacturingModels currentSegment={currentSegment} />
             <GeneralInstruction currentSegment={currentSegment} />
             <Report currentSegment={currentSegment} />

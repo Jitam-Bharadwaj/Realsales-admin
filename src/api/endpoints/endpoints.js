@@ -22,6 +22,7 @@ export const endpoints = {
     industries: "/v1/industries/",
     plant_size_impacts: "/v1/plant-size-impacts/",
     company_size: "/v1/company-sizes/",
+    product: "/v1/produced-product-categories/",
     ai_roles: "/v1/ai-roles/",
     manufacturing_models: "/v1/manufacturing-models/",
   },
@@ -29,3 +30,4 @@ export const endpoints = {
     modeReport: "/v1/interaction-mode-report-details/",
   },
 };
+                                               
