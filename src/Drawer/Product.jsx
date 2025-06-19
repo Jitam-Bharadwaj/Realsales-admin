@@ -48,7 +48,6 @@ const Product = ({ currentSegment }) => {
   const textFieldRef = useRef(null);
   const [showMore, setShowMore] = useState(false);
   const [industriesData, setIndustriesData] = useState([]);
-  const [industries, setIndustries] = useState([]);
   const [showIndustryList, setShowIndustryList] = useState(true);
 
   const readProduct = async () => {
@@ -75,20 +74,6 @@ const Product = ({ currentSegment }) => {
     }
   };
 
-  const readIndustry = async () => {
-    try {
-      let data = await axioInstance.get(endpoints.ai.industries);
-      if (data?.data?.length) {
-        setIndustries(data?.data);
-      } else {
-        setIndustries([]);
-      }
-    } catch (error) {
-      setIndustries([]);
-      console.log(error, "_error_");
-    }
-  };
-
   const createProduct = async () => {
     setLoading(true);
     try {
@@ -99,7 +84,6 @@ const Product = ({ currentSegment }) => {
       });
       if (data?.data?.product_id) {
         readProduct();
-        readIndustry();
         setEditingData({});
         setAddData(false);
         setShowMore(false);
@@ -128,7 +112,6 @@ const Product = ({ currentSegment }) => {
       );
       if (data?.data?.product_id) {
         readProduct();
-        readIndustry();
         setEditingData({});
         setAddData(false);
         setShowMore(false);
@@ -149,7 +132,6 @@ const Product = ({ currentSegment }) => {
       let data = await axioInstance.delete(`${endpoints.ai.product}${id}`);
       if (data?.status === 204) {
         readProduct();
-        readIndustry();
         setDeleteId({});
         setShowMore(false);
         showToast.success("Product size deleted successfully");
@@ -173,7 +155,6 @@ const Product = ({ currentSegment }) => {
   console.log(deleteId, "__industries_");
   useEffect(() => {
     readProduct();
-    readIndustry();
   }, []);
 
   return (
@@ -408,7 +389,7 @@ const Product = ({ currentSegment }) => {
                                 : ""}
                         </TableCell>
                         <TableCell className="capitalize">
-                          {industries
+                          {industriesData
                             .filter(
                               (itm) => itm?.industry_id === v?.industry_id
                             )
