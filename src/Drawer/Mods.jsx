@@ -49,7 +49,7 @@ const ModsFlo = ({ currentSegment }) => {
     { value: "{role}" },
     { value: "{behavioral_detail}" },
     { value: "{company_size}" },
-    { value: "{company_size_details}" },
+    { value: "{company_size_detail}" },
   ];
 
   const [mods, setMods] = useState([]);
@@ -221,6 +221,25 @@ const ModsFlo = ({ currentSegment }) => {
     return {
       hasInvalid: invalidKeywords.length > 0,
       invalidKeywords,
+    };
+  };
+
+  const hasDuplicateKeywords = (template) => {
+    if (!template) return { hasDuplicate: false, duplicateKeywords: [] };
+    const regex = /{[^}]+}/g;
+    const matches = template.match(regex) || [];
+    const seen = new Set();
+    const duplicates = [];
+    matches.forEach((match) => {
+      if (seen.has(match)) {
+        duplicates.push(match);
+      } else {
+        seen.add(match);
+      }
+    });
+    return {
+      hasDuplicate: duplicates.length > 0,
+      duplicateKeywords: [...new Set(duplicates)],
     };
   };
 
@@ -462,28 +481,29 @@ const ModsFlo = ({ currentSegment }) => {
                         !!validationError.prompt_template ||
                         (!allKeywordsPresent(createMode?.prompt_template) &&
                           !!createMode?.prompt_template) ||
-                        hasInvalidKeywords(createMode?.prompt_template)
-                          .hasInvalid
+                        hasInvalidKeywords(createMode?.prompt_template).hasInvalid ||
+                        hasDuplicateKeywords(createMode?.prompt_template).hasDuplicate
                       }
                       helperText={
                         validationError.prompt_template
                           ? validationError.prompt_template
-                          : hasInvalidKeywords(createMode?.prompt_template)
-                                .hasInvalid
+                          : hasInvalidKeywords(createMode?.prompt_template).hasInvalid
                             ? `Invalid keywords detected: ${hasInvalidKeywords(createMode?.prompt_template).invalidKeywords.join(", ")}. Please use only the provided keywords.`
-                            : !allKeywordsPresent(
-                                  createMode?.prompt_template
-                                ) && !!createMode?.prompt_template
-                              ? `Missing keywords: ${kewards
-                                  .filter(
-                                    (kw) =>
-                                      !(
-                                        createMode?.prompt_template || ""
-                                      ).includes(kw.value)
-                                  )
-                                  .map((kw) => kw.value)
-                                  .join(", ")}`
-                              : ""
+                            : hasDuplicateKeywords(createMode?.prompt_template).hasDuplicate
+                              ? `Duplicate keywords detected: ${hasDuplicateKeywords(createMode?.prompt_template).duplicateKeywords.join(", ")}. Each keyword can only be used once.`
+                              : !allKeywordsPresent(
+                                    createMode?.prompt_template
+                                  ) && !!createMode?.prompt_template
+                                ? `Missing keywords: ${kewards
+                                    .filter(
+                                      (kw) =>
+                                        !(
+                                          createMode?.prompt_template || ""
+                                        ).includes(kw.value)
+                                    )
+                                    .map((kw) => kw.value)
+                                    .join(", ")}`
+                                : ""
                       }
                     />
                     <div
@@ -556,7 +576,8 @@ const ModsFlo = ({ currentSegment }) => {
                       }}
                       disabled={
                         loading ||
-                        !allKeywordsPresent(createMode?.prompt_template)
+                        !allKeywordsPresent(createMode?.prompt_template) ||
+                        hasDuplicateKeywords(createMode?.prompt_template).hasDuplicate
                       }
                     >
                       {loading ? (
@@ -627,23 +648,26 @@ const ModsFlo = ({ currentSegment }) => {
                   error={
                     (!allKeywordsPresent(editingData?.prompt_template) &&
                       !!editingData?.prompt_template) ||
-                    hasInvalidKeywords(editingData?.prompt_template).hasInvalid
+                    hasInvalidKeywords(editingData?.prompt_template).hasInvalid ||
+                    hasDuplicateKeywords(editingData?.prompt_template).hasDuplicate
                   }
                   helperText={
                     hasInvalidKeywords(editingData?.prompt_template).hasInvalid
                       ? `Invalid keywords detected: ${hasInvalidKeywords(editingData?.prompt_template).invalidKeywords.join(", ")}. Please use only the provided keywords.`
-                      : !allKeywordsPresent(editingData?.prompt_template) &&
-                          !!editingData?.prompt_template
-                        ? `Missing keywords: ${kewards
-                            .filter(
-                              (kw) =>
-                                !(editingData?.prompt_template || "").includes(
-                                  kw.value
-                                )
-                            )
-                            .map((kw) => kw.value)
-                            .join(", ")}`
-                        : ""
+                      : hasDuplicateKeywords(editingData?.prompt_template).hasDuplicate
+                        ? `Duplicate keywords detected: ${hasDuplicateKeywords(editingData?.prompt_template).duplicateKeywords.join(", ")}. Each keyword can only be used once.`
+                        : !allKeywordsPresent(editingData?.prompt_template) &&
+                            !!editingData?.prompt_template
+                          ? `Missing keywords: ${kewards
+                              .filter(
+                                (kw) =>
+                                  !(editingData?.prompt_template || "").includes(
+                                    kw.value
+                                  )
+                              )
+                              .map((kw) => kw.value)
+                              .join(", ")}`
+                          : ""
                   }
                 />
                 <div
@@ -705,7 +729,9 @@ const ModsFlo = ({ currentSegment }) => {
                   className="!bg-green-600 !text-white w-fit"
                   onClick={() => updateMode()}
                   disabled={
-                    loading || !allKeywordsPresent(editingData?.prompt_template)
+                    loading ||
+                    !allKeywordsPresent(editingData?.prompt_template) ||
+                    hasDuplicateKeywords(editingData?.prompt_template).hasDuplicate
                   }
                 >
                   {loading ? (
