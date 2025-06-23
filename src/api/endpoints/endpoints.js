@@ -17,6 +17,7 @@ export const endpoints = {
   persona: {
     persona: "v1/ai-personas/",
     interview_behavior: "v1/interview/get-persona-behavior",
+    produced_products: "/v1/persona-produced-products/",
   },
   ai: {
     industries: "/v1/industries/",
@@ -30,4 +31,3 @@ export const endpoints = {
     modeReport: "/v1/interaction-mode-report-details/",
   },
 };
-                                               

@@ -59,6 +59,7 @@ const Persona = ({ currentSegment }) => {
     manufacturing: true,
     geography: true,
     companySize: true,
+    product: true,
   });
   const [validationError, setValidationError] = useState({});
   const [loading, setLoading] = useState(false);
@@ -72,8 +73,9 @@ const Persona = ({ currentSegment }) => {
   const [uploadingProfile, setUploadingProfile] = useState(false);
   const [profileUploadError, setProfileUploadError] = useState("");
   const [profileFile, setProfileFile] = useState();
+  const [product, setProduct] = useState([]);
 
-  console.log(persona, personaId, "persona__");
+  console.log(persona, personaId, product, "persona__");
 
   const uploadInterviewBehavior = async (file) => {
     setUploading(true);
@@ -153,6 +155,7 @@ const Persona = ({ currentSegment }) => {
           manufacturing: true,
           geography: true,
           companySize: true,
+          product: true,
         });
       }
     } catch (error) {
@@ -172,11 +175,15 @@ const Persona = ({ currentSegment }) => {
       };
       reader.readAsDataURL(file);
       // uploadProfilePicture(file);
-      setProfileFile(file)
+      setProfileFile(file);
     }
   };
 
-  const { getRootProps: getProfileRootProps, getInputProps: getProfileInputProps, isDragActive: isProfileDragActive } = useDropzone({
+  const {
+    getRootProps: getProfileRootProps,
+    getInputProps: getProfileInputProps,
+    isDragActive: isProfileDragActive,
+  } = useDropzone({
     onDrop: onProfileDrop,
     multiple: false,
     accept: {
@@ -196,6 +203,13 @@ const Persona = ({ currentSegment }) => {
           setPersonaData([]);
         }
       } else {
+        let prodData = await axioInstance.get(endpoints.ai.product);
+        if (prodData?.data?.length) {
+          setProduct(prodData?.data);
+        } else {
+          setProduct([]);
+        }
+
         let data = await axioInstance.get(endpoints.persona.persona);
         if (data?.data?.length > 0) {
           setPersonaData(data?.data);
@@ -259,6 +273,15 @@ const Persona = ({ currentSegment }) => {
         ...persona,
       });
       if (data?.data?.persona_id) {
+        // Send each produced product individually
+        if ((persona.product_ids || []).length > 0) {
+          for (const product_id of persona.product_ids) {
+            await axioInstance.post(endpoints.persona.produced_products, {
+              persona_id: data.data.persona_id,
+              product_id,
+            });
+          }
+        }
         if (profileFile) {
           await uploadProfilePicture(data?.data?.persona_id, profileFile);
         } else {
@@ -276,6 +299,7 @@ const Persona = ({ currentSegment }) => {
             manufacturing: true,
             geography: true,
             companySize: true,
+            product: true,
           });
         }
         showToast.success("Persona created successfully");
@@ -297,6 +321,15 @@ const Persona = ({ currentSegment }) => {
         ...persona,
       });
       if (data?.data?.persona_id) {
+        // Send each produced product individually
+        if ((persona.product_ids || []).length > 0) {
+          for (const product_id of persona.product_ids) {
+            await axioInstance.post(endpoints.persona.produced_products, {
+              persona_id: data.data.persona_id,
+              product_id,
+            });
+          }
+        }
         if (profileFile) {
           await uploadProfilePicture(data?.data?.persona_id, profileFile);
         } else {
@@ -314,6 +347,7 @@ const Persona = ({ currentSegment }) => {
             manufacturing: true,
             geography: true,
             companySize: true,
+            product: true,
           });
         }
         showToast.success("Persona updated successfully");
@@ -350,6 +384,11 @@ const Persona = ({ currentSegment }) => {
     if (!persona?.behavioral_detail)
       errors.behavioral_detail = "Summary is required";
     if (!persona?.industry_id) errors.industry_id = "Industry is required";
+    // Only require product selection if there are products for the selected industry
+    const availableProducts = product.filter((p) => p.industry_id === persona?.industry_id);
+    if (availableProducts.length > 0 && (!persona?.product_ids || persona.product_ids.length === 0)) {
+      errors.product_ids = "At least one product is required";
+    }
     if (!persona?.plant_size_impact_id)
       errors.plant_size_impact_id = "Plant Size is required";
     if (!persona?.company_size_id)
@@ -379,7 +418,9 @@ const Persona = ({ currentSegment }) => {
                   {...getProfileRootProps()}
                   className={`w-full flex flex-col items-center border border-dashed rounded p-4 ${uploadingProfile ? "cursor-not-allowed" : "cursor-pointer"}`}
                 >
-                  {uploadingProfile ? null : <input {...getProfileInputProps()} />}
+                  {uploadingProfile ? null : (
+                    <input {...getProfileInputProps()} />
+                  )}
                   <div className="flex flex-col items-center gap-4">
                     {(profilePicturePreview || persona?.profile_pic) && (
                       <Avatar
@@ -392,7 +433,9 @@ const Persona = ({ currentSegment }) => {
                       {isProfileDragActive ? (
                         <p>Drop the image here ...</p>
                       ) : (
-                        <p>Drag & drop a profile picture here, or click to select</p>
+                        <p>
+                          Drag & drop a profile picture here, or click to select
+                        </p>
                       )}
                     </div>
                     {profilePicture && (
@@ -401,14 +444,10 @@ const Persona = ({ currentSegment }) => {
                       </div>
                     )}
                     {uploadingProfile && (
-                      <div style={{ color: "#1976d2" }}>
-                        Uploading...
-                      </div>
+                      <div style={{ color: "#1976d2" }}>Uploading...</div>
                     )}
                     {profileUploadError && (
-                      <div style={{ color: "red" }}>
-                        {profileUploadError}
-                      </div>
+                      <div style={{ color: "red" }}>{profileUploadError}</div>
                     )}
                   </div>
                 </div>
@@ -562,27 +601,27 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {industriesData?.length
                         ? industriesData.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                            onClick={() => {
-                              setPersona((pre) => ({
-                                ...pre,
-                                industry_id: v?.industry_id,
-                              }));
-                              if (validationError.industry_id)
-                                setValidationError((prev) => ({
-                                  ...prev,
-                                  industry_id: undefined,
-                                }));
-                            }}
-                          >
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                            />
-                            {v?.name.replace(/_/g, " ")}
-                          </div>
-                        ))
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  industry_id: v?.industry_id,
+                                }));
+                                if (validationError.industry_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    industry_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.industry_id === v?.industry_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                              />
+                              {v?.name.replace(/_/g, " ")}
+                            </div>
+                          ))
                         : null}
                     </>
                   )}
@@ -595,6 +634,121 @@ const Persona = ({ currentSegment }) => {
                   </p>
                 )}
               </div>
+
+              {/* Select Product (filtered by Industry) */}
+              <div className="w-full flex flex-col items-start gap-2">
+                <div className="w-full border border-solid rounded">
+                  <div
+                    className="p-3 flex items-center justify-between cursor-pointer"
+                    onClick={() => {
+                      setAiLists((pre) => ({
+                        ...pre,
+                        product: !aiLists?.product,
+                      }));
+                      if (validationError.product_ids)
+                        setValidationError((prev) => ({
+                          ...prev,
+                          product_ids: undefined,
+                        }));
+                    }}
+                  >
+                    <p>Select Product</p>
+                    <KeyboardArrowDownIcon
+                      className={`${aiLists?.product ? "rotate-180" : "rotate-0"}`}
+                    />
+                  </div>
+                  {aiLists?.product && (
+                    <>
+                      <hr />
+                      {product?.filter(
+                        (p) => p.industry_id === persona?.industry_id
+                      )?.length ? (
+                        product
+                          .filter((p) => p.industry_id === persona?.industry_id)
+                          .map((v, i) => {
+                            const selected = persona?.product_ids?.includes(
+                              v?.product_id
+                            );
+                            return (
+                              <div
+                                key={i}
+                                className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize ${selected ? "bg-[#fbd255]/20" : ""}`}
+                                onClick={() => {
+                                  setPersona((pre) => {
+                                    const ids = pre.product_ids || [];
+                                    return {
+                                      ...pre,
+                                      product_ids: selected
+                                        ? ids.filter(
+                                            (id) => id !== v.product_id
+                                          )
+                                        : [...ids, v.product_id],
+                                    };
+                                  });
+                                  if (validationError.product_ids)
+                                    setValidationError((prev) => ({
+                                      ...prev,
+                                      product_ids: undefined,
+                                    }));
+                                }}
+                              >
+                                <div
+                                  className={`rounded-full w-4 h-4 border-2 border-solid border-[#fbd255] ${selected ? "bg-[#fbd255]" : ""}`}
+                                />
+                                {v?.name.replace(/_/g, " ")}
+                                {selected && (
+                                  <span className="ml-2 text-xs text-[#fbd255]">
+                                    Selected
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })
+                      ) : (
+                        <div className="p-3 text-gray-500">
+                          No products found for selected industry.
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                {validationError.product_ids && (
+                  <p
+                    style={{ color: "red", margin: "0 16px", fontSize: "13px" }}
+                  >
+                    {validationError.product_ids}
+                  </p>
+                )}
+              </div>
+
+              {/* Show selected products as chips (optional, above the selector) */}
+              {persona?.product_ids?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {product
+                    .filter((p) => persona.product_ids.includes(p.product_id))
+                    .map((p) => (
+                      <div
+                        key={p.product_id}
+                        className="bg-[#fbd255] text-black px-2 py-1 rounded-full text-xs flex items-center gap-1"
+                      >
+                        {p.name.replace(/_/g, " ")}
+                        <span
+                          className="cursor-pointer ml-1"
+                          onClick={() => {
+                            setPersona((pre) => ({
+                              ...pre,
+                              product_ids: pre.product_ids.filter(
+                                (id) => id !== p.product_id
+                              ),
+                            }));
+                          }}
+                        >
+                          ×
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              )}
 
               {/* Select Company Size */}
               <div className="w-full flex flex-col items-start gap-2">
@@ -684,28 +838,28 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {plant_size_impactsData?.length
                         ? plant_size_impactsData.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                            onClick={() => {
-                              setPersona((pre) => ({
-                                ...pre,
-                                plant_size_impact_id: v?.plant_size_impact_id,
-                              }));
-
-                              if (validationError.plant_size_impact_id)
-                                setValidationError((prev) => ({
-                                  ...prev,
-                                  plant_size_impact_id: undefined,
-                                }));
-                            }}
-                          >
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                            />
-                            {v?.name.replace(/_/g, " ")}
-                          </div>
-                        ))
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  plant_size_impact_id: v?.plant_size_impact_id,
+                                }));
+
+                                if (validationError.plant_size_impact_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    plant_size_impact_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.plant_size_impact_id === v?.plant_size_impact_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                              />
+                              {v?.name.replace(/_/g, " ")}
+                            </div>
+                          ))
                         : null}
                     </>
                   )}
@@ -743,27 +897,27 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {ai_rolesData?.length
                         ? ai_rolesData.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                            onClick={() => {
-                              setPersona((pre) => ({
-                                ...pre,
-                                ai_role_id: v?.ai_role_id,
-                              }));
-                              if (validationError.ai_role_id)
-                                setValidationError((prev) => ({
-                                  ...prev,
-                                  ai_role_id: undefined,
-                                }));
-                            }}
-                          >
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                            />
-                            {v?.name.replace(/_/g, " ")}
-                          </div>
-                        ))
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  ai_role_id: v?.ai_role_id,
+                                }));
+                                if (validationError.ai_role_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    ai_role_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.ai_role_id === v?.ai_role_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                              />
+                              {v?.name.replace(/_/g, " ")}
+                            </div>
+                          ))
                         : null}
                     </>
                   )}
@@ -804,28 +958,28 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {manufacturing_modelsData?.length
                         ? manufacturing_modelsData.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                            onClick={() => {
-                              setPersona((pre) => ({
-                                ...pre,
-                                manufacturing_model_id:
-                                  v?.manufacturing_model_id,
-                              }));
-                              if (validationError.manufacturing_model_id)
-                                setValidationError((prev) => ({
-                                  ...prev,
-                                  manufacturing_model_id: undefined,
-                                }));
-                            }}
-                          >
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                            />
-                            {v?.name.replace(/_/g, " ")}
-                          </div>
-                        ))
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  manufacturing_model_id:
+                                    v?.manufacturing_model_id,
+                                }));
+                                if (validationError.manufacturing_model_id)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    manufacturing_model_id: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.manufacturing_model_id === v?.manufacturing_model_id ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                              />
+                              {v?.name.replace(/_/g, " ")}
+                            </div>
+                          ))
                         : null}
                     </>
                   )}
@@ -866,27 +1020,27 @@ const Persona = ({ currentSegment }) => {
                       <hr />
                       {geography?.length
                         ? geography.map((v, i) => (
-                          <div
-                            key={i}
-                            className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
-                            onClick={() => {
-                              setPersona((pre) => ({
-                                ...pre,
-                                geography: v?.value,
-                              }));
-                              if (validationError.geography)
-                                setValidationError((prev) => ({
-                                  ...prev,
-                                  geography: undefined,
-                                }));
-                            }}
-                          >
                             <div
-                              className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
-                            />
-                            {v?.name.replace(/_/g, " ")}
-                          </div>
-                        ))
+                              key={i}
+                              className={`p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize`}
+                              onClick={() => {
+                                setPersona((pre) => ({
+                                  ...pre,
+                                  geography: v?.value,
+                                }));
+                                if (validationError.geography)
+                                  setValidationError((prev) => ({
+                                    ...prev,
+                                    geography: undefined,
+                                  }));
+                              }}
+                            >
+                              <div
+                                className={`rounded-full w-4 h-4 ${persona?.geography === v?.value ? "border-2 border-solid border-[#fbd255] bg-[#fbd255]" : "border-2 border-solid border-[#fbd255]"}`}
+                              />
+                              {v?.name.replace(/_/g, " ")}
+                            </div>
+                          ))
                         : null}
                     </>
                   )}
@@ -930,6 +1084,7 @@ const Persona = ({ currentSegment }) => {
                         manufacturing: true,
                         geography: true,
                         companySize: true,
+                        product: true,
                       });
                     }}
                   >
@@ -1041,9 +1196,14 @@ const Persona = ({ currentSegment }) => {
                                     plant_size_impact_id:
                                       v?.plant_size_impact
                                         ?.plant_size_impact_id,
-                                    company_size_id: v?.company_size_new?.company_size_id,
+                                    company_size_id:
+                                      v?.company_size_new?.company_size_id,
                                     geography: v?.geography,
-                                    profile_pic: v?.profile_pic
+                                    profile_pic: v?.profile_pic,
+                                    product_ids:
+                                      v?.persona_products?.map(
+                                        (pp) => pp?.product?.product_id
+                                      ) || [],
                                   });
                                   setAddPersona(true);
                                 }}
