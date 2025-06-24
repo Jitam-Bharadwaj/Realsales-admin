@@ -21,6 +21,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import AddIcon from "@mui/icons-material/Add";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useDropzone } from "react-dropzone";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -46,6 +47,9 @@ const Persona = ({ currentSegment }) => {
   const [loadingPersona, setLoadingPersona] = useState(false);
   const [deleteId, setDeleteId] = useState({});
   const [personaId, setPersonaId] = useState("");
+  const [editProductsModal, setEditProductsModal] = useState(false);
+  const [selectedPersonaForProducts, setSelectedPersonaForProducts] =
+    useState(null);
   const [personaData, setPersonaData] = useState([]);
   const [industriesData, setIndustriesData] = useState([]);
   const [plant_size_impactsData, setPlant_size_impactsData] = useState([]);
@@ -74,6 +78,9 @@ const Persona = ({ currentSegment }) => {
   const [profileUploadError, setProfileUploadError] = useState("");
   const [profileFile, setProfileFile] = useState();
   const [product, setProduct] = useState([]);
+
+  console.log(product, "___product__");
+  console.log(personaData, "__personaData__");
 
   console.log(persona, personaId, product, "persona__");
 
@@ -274,14 +281,14 @@ const Persona = ({ currentSegment }) => {
       });
       if (data?.data?.persona_id) {
         // Send each produced product individually
-        if ((persona.product_ids || []).length > 0) {
-          for (const product_id of persona.product_ids) {
-            await axioInstance.post(endpoints.persona.produced_products, {
-              persona_id: data.data.persona_id,
-              product_id,
-            });
-          }
-        }
+        // if ((persona.product_ids || []).length > 0) {
+        //   for (const product_id of persona.product_ids) {
+        //     await axioInstance.post(endpoints.persona.produced_products, {
+        //       persona_id: data.data.persona_id,
+        //       product_id,
+        //     });
+        //   }
+        // }
         if (profileFile) {
           await uploadProfilePicture(data?.data?.persona_id, profileFile);
         } else {
@@ -322,14 +329,14 @@ const Persona = ({ currentSegment }) => {
       });
       if (data?.data?.persona_id) {
         // Send each produced product individually
-        if ((persona.product_ids || []).length > 0) {
-          for (const product_id of persona.product_ids) {
-            await axioInstance.post(endpoints.persona.produced_products, {
-              persona_id: data.data.persona_id,
-              product_id,
-            });
-          }
-        }
+        // if ((persona.product_ids || []).length > 0) {
+        //   for (const product_id of persona.product_ids) {
+        //     await axioInstance.post(endpoints.persona.produced_products, {
+        //       persona_id: data.data.persona_id,
+        //       product_id,
+        //     });
+        //   }
+        // }
         if (profileFile) {
           await uploadProfilePicture(data?.data?.persona_id, profileFile);
         } else {
@@ -385,10 +392,15 @@ const Persona = ({ currentSegment }) => {
       errors.behavioral_detail = "Summary is required";
     if (!persona?.industry_id) errors.industry_id = "Industry is required";
     // Only require product selection if there are products for the selected industry
-    const availableProducts = product.filter((p) => p.industry_id === persona?.industry_id);
-    if (availableProducts.length > 0 && (!persona?.product_ids || persona.product_ids.length === 0)) {
-      errors.product_ids = "At least one product is required";
-    }
+    // const availableProducts = product.filter(
+    //   (p) => p.industry_id === persona?.industry_id
+    // );
+    // if (
+    //   availableProducts.length > 0 &&
+    //   (!persona?.product_ids || persona.product_ids.length === 0)
+    // ) {
+    //   errors.product_ids = "At least one product is required";
+    // }
     if (!persona?.plant_size_impact_id)
       errors.plant_size_impact_id = "Plant Size is required";
     if (!persona?.company_size_id)
@@ -398,6 +410,34 @@ const Persona = ({ currentSegment }) => {
       errors.manufacturing_model_id = "Manufacturing Model is required";
     if (!persona?.geography) errors.geography = "Geography is required";
     return errors;
+  };
+
+  const updateProducedProducts = async (
+    persona_id,
+    product_id,
+    action,
+    persona_product_id
+  ) => {
+    try {
+      if (action === "add") {
+        await axioInstance.post(endpoints.persona.produced_products, {
+          persona_id,
+          product_id,
+        });
+        showToast.success("Product added successfully");
+      } else if (action === "remove") {
+        await axioInstance.delete(
+          `${endpoints.persona.produced_products}${persona_product_id}`
+        );
+        showToast.success("Product removed successfully");
+      }
+      // Refresh the persona data after update
+      readPersona("table");
+    } catch (error) {
+      showToast.error("Failed to update produced products");
+    } finally {
+      setEditProductsModal(false);
+    }
   };
 
   console.log(persona, "_personaData_");
@@ -636,7 +676,7 @@ const Persona = ({ currentSegment }) => {
               </div>
 
               {/* Select Product (filtered by Industry) */}
-              <div className="w-full flex flex-col items-start gap-2">
+              {/* <div className="w-full flex flex-col items-start gap-2">
                 <div className="w-full border border-solid rounded">
                   <div
                     className="p-3 flex items-center justify-between cursor-pointer"
@@ -666,9 +706,12 @@ const Persona = ({ currentSegment }) => {
                         product
                           .filter((p) => p.industry_id === persona?.industry_id)
                           .map((v, i) => {
-                            const selected = persona?.product_ids?.includes(
-                              v?.product_id
+                            // Find if this product is selected and get its persona_product_id if it exists
+                            const selectedProduct = persona?.product_ids?.find(
+                              (obj) => obj.product_id === v.product_id
                             );
+                            const selected = !!selectedProduct;
+
                             return (
                               <div
                                 key={i}
@@ -676,13 +719,45 @@ const Persona = ({ currentSegment }) => {
                                 onClick={() => {
                                   setPersona((pre) => {
                                     const ids = pre.product_ids || [];
+                                    let newIds;
+                                    let action;
+
+                                    if (selected) {
+                                      newIds = ids.filter(
+                                        (obj) => obj.product_id !== v.product_id
+                                      );
+                                      action = "remove";
+                                      // Update backend if editing existing persona
+                                      if (personaId) {
+                                        updateProducedProducts(
+                                          personaId,
+                                          v.product_id,
+                                          action,
+                                          selectedProduct.persona_product_id
+                                        );
+                                      }
+                                    } else {
+                                      newIds = [
+                                        ...ids,
+                                        {
+                                          persona_product_id: "",
+                                          product_id: v.product_id,
+                                        },
+                                      ];
+                                      action = "add";
+                                      // Update backend if editing existing persona
+                                      if (personaId) {
+                                        updateProducedProducts(
+                                          personaId,
+                                          v.product_id,
+                                          action
+                                        );
+                                      }
+                                    }
+
                                     return {
                                       ...pre,
-                                      product_ids: selected
-                                        ? ids.filter(
-                                            (id) => id !== v.product_id
-                                          )
-                                        : [...ids, v.product_id],
+                                      product_ids: newIds,
                                     };
                                   });
                                   if (validationError.product_ids)
@@ -704,9 +779,14 @@ const Persona = ({ currentSegment }) => {
                               </div>
                             );
                           })
+                      ) : persona?.industry_id ? (
+                        <div className="p-3 text-gray-500 text-center">
+                          No products available for the selected industry.
+                        </div>
                       ) : (
-                        <div className="p-3 text-gray-500">
-                          No products found for selected industry.
+                        <div className="p-3 text-gray-500 text-center">
+                          Please select an industry first to view available
+                          products.
                         </div>
                       )}
                     </>
@@ -719,36 +799,50 @@ const Persona = ({ currentSegment }) => {
                     {validationError.product_ids}
                   </p>
                 )}
-              </div>
+              </div> */}
 
-              {/* Show selected products as chips (optional, above the selector) */}
-              {persona?.product_ids?.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {product
-                    .filter((p) => persona.product_ids.includes(p.product_id))
-                    .map((p) => (
-                      <div
-                        key={p.product_id}
-                        className="bg-[#fbd255] text-black px-2 py-1 rounded-full text-xs flex items-center gap-1"
-                      >
-                        {p.name.replace(/_/g, " ")}
-                        <span
-                          className="cursor-pointer ml-1"
-                          onClick={() => {
-                            setPersona((pre) => ({
+              {/* Show selected products as chips */}
+              <div className="flex flex-wrap gap-2 mb-2">
+                {persona?.product_ids?.map((obj) => {
+                  const p = product.find(
+                    (prod) => prod.product_id === obj.product_id
+                  );
+                  if (!p) return null;
+                  return (
+                    <div
+                      key={obj.product_id}
+                      className="bg-[#fbd255] text-black px-2 py-1 rounded-full text-xs flex items-center gap-1"
+                    >
+                      {p.name.replace(/_/g, " ")}
+                      <span
+                        className="cursor-pointer ml-1"
+                        onClick={() => {
+                          setPersona((pre) => {
+                            const newIds = pre.product_ids.filter(
+                              (item) => item.product_id !== obj.product_id
+                            );
+                            // Update backend if editing existing persona
+                            if (personaId) {
+                              updateProducedProducts(
+                                personaId,
+                                obj.product_id,
+                                "remove",
+                                obj.persona_product_id
+                              );
+                            }
+                            return {
                               ...pre,
-                              product_ids: pre.product_ids.filter(
-                                (id) => id !== p.product_id
-                              ),
-                            }));
-                          }}
-                        >
-                          ×
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              )}
+                              product_ids: newIds,
+                            };
+                          });
+                        }}
+                      >
+                        ×
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
 
               {/* Select Company Size */}
               <div className="w-full flex flex-col items-start gap-2">
@@ -1141,6 +1235,12 @@ const Persona = ({ currentSegment }) => {
                       name
                     </TableCell>
                     <TableCell
+                      sx={{ textAlign: "left" }}
+                      className="!font-bold capitalize"
+                    >
+                      products
+                    </TableCell>
+                    <TableCell
                       sx={{ textAlign: "center" }}
                       className="!font-bold capitalize"
                     >
@@ -1167,6 +1267,59 @@ const Persona = ({ currentSegment }) => {
                           </TableCell>
                           <TableCell sx={{ textAlign: "left" }}>
                             {v?.name.replace(/_/g, " ")}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "left" }}>
+                            <div className="flex items-center gap-2">
+                              <div className="flex flex-wrap gap-1">
+                                {v?.persona_products?.map((pp, idx) => (
+                                  <Chip
+                                    key={idx}
+                                    label={pp?.product?.name.replace(/_/g, " ")}
+                                    size="small"
+                                    onDelete={() =>
+                                      updateProducedProducts(
+                                        v?.persona_id,
+                                        pp?.product?.product_id,
+                                        "remove",
+                                        pp?.persona_product_id
+                                      )
+                                    }
+                                    sx={{
+                                      backgroundColor: "#fbd255",
+                                      color: "black",
+                                      fontWeight: 500,
+                                      "& .MuiChip-deleteIcon": {
+                                        color: "black",
+                                      },
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                              {product
+                                ?.filter(
+                                  (p) =>
+                                    p.industry_id === v?.industry?.industry_id
+                                )
+                                ?.filter(
+                                  (p) =>
+                                    !v?.persona_products?.some(
+                                      (pp) =>
+                                        pp.product.product_id === p.product_id
+                                    )
+                                )?.length ? (
+                                <div
+                                  className="rounded border border-solid border-[#fbd255] hover:bg-[#fbd255] text-[#fbd255] hover:text-black cursor-pointer p-1"
+                                  onClick={() => {
+                                    setSelectedPersonaForProducts(v);
+                                    setEditProductsModal(true);
+                                  }}
+                                >
+                                  <AddIcon className="!text-lg" />
+                                </div>
+                              ) : (
+                                ""
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
                             <Chip
@@ -1201,9 +1354,11 @@ const Persona = ({ currentSegment }) => {
                                     geography: v?.geography,
                                     profile_pic: v?.profile_pic,
                                     product_ids:
-                                      v?.persona_products?.map(
-                                        (pp) => pp?.product?.product_id
-                                      ) || [],
+                                      v?.persona_products?.map((pp) => ({
+                                        persona_product_id:
+                                          pp?.persona_product_id,
+                                        product_id: pp?.product?.product_id,
+                                      })) || [],
                                   });
                                   setAddPersona(true);
                                 }}
@@ -1243,6 +1398,7 @@ const Persona = ({ currentSegment }) => {
                         </TableCell>
                         <TableCell></TableCell>
                         <TableCell></TableCell>
+                        <TableCell></TableCell>
                       </TableRow>
                     )
                   ) : (
@@ -1253,6 +1409,7 @@ const Persona = ({ currentSegment }) => {
                           <RotateRightIcon className="animate-spin !text-5xl" />
                         </div>
                       </TableCell>
+                      <TableCell></TableCell>
                       <TableCell></TableCell>
                       <TableCell></TableCell>
                     </TableRow>
@@ -1282,6 +1439,113 @@ const Persona = ({ currentSegment }) => {
                 autoFocus
               >
                 Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Products Edit Modal */}
+          <Dialog
+            open={editProductsModal}
+            onClose={() => {
+              setEditProductsModal(false);
+              setSelectedPersonaForProducts(null);
+            }}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>
+              Edit Products for {selectedPersonaForProducts?.name}
+            </DialogTitle>
+            <DialogContent>
+              <div className="flex flex-col gap-4 mt-2">
+                <div className="flex flex-wrap gap-2">
+                  {selectedPersonaForProducts?.persona_products?.map((pp) => (
+                    <Chip
+                      key={pp.persona_product_id}
+                      label={pp.product.name.replace(/_/g, " ")}
+                      onDelete={() =>
+                        updateProducedProducts(
+                          selectedPersonaForProducts.persona_id,
+                          pp.product.product_id,
+                          "remove",
+                          pp.persona_product_id
+                        )
+                      }
+                      sx={{
+                        backgroundColor: "#fbd255",
+                        color: "black",
+                        fontWeight: 500,
+                        "& .MuiChip-deleteIcon": {
+                          color: "black",
+                        },
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="w-full border border-solid rounded">
+                  <div className="p-3">
+                    <p>Available Products</p>
+                  </div>
+                  <hr />
+                  <div className="max-h-60 overflow-y-auto">
+                    {product
+                      ?.filter(
+                        (p) =>
+                          p.industry_id ===
+                          selectedPersonaForProducts?.industry?.industry_id
+                      )
+                      ?.filter(
+                        (p) =>
+                          !selectedPersonaForProducts?.persona_products?.some(
+                            (pp) => pp.product.product_id === p.product_id
+                          )
+                      )?.length > 0 ? (
+                      product
+                        ?.filter(
+                          (p) =>
+                            p.industry_id ===
+                            selectedPersonaForProducts?.industry?.industry_id
+                        )
+                        ?.filter(
+                          (p) =>
+                            !selectedPersonaForProducts?.persona_products?.some(
+                              (pp) => pp.product.product_id === p.product_id
+                            )
+                        )
+                        ?.map((v, i) => (
+                          <div
+                            key={i}
+                            className="p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize hover:bg-gray-50"
+                            onClick={() => {
+                              updateProducedProducts(
+                                selectedPersonaForProducts.persona_id,
+                                v.product_id,
+                                "add"
+                              );
+                            }}
+                          >
+                            <AddIcon className="!text-lg" />
+                            {v?.name.replace(/_/g, " ")}
+                          </div>
+                        ))
+                    ) : (
+                      <div className="p-3 text-gray-500 text-center">
+                        No additional products available for this industry.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setEditProductsModal(false);
+                  setSelectedPersonaForProducts(null);
+                }}
+              >
+                Close
               </Button>
             </DialogActions>
           </Dialog>
