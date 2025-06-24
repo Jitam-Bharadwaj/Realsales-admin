@@ -78,6 +78,7 @@ const Persona = ({ currentSegment }) => {
   const [profileUploadError, setProfileUploadError] = useState("");
   const [profileFile, setProfileFile] = useState();
   const [product, setProduct] = useState([]);
+  const [deleteProductId, setDeleteProductId] = useState({});
 
   console.log(product, "___product__");
   console.log(personaData, "__personaData__");
@@ -438,6 +439,15 @@ const Persona = ({ currentSegment }) => {
     } finally {
       setEditProductsModal(false);
     }
+  };
+
+  const handleProductDelete = (personaId, productId, productName, personaProductId) => {
+    setDeleteProductId({
+      persona_id: personaId,
+      product_id: productId,
+      name: productName,
+      persona_product_id: personaProductId
+    });
   };
 
   console.log(persona, "_personaData_");
@@ -1276,16 +1286,14 @@ const Persona = ({ currentSegment }) => {
                                     key={idx}
                                     label={pp?.product?.name.replace(/_/g, " ")}
                                     size="small"
-                                    onDelete={() =>
-                                      updateProducedProducts(
-                                        v?.persona_id,
-                                        pp?.product?.product_id,
-                                        "remove",
-                                        pp?.persona_product_id
-                                      )
-                                    }
+                                    onDelete={() => handleProductDelete(
+                                      v?.persona_id,
+                                      pp?.product?.product_id,
+                                      pp?.product?.name,
+                                      pp?.persona_product_id
+                                    )}
                                     sx={{
-                                      backgroundColor: "#fbd255",
+                                      backgroundColor: "#ffbf00",
                                       color: "black",
                                       fontWeight: 500,
                                       "& .MuiChip-deleteIcon": {
@@ -1295,20 +1303,8 @@ const Persona = ({ currentSegment }) => {
                                   />
                                 ))}
                               </div>
-                              {product
-                                ?.filter(
-                                  (p) =>
-                                    p.industry_id === v?.industry?.industry_id
-                                )
-                                ?.filter(
-                                  (p) =>
-                                    !v?.persona_products?.some(
-                                      (pp) =>
-                                        pp.product.product_id === p.product_id
-                                    )
-                                )?.length ? (
                                 <div
-                                  className="rounded border border-solid border-[#fbd255] hover:bg-[#fbd255] text-[#fbd255] hover:text-black cursor-pointer p-1"
+                                  className="rounded border border-solid border-[#ffbf00] hover:bg-[#ffbf00] text-[#ffbf00] hover:text-black cursor-pointer p-1"
                                   onClick={() => {
                                     setSelectedPersonaForProducts(v);
                                     setEditProductsModal(true);
@@ -1316,9 +1312,6 @@ const Persona = ({ currentSegment }) => {
                                 >
                                   <AddIcon className="!text-lg" />
                                 </div>
-                              ) : (
-                                ""
-                              )}
                             </div>
                           </TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
@@ -1463,14 +1456,12 @@ const Persona = ({ currentSegment }) => {
                     <Chip
                       key={pp.persona_product_id}
                       label={pp.product.name.replace(/_/g, " ")}
-                      onDelete={() =>
-                        updateProducedProducts(
-                          selectedPersonaForProducts.persona_id,
-                          pp.product.product_id,
-                          "remove",
-                          pp.persona_product_id
-                        )
-                      }
+                      onDelete={() => handleProductDelete(
+                        selectedPersonaForProducts.persona_id,
+                        pp.product.product_id,
+                        pp.product.name,
+                        pp.persona_product_id
+                      )}
                       sx={{
                         backgroundColor: "#fbd255",
                         color: "black",
@@ -1482,11 +1473,11 @@ const Persona = ({ currentSegment }) => {
                     />
                   ))}
                 </div>
-                <div className="w-full border border-solid rounded">
+                <div className="w-full border border-[#ffbf00] border-solid rounded">
                   <div className="p-3">
-                    <p>Available Products</p>
+                    <p className="text-[#ffbf00]">Available Products</p>
                   </div>
-                  <hr />
+                  <hr className="border-[#ffbf00]"/>
                   <div className="max-h-60 overflow-y-auto">
                     {product
                       ?.filter(
@@ -1515,7 +1506,7 @@ const Persona = ({ currentSegment }) => {
                         ?.map((v, i) => (
                           <div
                             key={i}
-                            className="p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize hover:bg-gray-50"
+                            className="p-3 border-b border-solid flex items-center gap-2 cursor-pointer capitalize text-[#ffbf00]"
                             onClick={() => {
                               updateProducedProducts(
                                 selectedPersonaForProducts.persona_id,
@@ -1540,12 +1531,49 @@ const Persona = ({ currentSegment }) => {
             <DialogActions>
               <Button
                 variant="outlined"
+                className="!text-white !border-white !bg-red-600"
                 onClick={() => {
                   setEditProductsModal(false);
                   setSelectedPersonaForProducts(null);
                 }}
               >
                 Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Product Delete Confirmation Modal */}
+          <Dialog 
+            open={Boolean(deleteProductId?.product_id)} 
+            onClose={() => setDeleteProductId({})}
+          >
+            <DialogTitle>Remove Product Confirmation</DialogTitle>
+            <DialogContent>
+              Are you sure you want to remove <b>{deleteProductId?.name?.replace(/_/g, " ")}</b> from this persona?
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="outlined"
+                className="!border !border-green-600 !text-green-600 !bg-transparent w-fit"
+                onClick={() => setDeleteProductId({})}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                className="!bg-red-600 !text-white w-fit"
+                onClick={() => {
+                  updateProducedProducts(
+                    deleteProductId.persona_id,
+                    deleteProductId.product_id,
+                    "remove",
+                    deleteProductId.persona_product_id
+                  );
+                  setDeleteProductId({});
+                }}
+                autoFocus
+              >
+                Remove
               </Button>
             </DialogActions>
           </Dialog>
