@@ -19,10 +19,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
 } from "@mui/material";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 const drawerWidth = 240; // Drawer width in px
 
@@ -41,6 +43,12 @@ const UsersAndSessions = ({ currentSegment }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editingUserFields, setEditingUserFields] = useState({ first_name: '', last_name: '', phone_number: '' });
+  const [editingUserLoading, setEditingUserLoading] = useState(false);
+  const [editingUserValidation, setEditingUserValidation] = useState({});
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -175,239 +183,391 @@ const UsersAndSessions = ({ currentSegment }) => {
     }
   };
 
+  // const handleDeleteUser = async () => {
+  //   if (!userToDelete) return;
+  //   try {
+  //     await axioInstance.delete(`/v1/auth/${userToDelete}`);
+  //     setSnackbar({ open: true, message: 'User deleted successfully.', severity: 'success' });
+  //     setDeleteUserDialogOpen(false);
+  //     setUserToDelete(null);
+  //     // Refresh users after deletion
+  //     setSelectedUser(null);
+  //     setSessions([]);
+  //     setTimeout(() => {
+  //       // Give a moment for backend to update
+  //       window.location.reload();
+  //     }, 1000);
+  //   } catch (error) {
+  //     setSnackbar({ open: true, message: 'Failed to delete user.', severity: 'error' });
+  //     setDeleteUserDialogOpen(false);
+  //     setUserToDelete(null);
+  //   }
+  // };
+
+  const handleEditUserStart = (user) => {
+    setEditingUser(user);
+    setEditingUserFields({
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      phone_number: user.phone_number || '',
+    });
+    setEditingUserValidation({});
+  };
+
+  const handleEditUserSave = async () => {
+    if (!editingUser) return;
+    // Simple validation
+    const errors = {};
+    if (!editingUserFields.first_name) errors.first_name = 'First name is required';
+    if (!editingUserFields.last_name) errors.last_name = 'Last name is required';
+    setEditingUserValidation(errors);
+    if (Object.keys(errors).length > 0) return;
+    setEditingUserLoading(true);
+    try {
+      await axioInstance.put(`/v1/auth/${editingUser.user_id}`, editingUserFields);
+      setSnackbar({ open: true, message: 'User updated successfully.', severity: 'success' });
+      setEditingUser(null);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Failed to update user.', severity: 'error' });
+    } finally {
+      setEditingUserLoading(false);
+    }
+  };
+
   if (currentSegment !== "users") {
     return null;
   }
 
   return (
     <div className="w-full" style={{ paddingTop: 40 }}>
-      {/* Heading and actions */}
-      {!selectedUser && (
-        <div className="w-full flex items-center justify-between mb-0">
-          <h1 className="text-2xl">Users</h1>
-        </div>
-      )}
-      {selectedUser && (
-        <div className="w-full flex items-center justify-between mb-2">
-          <h1 className="text-2xl">Sessions</h1>
-          <Button
-            onClick={handleBackToUsers}
-            sx={{
-              backgroundColor: "#fbd255",
-              color: "black",
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: '#ffe066',
-                color: 'black',
-              },
-            }}
-          >
-            Back to Users
-          </Button>
-        </div>
-      )}
-      {/* Users Section */}
-      {!selectedUser && (
+      {/* Edit User Section - show ONLY this if editingUser is set */}
+      {editingUser ? (
         <>
-          <hr className="mt-1" />
-          <div className="w-full overflow-x-auto">
-            {loadingUsers ? (
-              <div className="flex items-center justify-center h-60">
-                <CircularProgress />
-              </div>
-            ) : (
-              <Table sx={{ minWidth: 600, width: '100%' }}>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Name</TableCell>
-                    <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Email</TableCell>
-                    <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {users.length > 0 ? (
-                    users.map((user) => (
-                      <TableRow key={user.id} sx={{ borderBottom: '1px solid #333' }}>
-                        <TableCell sx={{ px: 2, py: 1.5 }}>{`${user.first_name || ''} ${user.last_name || ''}`.trim()}</TableCell>
-                        <TableCell sx={{ px: 2, py: 1.5 }}>{user.email}</TableCell>
-                        <TableCell sx={{ px: 2, py: 1.5 }}>
-                          <Button
-                            variant="contained"
-                            onClick={() => handleViewSessions(user)}
-                            sx={{
-                              backgroundColor: "#fbd255",
-                              color: "black",
-                              fontWeight: 500,
-                              '&:hover': {
-                                backgroundColor: '#ffe066',
-                                color: 'black',
-                              },
-                            }}
-                          >
-                            View Sessions
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} align="center">
-                        <div className="flex items-center justify-center h-60 relative">
-                          <p className="text-lg absolute bottom-[15%]">Oops... data not found</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            )}
+          <div className="w-full flex items-center justify-between mb-2">
+            <h1 className="text-2xl">Edit User</h1>
+            <Button
+              onClick={() => setEditingUser(null)}
+              sx={{
+                backgroundColor: "#fbd255",
+                color: "black",
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: '#ffe066',
+                  color: 'black',
+                },
+              }}
+            >
+              Back to Users
+            </Button>
+          </div>
+          <div style={{ width: '100%', marginBottom: 24, display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="First Name"
+              value={editingUserFields.first_name}
+              onChange={e => {
+                setEditingUserFields({ ...editingUserFields, first_name: e.target.value });
+                if (editingUserValidation.first_name) setEditingUserValidation(prev => ({ ...prev, first_name: undefined }));
+              }}
+              error={!!editingUserValidation.first_name}
+              helperText={editingUserValidation.first_name}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Last Name"
+              value={editingUserFields.last_name}
+              onChange={e => {
+                setEditingUserFields({ ...editingUserFields, last_name: e.target.value });
+                if (editingUserValidation.last_name) setEditingUserValidation(prev => ({ ...prev, last_name: undefined }));
+              }}
+              error={!!editingUserValidation.last_name}
+              helperText={editingUserValidation.last_name}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Phone Number"
+              value={editingUserFields.phone_number}
+              onChange={e => setEditingUserFields({ ...editingUserFields, phone_number: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outlined"
+                className="!border !border-red-600 !bg-transparent w-fit"
+                onClick={() => setEditingUser(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                className="!border !border-green-500 !bg-green-500 w-fit"
+                onClick={handleEditUserSave}
+                disabled={editingUserLoading}
+              >
+                {editingUserLoading ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
           </div>
         </>
-      )}
-      {/* Sessions Section */}
-      {selectedUser && (
+      ) : (
         <>
-          <div className="mb-2 text-base font-medium">
-            {selectedUser.first_name || ''} {selectedUser.last_name || ''}
-          </div>
-          <hr className="mt-1" />
-          <div className="w-full overflow-x-auto">
-            {loadingSessions ? (
-              <div className="flex items-center justify-center h-60">
-                <CircularProgress />
-              </div>
-            ) : error ? (
-              <div className="flex items-center justify-center h-60 text-red-500">
-                {error}
-              </div>
-            ) : (
-              (() => {
-                try {
-                  const safeSessions = Array.isArray(sessions) ? sessions : [];
-                  return (
-                    <Table sx={{ minWidth: 900, width: '100%' }}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Session ID</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Persona</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Mode</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Performance Report</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Start Time</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">End Time</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Duration</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Status</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Created At</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Updated At</TableCell>
-                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {safeSessions.length > 0 ? (
-                          safeSessions.map((session, idx) => (
-                            <TableRow key={session.session_id || session.id || idx} sx={{ borderBottom: '1px solid #333' }}>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>{session.session_id || '-'}</TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>
-                                {(() => {
-                                  if (!session.persona_id) return '-';
-                                  if (!personaNames[session.persona_id]) {
-                                    fetchPersonaName(session.persona_id);
-                                    return '...';
-                                  }
-                                  return personaNames[session.persona_id];
-                                })()}
-                              </TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>
-                                {(() => {
-                                  if (!session.mode_id) return '-';
-                                  if (!modeNames[session.mode_id]) {
-                                    fetchModeName(session.mode_id);
-                                    return '...';
-                                  }
-                                  return modeNames[session.mode_id];
-                                })()}
-                              </TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>
-                                {session.performance_report ? (
-                                  <Box display="flex" alignItems="center" gap={1}>
-                                    <Button
-                                      variant="contained"
-                                      size="small"
-                                      onClick={() => handleOpenReportModal(session.performance_report)}
-                                      sx={{
-                                        backgroundColor: "#fbd255",
-                                        color: "black",
-                                        fontWeight: 500,
-                                        '&:hover': {
-                                          backgroundColor: '#ffe066',
-                                          color: 'black',
-                                        },
-                                      }}
-                                    >
-                                      View Report
-                                    </Button>
-                                    <Button
-                                      variant="outlined"
-                                      size="small"
-                                      onClick={() => handleDownloadReport(session.session_id)}
-                                      sx={{
-                                        borderColor: '#fbd255',
-                                        color: '#fbd255',
-                                        fontWeight: 500,
-                                        '&:hover': {
-                                          backgroundColor: '#fbd255',
-                                          color: 'black',
-                                        },
-                                      }}
-                                    >
-                                      Download Report
-                                    </Button>
-                                  </Box>
-                                ) : (
-                                  '-'
-                                )}
-                              </TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>{session.start_time || '-'}</TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>{session.end_time || '-'}</TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>{session.duration || '-'}</TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>{session.status || '-'}</TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>{session.created_at || '-'}</TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>{session.updated_at || '-'}</TableCell>
-                              <TableCell sx={{ px: 2, py: 1.5 }}>
+          {/* Heading and actions */}
+          {!selectedUser && (
+            <div className="w-full flex items-center justify-between mb-0">
+              <h1 className="text-2xl">Users</h1>
+            </div>
+          )}
+          {selectedUser && (
+            <div className="w-full flex items-center justify-between mb-2">
+              <h1 className="text-2xl">Sessions</h1>
+              <Button
+                onClick={handleBackToUsers}
+                sx={{
+                  backgroundColor: "#fbd255",
+                  color: "black",
+                  fontWeight: 500,
+                  '&:hover': {
+                    backgroundColor: '#ffe066',
+                    color: 'black',
+                  },
+                }}
+              >
+                Back to Users
+              </Button>
+            </div>
+          )}
+          {/* Users Section */}
+          {!selectedUser && (
+            <>
+              <hr className="mt-1" />
+              <div className="w-full overflow-x-auto">
+                {loadingUsers ? (
+                  <div className="flex items-center justify-center h-60">
+                    <CircularProgress />
+                  </div>
+                ) : (
+                  <Table sx={{ minWidth: 600, width: '100%' }}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Name</TableCell>
+                        <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Email</TableCell>
+                        <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Sessions</TableCell>
+                        <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {users.length > 0 ? (
+                        users.map((user) => (
+                          <TableRow key={user.id} sx={{ borderBottom: '1px solid #333' }}>
+                            <TableCell sx={{ px: 2, py: 1.5 }}>{`${user.first_name || ''} ${user.last_name || ''}`.trim()}</TableCell>
+                            <TableCell sx={{ px: 2, py: 1.5 }}>{user.email}</TableCell>
+                            <TableCell sx={{ px: 2, py: 1.5 }}>
+                              <Button
+                                variant="contained"
+                                onClick={() => handleViewSessions(user)}
+                                sx={{
+                                  backgroundColor: "#fbd255",
+                                  color: "black",
+                                  fontWeight: 500,
+                                  '&:hover': {
+                                    backgroundColor: '#ffe066',
+                                    color: 'black',
+                                  },
+                                }}
+                              >
+                                View Sessions
+                              </Button>
+                            </TableCell>
+                            <TableCell sx={{ px: 2, py: 1.5 }}>
+                              <div style={{ display: 'flex', gap: 8 }}>
                                 <div
+                                  className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                  onClick={() => handleEditUserStart(user)}
+                                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                                >
+                                  <EditIcon className="!text-lg" />
+                                </div>
+                                {/* <div
                                   className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
                                   onClick={() => {
-                                    setSessionToDelete(session.session_id);
-                                    setDeleteDialogOpen(true);
+                                    setUserToDelete(user.user_id);
+                                    setDeleteUserDialogOpen(true);
                                   }}
                                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
                                   <DeleteIcon className="!text-lg" />
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={10} align="center">
-                              <div className="flex items-center justify-center h-60 relative">
-                                <p className="text-lg absolute bottom-[15%]">Oops... data not found</p>
+                                </div> */}
                               </div>
                             </TableCell>
                           </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  );
-                } catch (e) {
-                  return (
-                    <div className="flex items-center justify-center h-60 text-red-500">
-                      Error rendering sessions table: {e.message}
-                    </div>
-                  );
-                }
-              })()
-            )}
-          </div>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center">
+                            <div className="flex items-center justify-center h-60 relative">
+                              <p className="text-lg absolute bottom-[15%]">Oops... data not found</p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
+            </>
+          )}
+          {/* Sessions Section */}
+          {selectedUser && (
+            <>
+              <div className="mb-2 text-base font-medium">
+                {selectedUser.first_name || ''} {selectedUser.last_name || ''}
+              </div>
+              <hr className="mt-1" />
+              <div className="w-full overflow-x-auto">
+                {loadingSessions ? (
+                  <div className="flex items-center justify-center h-60">
+                    <CircularProgress />
+                  </div>
+                ) : error ? (
+                  <div className="flex items-center justify-center h-60 text-red-500">
+                    {error}
+                  </div>
+                ) : (
+                  (() => {
+                    try {
+                      const safeSessions = Array.isArray(sessions) ? sessions : [];
+                      return (
+                        <Table sx={{ minWidth: 900, width: '100%' }}>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Session ID</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Persona</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Mode</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Performance Report</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Start Time</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">End Time</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Duration</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Status</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Created At</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Updated At</TableCell>
+                              <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Actions</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {safeSessions.length > 0 ? (
+                              safeSessions.map((session, idx) => (
+                                <TableRow key={session.session_id || session.id || idx} sx={{ borderBottom: '1px solid #333' }}>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.session_id || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>
+                                    {(() => {
+                                      if (!session.persona_id) return '-';
+                                      if (!personaNames[session.persona_id]) {
+                                        fetchPersonaName(session.persona_id);
+                                        return '...';
+                                      }
+                                      return personaNames[session.persona_id];
+                                    })()}
+                                  </TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>
+                                    {(() => {
+                                      if (!session.mode_id) return '-';
+                                      if (!modeNames[session.mode_id]) {
+                                        fetchModeName(session.mode_id);
+                                        return '...';
+                                      }
+                                      return modeNames[session.mode_id];
+                                    })()}
+                                  </TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>
+                                    {session.performance_report ? (
+                                      <Box display="flex" alignItems="center" gap={1}>
+                                        <Button
+                                          variant="contained"
+                                          size="small"
+                                          onClick={() => handleOpenReportModal(session.performance_report)}
+                                          sx={{
+                                            backgroundColor: "#fbd255",
+                                            color: "black",
+                                            fontWeight: 500,
+                                            '&:hover': {
+                                              backgroundColor: '#ffe066',
+                                              color: 'black',
+                                            },
+                                          }}
+                                        >
+                                          View Report
+                                        </Button>
+                                        <Button
+                                          variant="outlined"
+                                          size="small"
+                                          onClick={() => handleDownloadReport(session.session_id)}
+                                          sx={{
+                                            borderColor: '#fbd255',
+                                            color: '#fbd255',
+                                            fontWeight: 500,
+                                            '&:hover': {
+                                              backgroundColor: '#fbd255',
+                                              color: 'black',
+                                            },
+                                          }}
+                                        >
+                                          Download Report
+                                        </Button>
+                                      </Box>
+                                    ) : (
+                                      '-'
+                                    )}
+                                  </TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.start_time || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.end_time || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.duration || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.status || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.created_at || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.updated_at || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>
+                                    <div
+                                      className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                      onClick={() => {
+                                        setSessionToDelete(session.session_id);
+                                        setDeleteDialogOpen(true);
+                                      }}
+                                      style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >
+                                      <DeleteIcon className="!text-lg" />
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell colSpan={10} align="center">
+                                  <div className="flex items-center justify-center h-60 relative">
+                                    <p className="text-lg absolute bottom-[15%]">Oops... data not found</p>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                      );
+                    } catch (e) {
+                      return (
+                        <div className="flex items-center justify-center h-60 text-red-500">
+                          Error rendering sessions table: {e.message}
+                        </div>
+                      );
+                    }
+                  })()
+                )}
+              </div>
+            </>
+          )}
         </>
       )}
       {error && <Typography color="error">{error}</Typography>}
@@ -478,6 +638,16 @@ const UsersAndSessions = ({ currentSegment }) => {
           <Button onClick={handleDeleteSession} color="error">Delete</Button>
         </DialogActions>
       </Dialog>
+      {/* <Dialog open={deleteUserDialogOpen} onClose={() => setDeleteUserDialogOpen(false)}>
+        <DialogTitle>Delete User</DialogTitle>
+        <DialogContent>
+          The action cannot be reverted and the user will be permanently removed from the system.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteUserDialogOpen(false)} color="primary">Cancel</Button>
+          <Button onClick={handleDeleteUser} color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -487,7 +657,7 @@ const UsersAndSessions = ({ currentSegment }) => {
         <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
-      </Snackbar>
+      </Snackbar> */}
     </div>
   );
 };
