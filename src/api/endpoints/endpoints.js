@@ -2,6 +2,10 @@ export const endpoints = {
   auth: {
     register: "v1/auth/sign-up",
     login: "v1/auth/sign-in",
+    allUsers: "/v1/auth/all-users",
+  },
+  sessions: {
+    byUser: "/v1/sessions/by-user/",
   },
   closing: {
     getClosing: "v1/interaction-modes",
