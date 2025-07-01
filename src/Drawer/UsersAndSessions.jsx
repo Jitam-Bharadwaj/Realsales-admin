@@ -50,21 +50,22 @@ const UsersAndSessions = ({ currentSegment }) => {
   const [editingUserLoading, setEditingUserLoading] = useState(false);
   const [editingUserValidation, setEditingUserValidation] = useState({});
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoadingUsers(true);
-      setError(null);
-      try {
-        const response = await axioInstance.get(endpoints.auth.allUsers);
-        setUsers(response.data);
-      } catch (err) {
-        setError("Failed to fetch users.");
-        console.error(err);
-      } finally {
-        setLoadingUsers(false);
-      }
-    };
+  // Move fetchUsers outside useEffect for reuse
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    setError(null);
+    try {
+      const response = await axioInstance.get(endpoints.auth.allUsers);
+      setUsers(response.data);
+    } catch (err) {
+      setError("Failed to fetch users.");
+      console.error(err);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
+  useEffect(() => {
     if (!selectedUser) {
       fetchUsers();
     }
@@ -227,9 +228,8 @@ const UsersAndSessions = ({ currentSegment }) => {
       await axioInstance.put(`/v1/auth/${editingUser.user_id}`, editingUserFields);
       setSnackbar({ open: true, message: 'User updated successfully.', severity: 'success' });
       setEditingUser(null);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      // Refetch users to update the list
+      fetchUsers();
     } catch (error) {
       setSnackbar({ open: true, message: 'Failed to update user.', severity: 'error' });
     } finally {
