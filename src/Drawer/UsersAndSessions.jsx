@@ -182,7 +182,7 @@ const UsersAndSessions = ({ currentSegment }) => {
       setSessionToDelete(null);
     }
   };
-
+  //Code for Deleting Users
   // const handleDeleteUser = async () => {
   //   if (!userToDelete) return;
   //   try {
@@ -393,7 +393,8 @@ const UsersAndSessions = ({ currentSegment }) => {
                                 >
                                   <EditIcon className="!text-lg" />
                                 </div>
-                                {/* <div
+                                {/* Code for Deleting Users
+                                  <div
                                   className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
                                   onClick={() => {
                                     setUserToDelete(user.user_id);
@@ -638,7 +639,8 @@ const UsersAndSessions = ({ currentSegment }) => {
           <Button onClick={handleDeleteSession} color="error">Delete</Button>
         </DialogActions>
       </Dialog>
-      {/* <Dialog open={deleteUserDialogOpen} onClose={() => setDeleteUserDialogOpen(false)}>
+      {/* Code for Deleting Users
+      <Dialog open={deleteUserDialogOpen} onClose={() => setDeleteUserDialogOpen(false)}>
         <DialogTitle>Delete User</DialogTitle>
         <DialogContent>
           The action cannot be reverted and the user will be permanently removed from the system.
