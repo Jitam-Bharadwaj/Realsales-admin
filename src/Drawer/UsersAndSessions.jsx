@@ -13,9 +13,16 @@ import {
   Box,
   Grid,
   Modal,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const drawerWidth = 240; // Drawer width in px
 
@@ -31,6 +38,9 @@ const UsersAndSessions = ({ currentSegment }) => {
   const [personaNames, setPersonaNames] = useState({}); // { persona_id: persona_name }
   const fetchingPersonas = useRef({}); // To prevent duplicate fetches
   const [selectedReport, setSelectedReport] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -145,6 +155,23 @@ const UsersAndSessions = ({ currentSegment }) => {
       setPersonaNames((prev) => ({ ...prev, [persona_id]: persona_id }));
     } finally {
       fetchingPersonas.current[persona_id] = false;
+    }
+  };
+
+  const handleDeleteSession = async () => {
+    if (!sessionToDelete) return;
+    try {
+      await axioInstance.delete(`/v1/sessions/${sessionToDelete}`);
+      setSnackbar({ open: true, message: 'Session deleted successfully.', severity: 'success' });
+      // Refresh sessions after deletion
+      if (selectedUser) {
+        handleViewSessions(selectedUser);
+      }
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Failed to delete session.', severity: 'error' });
+    } finally {
+      setDeleteDialogOpen(false);
+      setSessionToDelete(null);
     }
   };
 
@@ -271,6 +298,7 @@ const UsersAndSessions = ({ currentSegment }) => {
                           <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Status</TableCell>
                           <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Created At</TableCell>
                           <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Updated At</TableCell>
+                          <TableCell sx={{ textAlign: 'left' }} className="!font-bold capitalize">Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -344,6 +372,18 @@ const UsersAndSessions = ({ currentSegment }) => {
                               <TableCell sx={{ px: 2, py: 1.5 }}>{session.status || '-'}</TableCell>
                               <TableCell sx={{ px: 2, py: 1.5 }}>{session.created_at || '-'}</TableCell>
                               <TableCell sx={{ px: 2, py: 1.5 }}>{session.updated_at || '-'}</TableCell>
+                              <TableCell sx={{ px: 2, py: 1.5 }}>
+                                <div
+                                  className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                  onClick={() => {
+                                    setSessionToDelete(session.session_id);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                                >
+                                  <DeleteIcon className="!text-lg" />
+                                </div>
+                              </TableCell>
                             </TableRow>
                           ))
                         ) : (
@@ -430,6 +470,24 @@ const UsersAndSessions = ({ currentSegment }) => {
               )}
           </Box>
       </Modal>
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Session</DialogTitle>
+        <DialogContent>Are you sure you want to delete this session?</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="primary">Cancel</Button>
+          <Button onClick={handleDeleteSession} color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
