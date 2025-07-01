@@ -34,6 +34,8 @@ import Report from "./Report";
 import CompanySize from "./CompanySize";
 import CategoryIcon from '@mui/icons-material/Category';
 import Product from "./Product";
+import PeopleIcon from '@mui/icons-material/People';
+import UsersAndSessions from "./UsersAndSessions";
 
 const NAVIGATION = [
   {
@@ -84,6 +86,11 @@ const NAVIGATION = [
     segment: "report",
     title: "Report",
     icon: <SummarizeIcon />,
+  },
+  {
+    segment: "users",
+    title: "Users and Sessions",
+    icon: <PeopleIcon />,
   },
   // {
   //   segment: "generalInstruction",
@@ -255,10 +262,17 @@ function useDemoRouter(initialPath) {
 
 export default function DashboardLayoutBasic(props) {
   const { window } = props;
-  const router = useDemoRouter("/createPersona");
-  const navigate = useNavigate();
+  const [currentSegment, setCurrentSegment] = React.useState("createPersona");
+  const router = useDemoRouter(`/${currentSegment}`);
 
   const [logoutModalOpen, setLogoutModalOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const newSegment = router.pathname.slice(1);
+    if (newSegment) {
+      setCurrentSegment(newSegment);
+    }
+  }, [router.pathname]);
 
   const handleLogout = async () => {
     console.log("Logout function called");
@@ -287,7 +301,7 @@ export default function DashboardLayoutBasic(props) {
       // Close the modal and redirect to login page
       setLogoutModalOpen(false);
       console.log("Redirecting to login page");
-      navigate("/");
+      router.navigate("/");
     } catch (err) {
       console.error("Error during logout:", err);
       console.log(
@@ -305,15 +319,12 @@ export default function DashboardLayoutBasic(props) {
         localStorage.getItem("user")
       );
       console.log("Attempting navigation after logout error");
-      navigate("/"); // Attempt to navigate even on error
+      router.navigate("/"); // Attempt to navigate even on error
     }
   };
 
   // Remove this const when copying and pasting into your project.
   const demoWindow = window ? window() : undefined;
-
-  // Extract the current segment from the path
-  const currentSegment = router.pathname.split("/").pop();
 
   // Define the renderPageItem function
   const renderPageItem = React.useCallback(
@@ -396,6 +407,7 @@ export default function DashboardLayoutBasic(props) {
             <ManufacturingModels currentSegment={currentSegment} />
             <GeneralInstruction currentSegment={currentSegment} />
             <Report currentSegment={currentSegment} />
+            <UsersAndSessions currentSegment={currentSegment} />
           </Grid>
         </PageContainer>
       </DashboardLayout>
