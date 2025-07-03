@@ -20,11 +20,15 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  MenuItem,
+  Tooltip,
 } from "@mui/material";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const drawerWidth = 240; // Drawer width in px
 
@@ -49,6 +53,14 @@ const UsersAndSessions = ({ currentSegment }) => {
   const [editingUserFields, setEditingUserFields] = useState({ first_name: '', last_name: '', phone_number: '' });
   const [editingUserLoading, setEditingUserLoading] = useState(false);
   const [editingUserValidation, setEditingUserValidation] = useState({});
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchActive, setSearchActive] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [changingRoleUser, setChangingRoleUser] = useState(null);
+  const [changingRoleId, setChangingRoleId] = useState('');
+  const [changingRoleLoading, setChangingRoleLoading] = useState(false);
+  const [changeRoleModalOpen, setChangeRoleModalOpen] = useState(false);
 
   // Move fetchUsers outside useEffect for reuse
   const fetchUsers = async () => {
@@ -70,6 +82,18 @@ const UsersAndSessions = ({ currentSegment }) => {
       fetchUsers();
     }
   }, [selectedUser]);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axioInstance.get('/v1/roles');
+        setRoles(response.data || []);
+      } catch (err) {
+        setRoles([]);
+      }
+    };
+    fetchRoles();
+  }, []);
 
   const handleViewSessions = async (user) => {
     setSelectedUser(user);
@@ -237,6 +261,58 @@ const UsersAndSessions = ({ currentSegment }) => {
     }
   };
 
+  const handleSearchByEmail = async () => {
+    if (!searchEmail) return;
+    setSearchLoading(true);
+    setError(null);
+    try {
+      const response = await axioInstance.get(`/v1/auth/by-email/${encodeURIComponent(searchEmail)}`);
+      // The endpoint may return a single user or an array, handle both
+      const user = response.data;
+      setUsers(user ? [user] : []);
+      setSearchActive(true);
+    } catch (err) {
+      setUsers([]);
+      setError('No user found with that email.');
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchEmail('');
+    setSearchActive(false);
+    setError(null);
+    fetchUsers();
+  };
+
+  const handleOpenChangeRole = (user) => {
+    setChangingRoleUser(user);
+    setChangingRoleId(user.role?.role_id || '');
+    setChangeRoleModalOpen(true);
+  };
+
+  const handleCloseChangeRole = () => {
+    setChangeRoleModalOpen(false);
+    setChangingRoleUser(null);
+    setChangingRoleId('');
+  };
+
+  const handleChangeRole = async () => {
+    if (!changingRoleUser || !changingRoleId) return;
+    setChangingRoleLoading(true);
+    try {
+      await axioInstance.post(`/v1/auth/users/${changingRoleUser.user_id}/change-role/${changingRoleId}`);
+      setSnackbar({ open: true, message: 'Role updated successfully.', severity: 'success' });
+      handleCloseChangeRole();
+      fetchUsers();
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Failed to update role.', severity: 'error' });
+    } finally {
+      setChangingRoleLoading(false);
+    }
+  };
+
   if (currentSegment !== "users") {
     return null;
   }
@@ -319,8 +395,38 @@ const UsersAndSessions = ({ currentSegment }) => {
         <>
           {/* Heading and actions */}
           {!selectedUser && (
-            <div className="w-full flex items-center justify-between mb-0">
+            <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between mb-0 gap-2">
               <h1 className="text-2xl">Users</h1>
+              <div className="flex items-center gap-2 mt-2 md:mt-0">
+                <TextField
+                  size="small"
+                  placeholder="Search user by email"
+                  value={searchEmail}
+                  onChange={e => setSearchEmail(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleSearchByEmail(); }}
+                  disabled={searchLoading}
+                  sx={{ minWidth: 220, height: 40, '& .MuiInputBase-root': { height: 40 } }}
+                />
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleSearchByEmail}
+                  disabled={searchLoading || !searchEmail}
+                  sx={{ backgroundColor: '#fbd255', color: 'black', fontWeight: 500, minWidth: 40, height: 40, boxSizing: 'border-box' }}
+                >
+                  <SearchIcon />
+                </Button>
+                {searchActive && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={handleClearSearch}
+                    sx={{ minWidth: 40, height: 40, boxSizing: 'border-box' }}
+                  >
+                    <ClearIcon />
+                  </Button>
+                )}
+              </div>
             </div>
           )}
           {selectedUser && (
@@ -357,6 +463,7 @@ const UsersAndSessions = ({ currentSegment }) => {
                       <TableRow>
                         <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Name</TableCell>
                         <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Email</TableCell>
+                        <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Role</TableCell>
                         <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Sessions</TableCell>
                         <TableCell sx={{ px: 2, py: 1.5 }} className="!font-bold capitalize">Actions</TableCell>
                       </TableRow>
@@ -367,6 +474,18 @@ const UsersAndSessions = ({ currentSegment }) => {
                           <TableRow key={user.id} sx={{ borderBottom: '1px solid #333' }}>
                             <TableCell sx={{ px: 2, py: 1.5 }}>{`${user.first_name || ''} ${user.last_name || ''}`.trim()}</TableCell>
                             <TableCell sx={{ px: 2, py: 1.5 }}>{user.email}</TableCell>
+                            <TableCell sx={{ px: 2, py: 1.5 }}>
+                              <span>{user.role?.name ? user.role.name.replace(/_/g, ' ') : '-'}</span>
+                              <Tooltip title="Change Role">
+                                <div
+                                  className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer p-1 ml-2"
+                                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', verticalAlign: 'middle' }}
+                                  onClick={() => handleOpenChangeRole(user)}
+                                >
+                                  <EditIcon className="!text-lg" />
+                                </div>
+                              </Tooltip>
+                            </TableCell>
                             <TableCell sx={{ px: 2, py: 1.5 }}>
                               <Button
                                 variant="contained"
@@ -639,6 +758,59 @@ const UsersAndSessions = ({ currentSegment }) => {
           <Button onClick={handleDeleteSession} color="error">Delete</Button>
         </DialogActions>
       </Dialog>
+      {/* Change Role Section */}
+      <Modal open={changeRoleModalOpen} onClose={handleCloseChangeRole} aria-labelledby="change-role-modal-title">
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: { xs: '90%', md: 480 },
+          bgcolor: 'background.paper',
+          border: '1px solid #ccc',
+          borderRadius: 2,
+          boxShadow: 24,
+          p: { xs: 2, md: 4 },
+          color: 'text.primary',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}>
+          <div className="w-full flex items-center justify-between mb-2">
+            <h1 className="text-2xl">Change User Role</h1>
+          </div>
+          <TextField
+            select
+            label="Select Role"
+            value={changingRoleId}
+            onChange={e => setChangingRoleId(e.target.value)}
+            fullWidth
+            sx={{ mt: 1, mb: 2 }}
+          >
+            {roles.map(role => (
+              <MenuItem key={role.role_id} value={role.role_id}>
+                {role.name.replace(/_/g, ' ')}
+              </MenuItem>
+            ))}
+          </TextField>
+          <div className="flex items-center gap-2 justify-end w-full mt-2">
+            <Button
+              variant="outlined"
+              className="!border !border-red-600 !bg-transparent w-fit"
+              onClick={handleCloseChangeRole}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              className="!border !border-green-500 !bg-green-500 w-fit"
+              onClick={handleChangeRole}
+              disabled={changingRoleLoading || !changingRoleId}
+            >
+              {changingRoleLoading ? 'Saving...' : 'Save'}
+            </Button>
+          </div>
+        </Box>
+      </Modal>
       {/* Code for Deleting Users
       <Dialog open={deleteUserDialogOpen} onClose={() => setDeleteUserDialogOpen(false)}>
         <DialogTitle>Delete User</DialogTitle>
