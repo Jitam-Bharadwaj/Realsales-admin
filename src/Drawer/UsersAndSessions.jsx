@@ -661,7 +661,7 @@ const UsersAndSessions = ({ currentSegment }) => {
                                       '-'
                                     )}
                                   </TableCell>
-                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.start_time || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{formatDateTime(session.start_time)}</TableCell>
                                   <TableCell sx={{ px: 2, py: 1.5 }}>{session.end_time || '-'}</TableCell>
                                   <TableCell sx={{ px: 2, py: 1.5 }}>{session.duration || '-'}</TableCell>
                                   <TableCell sx={{ px: 2, py: 1.5 }}>{session.status || '-'}</TableCell>
