@@ -574,6 +574,11 @@ const UsersAndSessions = ({ currentSegment }) => {
                   (() => {
                     try {
                       const safeSessions = Array.isArray(sessions) ? sessions : [];
+                      const sortedSessions = safeSessions.slice().sort((a, b) => {
+                        const dateA = new Date(a.start_time || a.created_at || 0);
+                        const dateB = new Date(b.start_time || b.created_at || 0);
+                        return dateB - dateA; // Descending order
+                      });
                       return (
                         <Table sx={{ minWidth: 900, width: '100%' }}>
                           <TableHead>
@@ -592,8 +597,8 @@ const UsersAndSessions = ({ currentSegment }) => {
                             </TableRow>
                           </TableHead>
                           <TableBody>
-                            {safeSessions.length > 0 ? (
-                              safeSessions.map((session, idx) => (
+                            {sortedSessions.length > 0 ? (
+                              sortedSessions.map((session, idx) => (
                                 <TableRow key={session.session_id || session.id || idx} sx={{ borderBottom: '1px solid #333' }}>
                                   <TableCell sx={{ px: 2, py: 1.5 }}>{session.session_id || '-'}</TableCell>
                                   <TableCell sx={{ px: 2, py: 1.5 }}>
