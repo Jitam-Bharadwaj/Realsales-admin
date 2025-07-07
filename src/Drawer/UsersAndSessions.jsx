@@ -32,6 +32,18 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 const drawerWidth = 240; // Drawer width in px
 
+// Date formatting function for mm/dd/yyyy hh:mm:ss
+function formatDateTime(dateString) {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '-';
+  const pad = (n) => n.toString().padStart(2, '0');
+  return (
+    `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ` +
+    `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+  );
+}
+
 const UsersAndSessions = ({ currentSegment }) => {
   const [users, setUsers] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -648,8 +660,8 @@ const UsersAndSessions = ({ currentSegment }) => {
                                   <TableCell sx={{ px: 2, py: 1.5 }}>{session.end_time || '-'}</TableCell>
                                   <TableCell sx={{ px: 2, py: 1.5 }}>{session.duration || '-'}</TableCell>
                                   <TableCell sx={{ px: 2, py: 1.5 }}>{session.status || '-'}</TableCell>
-                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.created_at || '-'}</TableCell>
-                                  <TableCell sx={{ px: 2, py: 1.5 }}>{session.updated_at || '-'}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{formatDateTime(session.created_at)}</TableCell>
+                                  <TableCell sx={{ px: 2, py: 1.5 }}>{formatDateTime(session.updated_at)}</TableCell>
                                   <TableCell sx={{ px: 2, py: 1.5 }}>
                                     <div
                                       className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
