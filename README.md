@@ -34,7 +34,7 @@ RealSales Admin is a modern, feature-rich admin dashboard for managing personas,
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/Jitam-Bharadwaj/Realsales-admin.git
    cd Realsales-admin
    ```
 2. **Install dependencies:**
@@ -94,8 +94,8 @@ yarn lint
 
 ## License
 
-This project is proprietary and intended for internal use. Contact the project owner for licensing details.
+This project is proprietary and intended for internal use. Contact DESUN TECHNOLOGY PVT LTD the real owner for licensing details.
 
 ---
 
-> Built with ❤️ using React, Vite, Material UI, and Tailwind CSS by DESUN TECHNOLOGY PVT LTD.
+> Built with ❤️ by DESUN TECHNOLOGY PVT LTD.
