@@ -34,6 +34,45 @@ const Coaching = ({ currentSegment }) => {
   const [showMore, setShowMore] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const textFieldRef = useRef(null);
+  const [caretPos, setCaretPos] = useState(null);
+
+  const PLACEHOLDER = '{conversation_text}';
+  const DRAG_KEY = 'coaching-placeholder';
+  const insertAtCaret = (text, value, setValue, caretPosition) => {
+    let pos = caretPosition;
+    if (pos === null || pos === undefined) {
+      // fallback to end
+      pos = text.length;
+    }
+    const newValue = text.slice(0, pos) + value + text.slice(pos);
+    setValue(newValue);
+    setTimeout(() => {
+      const textarea = document.activeElement;
+      if (textarea && textarea.setSelectionRange) {
+        textarea.setSelectionRange(pos + value.length, pos + value.length);
+      }
+    }, 0);
+  };
+  const hasInvalidPlaceholders = (template) => {
+    if (!template) return false;
+    const regex = /{([^}]+)}/g;
+    let match;
+    while ((match = regex.exec(template)) !== null) {
+      if (match[1] !== 'conversation_text') {
+        return true;
+      }
+    }
+    return false;
+  };
+  const hasDuplicatePlaceholder = (template) => {
+    if (!template) return false;
+    const regex = /{conversation_text}/g;
+    return (template.match(regex) || []).length > 1;
+  };
+  const isPlaceholderMissing = (template) => {
+    if (!template) return true;
+    return !template.includes(PLACEHOLDER);
+  };
 
   // Fetch all coaching prompts
   const fetchPrompts = async () => {
@@ -83,6 +122,9 @@ const Coaching = ({ currentSegment }) => {
     const errors = {};
     if (!data?.name) errors.name = 'Name is required';
     if (!data?.template) errors.template = 'Template is required';
+    if (hasInvalidPlaceholders(data?.template)) errors.template = 'Only {conversation_text} is allowed as a placeholder.';
+    if (hasDuplicatePlaceholder(data?.template)) errors.template = '{conversation_text} can only be used once.';
+    if (isPlaceholderMissing(data?.template)) errors.template = '{conversation_text} is required in the template.';
     return errors;
   };
   const handleSave = async () => {
@@ -138,7 +180,17 @@ const Coaching = ({ currentSegment }) => {
             disabled={saving}
             sx={{ mb: 1 }}
           />
-          <div className="relative w-full">
+          <div
+            className="relative w-full"
+            onDrop={e => {
+              e.preventDefault();
+              const placeholder = e.dataTransfer.getData(DRAG_KEY);
+              if (placeholder && !editingData.template?.includes(PLACEHOLDER)) {
+                insertAtCaret(editingData.template || '', PLACEHOLDER, (val) => setEditingData({ ...editingData, template: val }), caretPos);
+              }
+            }}
+            onDragOver={e => e.preventDefault()}
+          >
             <TextField
               fullWidth
               margin="normal"
@@ -147,9 +199,15 @@ const Coaching = ({ currentSegment }) => {
               onChange={e => setEditingData({ ...editingData, template: e.target.value })}
               multiline
               rows={showMore ? 12 : 6}
-              error={!!validationError.template}
-              helperText={validationError.template}
+              error={!!validationError.template || hasInvalidPlaceholders(editingData.template)}
+              helperText={
+                hasInvalidPlaceholders(editingData.template)
+                  ? 'Only {conversation_text} is allowed as a placeholder.'
+                  : validationError.template
+              }
               disabled={saving}
+              onClick={e => setCaretPos(e.target.selectionStart)}
+              onKeyUp={e => setCaretPos(e.target.selectionStart)}
             />
             <div
               className="absolute right-3 bottom-0.5 bg-green-500 w-10 py-0.5 rounded flex items-center justify-center cursor-pointer"
@@ -160,6 +218,29 @@ const Coaching = ({ currentSegment }) => {
               ) : (
                 <UnfoldLessIcon className="!w-3.5 !h-3.5" />
               )}
+            </div>
+          </div>
+          <div
+            className="flex gap-3 flex-wrap mt-2"
+            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-start', width: '100%' }}
+          >
+            <div
+              className={`px-2 py-1 border border-solid border-[#d7a100] rounded ${editingData.template?.includes(PLACEHOLDER) ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'cursor-pointer text-[#d7a100]'}`}
+              draggable={!editingData.template?.includes(PLACEHOLDER)}
+              onDragStart={e => {
+                if (!editingData.template?.includes(PLACEHOLDER)) {
+                  e.dataTransfer.setData(DRAG_KEY, PLACEHOLDER);
+                }
+              }}
+              onClick={() => {
+                if (!editingData.template?.includes(PLACEHOLDER)) {
+                  insertAtCaret(editingData.template || '', PLACEHOLDER, (val) => setEditingData({ ...editingData, template: val }), caretPos);
+                }
+              }}
+              style={editingData.template?.includes(PLACEHOLDER) ? { pointerEvents: 'none', opacity: 0.5 } : {}}
+              title={editingData.template?.includes(PLACEHOLDER) ? 'Already used' : 'Drag to insert'}
+            >
+              {PLACEHOLDER}
             </div>
           </div>
           <div className="flex items-center gap-2" style={{ marginTop: 8 }}>
@@ -175,7 +256,7 @@ const Coaching = ({ currentSegment }) => {
               variant="contained"
               color="success"
               onClick={handleSave}
-              disabled={saving}
+              disabled={saving || !!validationError.template || isPlaceholderMissing(editingData.template)}
             >
               {saving ? <RotateRightIcon className="animate-spin" /> : "Save"}
             </Button>
