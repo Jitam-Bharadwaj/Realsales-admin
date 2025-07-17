@@ -34,4 +34,8 @@ export const endpoints = {
   report: {
     modeReport: "/v1/interaction-mode-report-details/",
   },
+  coaching: {
+    fetchPrompts: "v1/ai-coaching/prompts",
+    updatePrompt: "v1/ai-coaching/prompt/", 
+  },
 };
