@@ -36,11 +36,18 @@ import CategoryIcon from '@mui/icons-material/Category';
 import Product from "./Product";
 import PeopleIcon from '@mui/icons-material/People';
 import UsersAndSessions from "./UsersAndSessions";
+import SchoolIcon from "@mui/icons-material/School";
+import Coaching from "./Coaching";
 
 const NAVIGATION = [
   {
     kind: "header",
     title: "Main items",
+  },
+  {
+    segment: "users",
+    title: "Users and Sessions",
+    icon: <PeopleIcon />,
   },
   {
     segment: "createPersona",
@@ -88,9 +95,9 @@ const NAVIGATION = [
     icon: <SummarizeIcon />,
   },
   {
-    segment: "users",
-    title: "Users and Sessions",
-    icon: <PeopleIcon />,
+    segment: "coaching",
+    title: "Coaching",
+    icon: <SchoolIcon />,
   },
   // {
   //   segment: "generalInstruction",
@@ -262,7 +269,7 @@ function useDemoRouter(initialPath) {
 
 export default function DashboardLayoutBasic(props) {
   const { window } = props;
-  const [currentSegment, setCurrentSegment] = React.useState("createPersona");
+  const [currentSegment, setCurrentSegment] = React.useState("users");
   const router = useDemoRouter(`/${currentSegment}`);
 
   const [logoutModalOpen, setLogoutModalOpen] = React.useState(false);
@@ -408,6 +415,7 @@ export default function DashboardLayoutBasic(props) {
             <GeneralInstruction currentSegment={currentSegment} />
             <Report currentSegment={currentSegment} />
             <UsersAndSessions currentSegment={currentSegment} />
+            <Coaching currentSegment={currentSegment} />
           </Grid>
         </PageContainer>
       </DashboardLayout>
