@@ -37,6 +37,18 @@ import voice_preview_arnold_2 from "../assets/voice/voice_preview_arnold_2.mp3";
 import voice_preview_bill from "../assets/voice/voice_preview_bill.mp3";
 import voice_preview_brian from "../assets/voice/voice_preview_brian.mp3";
 import voice_preview_callum from "../assets/voice/voice_preview_callum.mp3";
+
+import voice_preview_clyde from "../assets/voice/voice_preview_clyde.mp3";
+import voice_preview_daniel from "../assets/voice/voice_preview_daniel.mp3";
+import voice_preview_dave from "../assets/voice/voice_preview_dave.mp3";
+import voice_preview_domi from "../assets/voice/voice_preview_domi.mp3";
+import voice_preview_drew from "../assets/voice/voice_preview_drew.mp3";
+import voice_preview_dorothy from "../assets/voice/voice_preview_dorothy.mp3";
+import voice_preview_elli from "../assets/voice/voice_preview_elli.mp3";
+import voice_preview_emily from "../assets/voice/voice_preview_emily.mp3";
+import voice_preview_charlotte from "../assets/voice/voice_preview_charlotte.mp3";
+import voice_preview_chris from "../assets/voice/voice_preview_chris.mp3";
+
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import IconButton from "@mui/material/IconButton";
 import Select from "@mui/material/Select";
@@ -138,6 +150,56 @@ const Persona = ({ currentSegment }) => {
       label: "Charlie",
       value: "IKne3meq5aSn9XLyUdCD",
       voice: voice_preview_charlie,
+    },
+    {
+      label: "Charlotte",
+      value: "XB0fDUnXU5powFXDhCwa",
+      voice: voice_preview_charlotte,
+    },
+    {
+      label: "Chris",
+      value: "iP95p4xoKVk53GoZ742B",
+      voice: voice_preview_chris,
+    },
+    {
+      label: "Clyde",
+      value: "2EiwWnXFnvU5JabPnv8n",
+      voice: voice_preview_clyde,
+    },
+    {
+      label: "Daniel",
+      value: "onwK4e9ZLuTAKqWW03F9",
+      voice: voice_preview_daniel,
+    },
+    {
+      label: "Dave",
+      value: "CYw3kZ02Hs0563khs1Fj",
+      voice: voice_preview_dave,
+    },
+    {
+      label: "Domi",
+      value: "AZnzlk1XvdvUeBnXmlld",
+      voice: voice_preview_domi,
+    },
+    {
+      label: "Dorothy",
+      value: "ThT5KcBeYPX3keUQqHPh",
+      voice: voice_preview_dorothy,
+    },
+    {
+      label: "Drew",
+      value: "29vD33N1CtxCmqQRPOHJ",
+      voice: voice_preview_drew,
+    },
+    {
+      label: "Elli",
+      value: "MF3mGyEYCl7XYWbV9V6O",
+      voice: voice_preview_elli,
+    },
+    {
+      label: "Emily",
+      value: "LcfcDJNUP1GQjkzn1xUU",
+      voice: voice_preview_emily,
     },
   ]);
   const [loading, setLoading] = useState(false);
@@ -683,7 +745,9 @@ const Persona = ({ currentSegment }) => {
                     if (!selected) {
                       return <em>Select Voice ID</em>;
                     }
-                    const opt = voiceIdOptions.find((o) => o.value === selected);
+                    const opt = voiceIdOptions.find(
+                      (o) => o.value === selected
+                    );
                     return opt ? opt.label : selected;
                   }}
                 >
@@ -691,11 +755,19 @@ const Persona = ({ currentSegment }) => {
                     <em>Select Voice ID</em>
                   </MenuItem>
                   {voiceIdOptions.map((opt) => (
-                    <MenuItem key={opt.value} value={opt.value} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <MenuItem
+                      key={opt.value}
+                      value={opt.value}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <span>{opt.label}</span>
                       <IconButton
                         size="small"
-                        onClick={e => {
+                        onClick={(e) => {
                           e.stopPropagation();
                           if (audio) {
                             audio.pause();
