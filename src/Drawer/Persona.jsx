@@ -65,7 +65,15 @@ const Persona = ({ currentSegment }) => {
     companySize: true,
     product: true,
   });
+
+  console.log(persona, "_<persona>_");
   const [validationError, setValidationError] = useState({});
+  // Add gender and voice_id to persona state if not present
+  const [genderOptions] = useState([
+    { label: "Male", value: "male" },
+    { label: "Female", value: "female" },
+    // { label: "Other", value: "other" },
+  ]);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -410,6 +418,8 @@ const Persona = ({ currentSegment }) => {
     if (!persona?.manufacturing_model_id)
       errors.manufacturing_model_id = "Manufacturing Model is required";
     if (!persona?.geography) errors.geography = "Geography is required";
+    if (!persona?.gender) errors.gender = "Gender is required";
+    if (!persona?.voice_id) errors.voice_id = "Voice ID is required";
     return errors;
   };
 
@@ -441,12 +451,17 @@ const Persona = ({ currentSegment }) => {
     }
   };
 
-  const handleProductDelete = (personaId, productId, productName, personaProductId) => {
+  const handleProductDelete = (
+    personaId,
+    productId,
+    productName,
+    personaProductId
+  ) => {
     setDeleteProductId({
       persona_id: personaId,
       product_id: productId,
       name: productName,
-      persona_product_id: personaProductId
+      persona_product_id: personaProductId,
     });
   };
 
@@ -519,6 +534,64 @@ const Persona = ({ currentSegment }) => {
                 }}
                 error={!!validationError.name}
                 helperText={validationError.name}
+              />
+
+              {/* Gender Input */}
+              <div className="w-full flex flex-col gap-2">
+                <label htmlFor="gender">Gender</label>
+                <select
+                  id="gender"
+                  className="border rounded p-2"
+                  value={persona?.gender || ""}
+                  onChange={(e) => {
+                    setPersona({ ...persona, gender: e.target.value });
+                    if (validationError.gender)
+                      setValidationError((prev) => ({
+                        ...prev,
+                        gender: undefined,
+                      }));
+                  }}
+                  style={{
+                    borderColor: validationError.gender ? "red" : undefined,
+                  }}
+                >
+                  <option value="" className="bg-[#fbd255] text-black">
+                    Select Gender
+                  </option>
+                  {genderOptions.map((opt) => (
+                    <option
+                      key={opt.value}
+                      value={opt.value}
+                      className="bg-[#fbd255] text-black"
+                    >
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                {validationError.gender && (
+                  <span style={{ color: "red", fontSize: 13 }}>
+                    {validationError.gender}
+                  </span>
+                )}
+              </div>
+
+              {/* Voice ID Input */}
+              <TextField
+                fullWidth
+                className="!m-0"
+                margin="normal"
+                label={"Voice ID"}
+                value={persona?.voice_id || ""}
+                onChange={(e) => {
+                  setPersona({ ...persona, voice_id: e.target.value });
+                  if (validationError.voice_id)
+                    setValidationError((prev) => ({
+                      ...prev,
+                      voice_id: undefined,
+                    }));
+                }}
+                error={!!validationError.voice_id}
+                helperText={validationError.voice_id}
               />
 
               {persona?.behavioral_detail ? (
@@ -1286,12 +1359,14 @@ const Persona = ({ currentSegment }) => {
                                     key={idx}
                                     label={pp?.product?.name.replace(/_/g, " ")}
                                     size="small"
-                                    onDelete={() => handleProductDelete(
-                                      v?.persona_id,
-                                      pp?.product?.product_id,
-                                      pp?.product?.name,
-                                      pp?.persona_product_id
-                                    )}
+                                    onDelete={() =>
+                                      handleProductDelete(
+                                        v?.persona_id,
+                                        pp?.product?.product_id,
+                                        pp?.product?.name,
+                                        pp?.persona_product_id
+                                      )
+                                    }
                                     sx={{
                                       backgroundColor: "#ffbf00",
                                       color: "black",
@@ -1303,15 +1378,15 @@ const Persona = ({ currentSegment }) => {
                                   />
                                 ))}
                               </div>
-                                <div
-                                  className="rounded border border-solid border-[#ffbf00] hover:bg-[#ffbf00] text-[#ffbf00] hover:text-black cursor-pointer p-1"
-                                  onClick={() => {
-                                    setSelectedPersonaForProducts(v);
-                                    setEditProductsModal(true);
-                                  }}
-                                >
-                                  <AddIcon className="!text-lg" />
-                                </div>
+                              <div
+                                className="rounded border border-solid border-[#ffbf00] hover:bg-[#ffbf00] text-[#ffbf00] hover:text-black cursor-pointer p-1"
+                                onClick={() => {
+                                  setSelectedPersonaForProducts(v);
+                                  setEditProductsModal(true);
+                                }}
+                              >
+                                <AddIcon className="!text-lg" />
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
@@ -1333,6 +1408,8 @@ const Persona = ({ currentSegment }) => {
                                   setPersonaId(v?.persona_id);
                                   setPersona({
                                     name: v?.name,
+                                    gender: v?.gender,
+                                    voice_id: v?.voice_id,
                                     behavioral_detail: v?.behavioral_detail,
                                     industry_id: v?.industry?.industry_id,
                                     ai_role_id: v?.ai_role?.ai_role_id,
@@ -1456,12 +1533,14 @@ const Persona = ({ currentSegment }) => {
                     <Chip
                       key={pp.persona_product_id}
                       label={pp.product.name.replace(/_/g, " ")}
-                      onDelete={() => handleProductDelete(
-                        selectedPersonaForProducts.persona_id,
-                        pp.product.product_id,
-                        pp.product.name,
-                        pp.persona_product_id
-                      )}
+                      onDelete={() =>
+                        handleProductDelete(
+                          selectedPersonaForProducts.persona_id,
+                          pp.product.product_id,
+                          pp.product.name,
+                          pp.persona_product_id
+                        )
+                      }
                       sx={{
                         backgroundColor: "#fbd255",
                         color: "black",
@@ -1477,7 +1556,7 @@ const Persona = ({ currentSegment }) => {
                   <div className="p-3">
                     <p className="text-[#ffbf00]">Available Products</p>
                   </div>
-                  <hr className="border-[#ffbf00]"/>
+                  <hr className="border-[#ffbf00]" />
                   <div className="max-h-60 overflow-y-auto">
                     {product
                       ?.filter(
@@ -1543,13 +1622,15 @@ const Persona = ({ currentSegment }) => {
           </Dialog>
 
           {/* Product Delete Confirmation Modal */}
-          <Dialog 
-            open={Boolean(deleteProductId?.product_id)} 
+          <Dialog
+            open={Boolean(deleteProductId?.product_id)}
             onClose={() => setDeleteProductId({})}
           >
             <DialogTitle>Remove Product Confirmation</DialogTitle>
             <DialogContent>
-              Are you sure you want to remove <b>{deleteProductId?.name?.replace(/_/g, " ")}</b> from this persona?
+              Are you sure you want to remove{" "}
+              <b>{deleteProductId?.name?.replace(/_/g, " ")}</b> from this
+              persona?
             </DialogContent>
             <DialogActions>
               <Button
