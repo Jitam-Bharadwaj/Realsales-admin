@@ -27,6 +27,20 @@ import { useDropzone } from "react-dropzone";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import NotFoundImage from "../../public/404_Image.png";
 import { showToast } from "../toastConfig";
+import voice_preview_charlie from "../assets/voice/voice_preview_charlie.mp3";
+import voice_preview_adam from "../assets/voice/voice_preview_adam.mp3";
+import voice_preview_alice from "../assets/voice/voice_preview_alice.mp3";
+import voice_preview_antoni from "../assets/voice/voice_preview_antoni.mp3";
+import voice_preview_aria from "../assets/voice/voice_preview_aria.mp3";
+import voice_preview_arnold_1 from "../assets/voice/voice_preview_arnold_1.mp3";
+import voice_preview_arnold_2 from "../assets/voice/voice_preview_arnold_2.mp3";
+import voice_preview_bill from "../assets/voice/voice_preview_bill.mp3";
+import voice_preview_brian from "../assets/voice/voice_preview_brian.mp3";
+import voice_preview_callum from "../assets/voice/voice_preview_callum.mp3";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import IconButton from "@mui/material/IconButton";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 const geography = [{ name: "us", value: "us" }];
 
@@ -74,6 +88,58 @@ const Persona = ({ currentSegment }) => {
     { label: "Female", value: "female" },
     // { label: "Other", value: "other" },
   ]);
+  const [voiceIdOptions] = useState([
+    {
+      label: "Adam",
+      value: "pNInz6obpgDQGcFmaJgB",
+      voice: voice_preview_adam,
+    },
+    {
+      label: "Alice",
+      value: "Xb7hH8MSUJpSbSDYk0k2",
+      voice: voice_preview_alice,
+    },
+    {
+      label: "Antoni",
+      value: "ErXwobaYiN019PkySvjV",
+      voice: voice_preview_antoni,
+    },
+    {
+      label: "Aria",
+      value: "9BWtsMINqrJLrRacOk9x",
+      voice: voice_preview_aria,
+    },
+    {
+      label: "Arnold 1",
+      value: "VR6AewLTigWG4xSOukaG",
+      voice: voice_preview_arnold_1,
+    },
+    {
+      label: "Arnold 2",
+      value: "wViXBPUzp2ZZixB1xQuM",
+      voice: voice_preview_arnold_2,
+    },
+    {
+      label: "Bill",
+      value: "pqHfZKP75CvOlQylNhV4",
+      voice: voice_preview_bill,
+    },
+    {
+      label: "Brian",
+      value: "nPczCjzI2devNBz1zQrb",
+      voice: voice_preview_brian,
+    },
+    {
+      label: "Callum",
+      value: "N2lVS1w4EtoT3dr4eOWO",
+      voice: voice_preview_callum,
+    },
+    {
+      label: "Charlie",
+      value: "IKne3meq5aSn9XLyUdCD",
+      voice: voice_preview_charlie,
+    },
+  ]);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -87,11 +153,30 @@ const Persona = ({ currentSegment }) => {
   const [profileFile, setProfileFile] = useState();
   const [product, setProduct] = useState([]);
   const [deleteProductId, setDeleteProductId] = useState({});
+  // Add state for Voice ID modal
+  // Remove voiceIdModalOpen and tempVoiceId state
+  const [audio, setAudio] = useState(null);
 
   console.log(product, "___product__");
   console.log(personaData, "__personaData__");
 
   console.log(persona, personaId, product, "persona__");
+
+  const handlePlayVoice = () => {
+    const selected = voiceIdOptions.find(
+      (opt) => opt.value === persona.voice_id
+    );
+    if (selected && selected.voice) {
+      if (audio) {
+        audio.pause();
+        setAudio(null);
+      }
+      const newAudio = new Audio(selected.voice);
+      setAudio(newAudio);
+      newAudio.play();
+      newAudio.onended = () => setAudio(null);
+    }
+  };
 
   const uploadInterviewBehavior = async (file) => {
     setUploading(true);
@@ -541,7 +626,7 @@ const Persona = ({ currentSegment }) => {
                 <label htmlFor="gender">Gender</label>
                 <select
                   id="gender"
-                  className="border rounded p-2"
+                  className="border rounded p-2 cursor-pointer"
                   value={persona?.gender || ""}
                   onChange={(e) => {
                     setPersona({ ...persona, gender: e.target.value });
@@ -575,24 +660,65 @@ const Persona = ({ currentSegment }) => {
                 )}
               </div>
 
-              {/* Voice ID Input */}
-              <TextField
-                fullWidth
-                className="!m-0"
-                margin="normal"
-                label={"Voice ID"}
-                value={persona?.voice_id || ""}
-                onChange={(e) => {
-                  setPersona({ ...persona, voice_id: e.target.value });
-                  if (validationError.voice_id)
-                    setValidationError((prev) => ({
-                      ...prev,
-                      voice_id: undefined,
-                    }));
-                }}
-                error={!!validationError.voice_id}
-                helperText={validationError.voice_id}
-              />
+              {/* Voice ID Input as Select */}
+              <div className="w-full flex flex-col gap-2">
+                <label htmlFor="voice_id">Voice ID</label>
+                <Select
+                  id="voice_id"
+                  value={persona?.voice_id || ""}
+                  onChange={(e) => {
+                    setPersona({ ...persona, voice_id: e.target.value });
+                    if (validationError.voice_id)
+                      setValidationError((prev) => ({
+                        ...prev,
+                        voice_id: undefined,
+                      }));
+                  }}
+                  displayEmpty
+                  fullWidth
+                  error={!!validationError.voice_id}
+                  className="bg-transparent"
+                  // sx={{ background: "white" }}
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <em>Select Voice ID</em>;
+                    }
+                    const opt = voiceIdOptions.find((o) => o.value === selected);
+                    return opt ? opt.label : selected;
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>Select Voice ID</em>
+                  </MenuItem>
+                  {voiceIdOptions.map((opt) => (
+                    <MenuItem key={opt.value} value={opt.value} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span>{opt.label}</span>
+                      <IconButton
+                        size="small"
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (audio) {
+                            audio.pause();
+                            setAudio(null);
+                          }
+                          const newAudio = new Audio(opt.voice);
+                          setAudio(newAudio);
+                          newAudio.play();
+                          newAudio.onended = () => setAudio(null);
+                        }}
+                        aria-label={`Play ${opt.label} preview`}
+                      >
+                        <PlayArrowIcon fontSize="small" />
+                      </IconButton>
+                    </MenuItem>
+                  ))}
+                </Select>
+                {validationError.voice_id && (
+                  <span style={{ color: "red", fontSize: 13 }}>
+                    {validationError.voice_id}
+                  </span>
+                )}
+              </div>
 
               {persona?.behavioral_detail ? (
                 <TextField
