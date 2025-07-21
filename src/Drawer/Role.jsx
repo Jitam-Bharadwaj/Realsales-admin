@@ -267,7 +267,7 @@ const Role = ({ currentSegment }) => {
             </div>
           ) : (
             <>
-              <Table>
+              <Table className="border-t border-solid border-[#515151]">
                 <TableHead>
                   <TableRow>
                     <TableCell

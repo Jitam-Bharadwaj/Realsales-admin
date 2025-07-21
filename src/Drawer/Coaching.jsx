@@ -264,7 +264,7 @@ const Coaching = ({ currentSegment }) => {
         </div>
       ) : (
         <TableContainer>
-          <Table>
+          <Table className="border-t border-solid border-[#515151]">
             <TableHead>
               <TableRow>
                 <TableCell className="!font-bold capitalize">Name</TableCell>
