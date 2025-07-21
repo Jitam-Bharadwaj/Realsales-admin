@@ -485,9 +485,7 @@ const Persona = ({ currentSegment }) => {
 
   useEffect(() => {
     if (persona?.gender) {
-      let data = voiceIdOptions.filter((v) =>
-        v?.type === persona?.gender ? voiceIdOptions.map((val) => val) : []
-      );
+      let data = voiceIdOptions.filter((v) => persona.gender === v.type);
       setAiVoicesArr(data);
     }
   }, [persona?.gender]);
@@ -959,9 +957,8 @@ const Persona = ({ currentSegment }) => {
               {/* Gender Input */}
               <div className="w-full flex flex-col gap-2">
                 <label htmlFor="gender">Gender</label>
-                <select
+                <Select
                   id="gender"
-                  className="border rounded p-2 cursor-pointer"
                   value={persona?.gender || ""}
                   onChange={(e) => {
                     setPersona({ ...persona, gender: e.target.value });
@@ -971,23 +968,30 @@ const Persona = ({ currentSegment }) => {
                         gender: undefined,
                       }));
                   }}
-                  style={{
+                  displayEmpty
+                  fullWidth
+                  error={!!validationError.gender}
+                  sx={{
                     borderColor: validationError.gender ? "red" : undefined,
+                    background: "transparent",
+                  }}
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <em>Select Gender</em>;
+                    }
+                    const opt = genderOptions.find((o) => o.value === selected);
+                    return opt ? opt.label : selected;
                   }}
                 >
-                  <option value="" className="bg-[#fbd255] text-black">
-                    Select Gender
-                  </option>
+                  <MenuItem value="">
+                    <em>Select Gender</em>
+                  </MenuItem>
                   {genderOptions.map((opt) => (
-                    <option
-                      key={opt.value}
-                      value={opt.value}
-                      className="bg-[#fbd255] text-black"
-                    >
+                    <MenuItem key={opt.value} value={opt.value}>
                       {opt.label}
-                    </option>
+                    </MenuItem>
                   ))}
-                </select>
+                </Select>
                 {validationError.gender && (
                   <span style={{ color: "red", fontSize: 13 }}>
                     {validationError.gender}
@@ -1030,9 +1034,9 @@ const Persona = ({ currentSegment }) => {
                     )}
                   </MenuItem>
                   {aiVoicesArr.length
-                    ? aiVoicesArr.map((opt) => (
+                    ? aiVoicesArr.map((opt, i) => (
                         <MenuItem
-                          key={opt.value}
+                          key={i}
                           value={opt.value}
                           style={{
                             display: "flex",
@@ -1751,6 +1755,7 @@ const Persona = ({ currentSegment }) => {
                         companySize: true,
                         product: true,
                       });
+                      setAiVoicesArr([]);
                     }}
                   >
                     Cancel
