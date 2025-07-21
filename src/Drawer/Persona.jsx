@@ -37,7 +37,6 @@ import voice_preview_arnold_2 from "../assets/voice/voice_preview_arnold_2.mp3";
 import voice_preview_bill from "../assets/voice/voice_preview_bill.mp3";
 import voice_preview_brian from "../assets/voice/voice_preview_brian.mp3";
 import voice_preview_callum from "../assets/voice/voice_preview_callum.mp3";
-
 import voice_preview_clyde from "../assets/voice/voice_preview_clyde.mp3";
 import voice_preview_daniel from "../assets/voice/voice_preview_daniel.mp3";
 import voice_preview_dave from "../assets/voice/voice_preview_dave.mp3";
@@ -48,6 +47,41 @@ import voice_preview_elli from "../assets/voice/voice_preview_elli.mp3";
 import voice_preview_emily from "../assets/voice/voice_preview_emily.mp3";
 import voice_preview_charlotte from "../assets/voice/voice_preview_charlotte.mp3";
 import voice_preview_chris from "../assets/voice/voice_preview_chris.mp3";
+import voice_preview_eric from "../assets/voice/voice_preview_eric.mp3";
+import voice_preview_ethan from "../assets/voice/voice_preview_ethan.mp3";
+import voice_preview_fin from "../assets/voice/voice_preview_fin.mp3";
+import voice_preview_freya from "../assets/voice/voice_preview_freya.mp3";
+import voice_preview_george_1 from "../assets/voice/voice_preview_george_1.mp3";
+import voice_preview_george_2 from "../assets/voice/voice_preview_george_2.mp3";
+import voice_preview_gigi from "../assets/voice/voice_preview_gigi.mp3";
+import voice_preview_giovanni from "../assets/voice/voice_preview_giovanni.mp3";
+import voice_preview_glinda from "../assets/voice/voice_preview_glinda.mp3";
+import voice_preview_grace from "../assets/voice/voice_preview_grace.mp3";
+import voice_preview_harry from "../assets/voice/voice_preview_harry.mp3";
+import voice_preview_james from "../assets/voice/voice_preview_james.mp3";
+import voice_preview_jeremy from "../assets/voice/voice_preview_jeremy.mp3";
+import voice_preview_jessica from "../assets/voice/voice_preview_jessica.mp3";
+import voice_preview_jessie from "../assets/voice/voice_preview_jessie.mp3";
+import voice_preview_joseph from "../assets/voice/voice_preview_joseph.mp3";
+import voice_preview_josh from "../assets/voice/voice_preview_josh.mp3";
+import voice_preview_laura from "../assets/voice/voice_preview_laura.mp3";
+import voice_preview_liam from "../assets/voice/voice_preview_liam.mp3";
+import voice_preview_lily from "../assets/voice/voice_preview_lily.mp3";
+import voice_preview_matilda from "../assets/voice/voice_preview_matilda.mp3";
+import voice_preview_michael from "../assets/voice/voice_preview_michael.mp3";
+import voice_preview_mimi from "../assets/voice/voice_preview_mimi.mp3";
+import voice_preview_nicole from "../assets/voice/voice_preview_nicole.mp3";
+import voice_preview_patrick from "../assets/voice/voice_preview_patrick.mp3";
+import voice_preview_paul from "../assets/voice/voice_preview_paul.mp3";
+import voice_preview_rachel from "../assets/voice/voice_preview_rachel.mp3";
+import voice_preview_river from "../assets/voice/voice_preview_river.mp3";
+import voice_preview_roger from "../assets/voice/voice_preview_roger.mp3";
+import voice_preview_sam from "../assets/voice/voice_preview_sam.mp3";
+import voice_preview_santa from "../assets/voice/voice_preview_santa.mp3";
+import voice_preview_sarah from "../assets/voice/voice_preview_sarah.mp3";
+import voice_preview_serena from "../assets/voice/voice_preview_serena.mp3";
+import voice_preview_thomas from "../assets/voice/voice_preview_thomas.mp3";
+import voice_preview_will from "../assets/voice/voice_preview_will.mp3";
 
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import IconButton from "@mui/material/IconButton";
@@ -91,7 +125,6 @@ const Persona = ({ currentSegment }) => {
     companySize: true,
     product: true,
   });
-
   console.log(persona, "_<persona>_");
   const [validationError, setValidationError] = useState({});
   // Add gender and voice_id to persona state if not present
@@ -105,101 +138,331 @@ const Persona = ({ currentSegment }) => {
       label: "Adam",
       value: "pNInz6obpgDQGcFmaJgB",
       voice: voice_preview_adam,
+      type: "male",
     },
     {
       label: "Alice",
       value: "Xb7hH8MSUJpSbSDYk0k2",
       voice: voice_preview_alice,
+      type: "female",
     },
     {
       label: "Antoni",
       value: "ErXwobaYiN019PkySvjV",
       voice: voice_preview_antoni,
+      type: "male",
     },
     {
       label: "Aria",
       value: "9BWtsMINqrJLrRacOk9x",
       voice: voice_preview_aria,
+      type: "female",
     },
     {
       label: "Arnold 1",
       value: "VR6AewLTigWG4xSOukaG",
       voice: voice_preview_arnold_1,
+      type: "male",
     },
     {
       label: "Arnold 2",
       value: "wViXBPUzp2ZZixB1xQuM",
       voice: voice_preview_arnold_2,
+      type: "male",
     },
     {
       label: "Bill",
       value: "pqHfZKP75CvOlQylNhV4",
       voice: voice_preview_bill,
+      type: "male",
     },
     {
       label: "Brian",
       value: "nPczCjzI2devNBz1zQrb",
       voice: voice_preview_brian,
+      type: "male",
     },
     {
       label: "Callum",
       value: "N2lVS1w4EtoT3dr4eOWO",
       voice: voice_preview_callum,
+      type: "male",
     },
     {
       label: "Charlie",
       value: "IKne3meq5aSn9XLyUdCD",
       voice: voice_preview_charlie,
+      type: "male",
     },
     {
       label: "Charlotte",
       value: "XB0fDUnXU5powFXDhCwa",
       voice: voice_preview_charlotte,
+      type: "female",
     },
     {
       label: "Chris",
       value: "iP95p4xoKVk53GoZ742B",
       voice: voice_preview_chris,
+      type: "male",
     },
     {
       label: "Clyde",
       value: "2EiwWnXFnvU5JabPnv8n",
       voice: voice_preview_clyde,
+      type: "male",
     },
     {
       label: "Daniel",
       value: "onwK4e9ZLuTAKqWW03F9",
       voice: voice_preview_daniel,
+      type: "male",
     },
     {
       label: "Dave",
       value: "CYw3kZ02Hs0563khs1Fj",
       voice: voice_preview_dave,
+      type: "male",
     },
     {
       label: "Domi",
       value: "AZnzlk1XvdvUeBnXmlld",
       voice: voice_preview_domi,
+      type: "female",
     },
     {
       label: "Dorothy",
       value: "ThT5KcBeYPX3keUQqHPh",
       voice: voice_preview_dorothy,
+      type: "female",
     },
     {
       label: "Drew",
       value: "29vD33N1CtxCmqQRPOHJ",
       voice: voice_preview_drew,
+      type: "male",
     },
     {
       label: "Elli",
       value: "MF3mGyEYCl7XYWbV9V6O",
       voice: voice_preview_elli,
+      type: "female",
     },
     {
       label: "Emily",
       value: "LcfcDJNUP1GQjkzn1xUU",
       voice: voice_preview_emily,
+      type: "female",
+    },
+    {
+      label: "Eric",
+      value: "cjVigY5qzO86Huf0OWal",
+      voice: voice_preview_eric,
+      type: "male",
+    },
+    {
+      label: "Ethan",
+      value: "g5CIjZEefAph4nQFvHAz",
+      voice: voice_preview_ethan,
+      type: "male",
+    },
+    {
+      label: "Fin",
+      value: "D38z5RcWu1voky8WS1ja",
+      voice: voice_preview_fin,
+      type: "male",
+    },
+    {
+      label: "Freya",
+      value: "jsCqWAovK2LkecY7zXl4",
+      voice: voice_preview_freya,
+      type: "female",
+    },
+    {
+      label: "George 1",
+      value: "JBFqnCBsd6RMkjVDRZzb",
+      voice: voice_preview_george_1,
+      type: "male",
+    },
+    {
+      label: "George 2",
+      value: "Yko7PKHZNXotIFUBG7I9",
+      voice: voice_preview_george_2,
+      type: "male",
+    },
+    {
+      label: "Gigi",
+      value: "jBpfuIE2acCO8z3wKNLl",
+      voice: voice_preview_gigi,
+      type: "female",
+    },
+    {
+      label: "Giovanni",
+      value: "zcAOhNBS3c14rBihAFp1",
+      voice: voice_preview_giovanni,
+      type: "male",
+    },
+    {
+      label: "Glinda",
+      value: "z9fAnlkpzviPz146aGWa",
+      voice: voice_preview_glinda,
+      type: "female",
+    },
+    {
+      label: "Grace",
+      value: "oWAxZDx7w5VEj9dCyTzz",
+      voice: voice_preview_grace,
+      type: "female",
+    },
+    {
+      label: "Harry",
+      value: "SOYHLrjzK2X1ezoPC6cr",
+      voice: voice_preview_harry,
+      type: "male",
+    },
+    {
+      label: "James",
+      value: "ZQe5CZNOzWyzPSCn5a3c",
+      voice: voice_preview_james,
+      type: "male",
+    },
+    {
+      label: "Jeremy",
+      value: "bVMeCyTHy58xNoL34h3p",
+      voice: voice_preview_jeremy,
+      type: "male",
+    },
+    {
+      label: "Jessica",
+      value: "cgSgspJ2msm6clMCkdW9",
+      voice: voice_preview_jessica,
+      type: "female",
+    },
+    {
+      label: "Jessie",
+      value: "t0jbNlBVZ17f02VDIeMI",
+      voice: voice_preview_jessie,
+      type: "female",
+    },
+    {
+      label: "Joseph",
+      value: "Zlb1dXrM653N07WRdFW3",
+      voice: voice_preview_joseph,
+      type: "male",
+    },
+    {
+      label: "Josh",
+      value: "TxGEqnHWrfWFTfGW9XjX",
+      voice: voice_preview_josh,
+      type: "male",
+    },
+    {
+      label: "Laura",
+      value: "FGY2WhTYpPnrIDTdsKH5",
+      voice: voice_preview_laura,
+      type: "female",
+    },
+    {
+      label: "Liam",
+      value: "TX3LPaxmHKxFdv7VOQHJ",
+      voice: voice_preview_liam,
+      type: "male",
+    },
+    {
+      label: "Lily",
+      value: "pFZP5JQG7iQjIQuC4Bku",
+      voice: voice_preview_lily,
+      type: "female",
+    },
+    {
+      label: "Matilda",
+      value: "XrExE9yKIg1WjnnlVkGX",
+      voice: voice_preview_matilda,
+      type: "female",
+    },
+    {
+      label: "Michael",
+      value: "flq6f7yk4E4fJM5XTYuZ",
+      voice: voice_preview_michael,
+      type: "male",
+    },
+    {
+      label: "Mimi",
+      value: "zrHiDhphv9ZnVXBqCLjz",
+      voice: voice_preview_mimi,
+      type: "female",
+    },
+    {
+      label: "Nicole",
+      value: "piTKgcLEGmPE4e6mEKli",
+      voice: voice_preview_nicole,
+      type: "female",
+    },
+    {
+      label: "Patrick",
+      value: "ODq5zmih8GrVes37Dizd",
+      voice: voice_preview_patrick,
+      type: "male",
+    },
+    {
+      label: "Paul",
+      value: "5Q0t7uMcjvnagumLfvZi",
+      voice: voice_preview_paul,
+      type: "male",
+    },
+    {
+      label: "Rachel",
+      value: "21m00Tcm4TlvDq8ikWAM",
+      voice: voice_preview_rachel,
+      type: "female",
+    },
+    {
+      label: "River",
+      value: "SAz9YHcvj6GT2YYXdXww",
+      voice: voice_preview_river,
+      type: "male",
+    },
+    {
+      label: "Roger",
+      value: "CwhRBWXzGAHq8TQ4Fs17",
+      voice: voice_preview_roger,
+      type: "male",
+    },
+    {
+      label: "Sam",
+      value: "yoZ06aMxZJJ28mfd3POQ",
+      voice: voice_preview_sam,
+      type: "male",
+    },
+    {
+      label: "Sarah",
+      value: "EXAVITQu4vr4xnSDxMaL",
+      voice: voice_preview_sarah,
+      type: "female",
+    },
+    {
+      label: "Serena",
+      value: "pMsXgVXv3BLzUgSXRplE",
+      voice: voice_preview_serena,
+      type: "female",
+    },
+    {
+      label: "Thomas",
+      value: "GBv7mTt0atIp3Br8iCZE",
+      voice: voice_preview_thomas,
+      type: "male",
+    },
+    {
+      label: "Will",
+      value: "bIHbv24MWmeRgasZH58o",
+      voice: voice_preview_will,
+      type: "male",
+    },
+    {
+      label: "Santa Claus",
+      value: "knrPHWnBmmDHMoiMeP3l",
+      voice: voice_preview_santa,
+      type: "male",
     },
   ]);
   const [loading, setLoading] = useState(false);
@@ -218,6 +481,16 @@ const Persona = ({ currentSegment }) => {
   // Add state for Voice ID modal
   // Remove voiceIdModalOpen and tempVoiceId state
   const [audio, setAudio] = useState(null);
+  const [aiVoicesArr, setAiVoicesArr] = useState([]);
+
+  useEffect(() => {
+    if (persona?.gender) {
+      let data = voiceIdOptions.filter((v) =>
+        v?.type === persona?.gender ? voiceIdOptions.map((val) => val) : []
+      );
+      setAiVoicesArr(data);
+    }
+  }, [persona?.gender]);
 
   console.log(product, "___product__");
   console.log(personaData, "__personaData__");
@@ -745,46 +1018,63 @@ const Persona = ({ currentSegment }) => {
                     if (!selected) {
                       return <em>Select Voice ID</em>;
                     }
-                    const opt = voiceIdOptions.find(
-                      (o) => o.value === selected
-                    );
+                    const opt = aiVoicesArr.find((o) => o.value === selected);
                     return opt ? opt.label : selected;
                   }}
                 >
                   <MenuItem value="">
-                    <em>Select Voice ID</em>
+                    {!persona?.gender ? (
+                      <em>Select Gender First</em>
+                    ) : (
+                      <em>Select Voice ID</em>
+                    )}
                   </MenuItem>
-                  {voiceIdOptions.map((opt) => (
-                    <MenuItem
-                      key={opt.value}
-                      value={opt.value}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <span>{opt.label}</span>
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (audio) {
-                            audio.pause();
-                            setAudio(null);
-                          }
-                          const newAudio = new Audio(opt.voice);
-                          setAudio(newAudio);
-                          newAudio.play();
-                          newAudio.onended = () => setAudio(null);
-                        }}
-                        aria-label={`Play ${opt.label} preview`}
-                      >
-                        <PlayArrowIcon fontSize="small" />
-                      </IconButton>
-                    </MenuItem>
-                  ))}
+                  {aiVoicesArr.length
+                    ? aiVoicesArr.map((opt) => (
+                        <MenuItem
+                          key={opt.value}
+                          value={opt.value}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <span>{opt.label}</span>
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (audio) {
+                                audio.pause();
+                                setAudio(null);
+                              }
+                              const newAudio = new Audio(opt.voice);
+                              setAudio(newAudio);
+                              newAudio.play();
+                              newAudio.onended = () => setAudio(null);
+                            }}
+                            aria-label={`Play ${opt.label} preview`}
+                          >
+                            <PlayArrowIcon fontSize="small" />
+                          </IconButton>
+                        </MenuItem>
+                      ))
+                    : null}
                 </Select>
+                {/* Play button for selected voice */}
+                {persona?.voice_id && persona?.gender && (
+                  <div style={{ marginTop: 8 }}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<PlayArrowIcon />}
+                      onClick={handlePlayVoice}
+                      disabled={!persona.voice_id}
+                    >
+                      Play Selected Voice
+                    </Button>
+                  </div>
+                )}
                 {validationError.voice_id && (
                   <span style={{ color: "red", fontSize: 13 }}>
                     {validationError.voice_id}
