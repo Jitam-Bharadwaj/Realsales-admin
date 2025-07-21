@@ -45,7 +45,7 @@ const Experience = ({ currentSegment }) => {
             {/* experience */}
             {currentSegment === "experience" && (
                 <div style={{ width: "100%", pt: "40px" }}>
-                    <Table>
+                    <Table className="border-t border-solid border-[#515151]">
                         <TableHead>
                             <TableRow>
                                 <TableCell sx={{ textAlign: "left", width: "20%" }} className="!font-bold capitalize">

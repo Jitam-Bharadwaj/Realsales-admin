@@ -258,7 +258,7 @@ const ModsFlo = ({ currentSegment }) => {
             <>
               {!addData ? (
                 <>
-                  <Table>
+                  <Table className="border-t border-solid border-[#515151]">
                     <TableHead>
                       <TableRow>
                         <TableCell

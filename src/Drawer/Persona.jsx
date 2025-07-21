@@ -961,7 +961,11 @@ const Persona = ({ currentSegment }) => {
                   id="gender"
                   value={persona?.gender || ""}
                   onChange={(e) => {
-                    setPersona({ ...persona, gender: e.target.value });
+                    setPersona({
+                      ...persona,
+                      gender: e.target.value,
+                      voice_id: "",
+                    });
                     if (validationError.gender)
                       setValidationError((prev) => ({
                         ...prev,
@@ -1794,8 +1798,8 @@ const Persona = ({ currentSegment }) => {
 
           {!addPersona && (
             <>
-              <hr className="mt-4" />
-              <Table>
+              {/* <hr className="mt-4" /> */}
+              <Table className="border-t border-solid border-[#515151]">
                 <TableHead>
                   <TableRow>
                     <TableCell
