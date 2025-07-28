@@ -616,83 +616,87 @@ const UsersAndSessions = ({ currentSegment }) => {
                     </TableHead>
                     <TableBody>
                       {users.length > 0 ? (
-                        users.map((user) => (
-                          <TableRow
-                            key={user.id}
-                            sx={{ borderBottom: "1px solid #333" }}
-                          >
-                            <TableCell sx={{ px: 2, py: 1.5 }}>
-                              {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
-                            </TableCell>
-                            <TableCell sx={{ px: 2, py: 1.5 }}>
-                              {user.email}
-                            </TableCell>
-                            <TableCell sx={{ px: 2, py: 1.5 }}>
-                              <span>
-                                {user.role?.name
-                                  ? user.role.name.replace(/_/g, " ")
-                                  : "-"}
-                              </span>
-                              <Tooltip title="Change Role">
-                                <div
-                                  className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer p-1 ml-2"
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    verticalAlign: "middle",
-                                  }}
-                                  onClick={() => handleOpenChangeRole(user)}
-                                >
-                                  <EditIcon className="!text-lg" />
-                                </div>
-                              </Tooltip>
-                            </TableCell>
-                            <TableCell sx={{ px: 2, py: 1.5 }}>
-                              <Button
-                                variant="contained"
-                                onClick={() => handleViewSessions(user)}
-                                sx={{
-                                  backgroundColor: "#fbd255",
-                                  color: "black",
-                                  fontWeight: 500,
-                                  "&:hover": {
-                                    backgroundColor: "#ffe066",
-                                    color: "black",
-                                  },
-                                }}
-                              >
-                                View Sessions
-                              </Button>
-                            </TableCell>
-                            <TableCell sx={{ px: 2, py: 1.5 }}>
-                              <div style={{ display: "flex", gap: 8 }}>
-                                <div
-                                  className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
-                                  onClick={() => handleEditUserStart(user)}
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                  }}
-                                >
-                                  <EditIcon className="!text-lg" />
-                                </div>
-                                {/* Code for Deleting Users
+                        // Sort users by created_at ascending (oldest first)
+                        users
+                          .slice()
+                          .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+                          .map((user) => (
+                            <TableRow
+                              key={user.id}
+                              sx={{ borderBottom: "1px solid #333" }}
+                            >
+                              <TableCell sx={{ px: 2, py: 1.5 }}>
+                                {`${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                              </TableCell>
+                              <TableCell sx={{ px: 2, py: 1.5 }}>
+                                {user.email}
+                              </TableCell>
+                              <TableCell sx={{ px: 2, py: 1.5 }}>
+                                <span>
+                                  {user.role?.name
+                                    ? user.role.name.replace(/_/g, " ")
+                                    : "-"}
+                                </span>
+                                <Tooltip title="Change Role">
                                   <div
-                                  className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
-                                  onClick={() => {
-                                    setUserToDelete(user.user_id);
-                                    setDeleteUserDialogOpen(true);
+                                    className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer p-1 ml-2"
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      verticalAlign: "middle",
+                                    }}
+                                    onClick={() => handleOpenChangeRole(user)}
+                                  >
+                                    <EditIcon className="!text-lg" />
+                                  </div>
+                                </Tooltip>
+                              </TableCell>
+                              <TableCell sx={{ px: 2, py: 1.5 }}>
+                                <Button
+                                  variant="contained"
+                                  onClick={() => handleViewSessions(user)}
+                                  sx={{
+                                    backgroundColor: "#fbd255",
+                                    color: "black",
+                                    fontWeight: 500,
+                                    "&:hover": {
+                                      backgroundColor: "#ffe066",
+                                      color: "black",
+                                    },
                                   }}
-                                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
-                                  <DeleteIcon className="!text-lg" />
-                                </div> */}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                                  View Sessions
+                                </Button>
+                              </TableCell>
+                              <TableCell sx={{ px: 2, py: 1.5 }}>
+                                <div style={{ display: "flex", gap: 8 }}>
+                                  <div
+                                    className="rounded border border-solid border-cyan-500 hover:bg-cyan-500 text-cyan-500 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                    onClick={() => handleEditUserStart(user)}
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <EditIcon className="!text-lg" />
+                                  </div>
+                                  {/* Code for Deleting Users
+                                    <div
+                                    className="rounded border border-solid border-red-400 hover:bg-red-400 text-red-400 hover:text-white cursor-pointer py-1 px-4 w-fit"
+                                    onClick={() => {
+                                      setUserToDelete(user.user_id);
+                                      setDeleteUserDialogOpen(true);
+                                    }}
+                                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                                  >
+                                    <DeleteIcon className="!text-lg" />
+                                  </div> */}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
                       ) : (
                         <TableRow>
                           <TableCell colSpan={3} align="center">
