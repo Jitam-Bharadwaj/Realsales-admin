@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -13,6 +13,10 @@ import { axioInstance } from "../../api/axios/axios";
 import { endpoints } from "../../api/endpoints/endpoints";
 
 const Login = () => {
+  const token = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("token");
+  }, [location.search]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -22,6 +26,13 @@ const Login = () => {
     message: "",
     severity: "success", // 'success' | 'error' | 'info' | 'warning'
   });
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("x-access-token", token);
+      navigate("/drawer");
+    }
+  }, [token]);
 
   const {
     register,
