@@ -50,28 +50,45 @@ const Login = () => {
     try {
       setLoading(true);
       const res = await axioInstance.post(`${endpoints.auth.login}`, payload);
-      localStorage.setItem("x-access-token", res?.data?.token);
-      console.log(res?.status, "login");
-
       setLoading(false);
       reset();
 
-      // Show success snackbar
-      setSnackbar({
-        open: true,
-        message: res.data.message,
-        severity: "success",
-      });
-
-      if (res?.status === 200) {
-        navigate("/drawer");
+      // Check for user role in response (adjust path as per your backend response)
+      const userRole = res?.data?.user?.role || res?.data?.role || res?.data?.user_role || null;
+      if (!userRole) {
+        setSnackbar({
+          open: true,
+          message: "Unable to determine user role.",
+          severity: "error",
+        });
+        return;
       }
 
-      // You can do further actions here like redirecting user or storing token
+      if (userRole === "super_admin") {
+        localStorage.setItem("x-access-token", res?.data?.token);
+        setSnackbar({
+          open: true,
+          message: res.data.message,
+          severity: "success",
+        });
+        if (res?.status === 200) {
+          navigate("/drawer");
+        }
+      } else if (userRole === "sales_person" || userRole === "sales_manager") {
+        setSnackbar({
+          open: true,
+          message: "You do not have the role permission to access this resource",
+          severity: "error",
+        });
+      } else {
+        setSnackbar({
+          open: true,
+          message: "You do not have the role permission to access this resource",
+          severity: "error",
+        });
+      }
     } catch (err) {
       setLoading(false);
-
-      // Show error snackbar
       setSnackbar({
         open: true,
         message:
