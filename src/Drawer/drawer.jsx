@@ -2,7 +2,7 @@ import * as React from "react";
 import { createTheme } from "@mui/material/styles";
 
 import { Button, Modal, Typography, Grid, Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 import { axioInstance } from "../api/axios/axios";
@@ -32,9 +32,9 @@ import SummarizeIcon from "@mui/icons-material/Summarize";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import Report from "./Report";
 import CompanySize from "./CompanySize";
-import CategoryIcon from '@mui/icons-material/Category';
+import CategoryIcon from "@mui/icons-material/Category";
 import Product from "./Product";
-import PeopleIcon from '@mui/icons-material/People';
+import PeopleIcon from "@mui/icons-material/People";
 import UsersAndSessions from "./UsersAndSessions";
 import SchoolIcon from "@mui/icons-material/School";
 import Coaching from "./Coaching";
@@ -386,21 +386,55 @@ export default function DashboardLayoutBasic(props) {
           },
           // Modify style for default text/icon color with higher specificity
           ".MuiListItem-root .MuiListItemText-primary, .MuiListItem-root .MuiListItemIcon-root":
-          {
-            color: "text.primary",
-          },
+            {
+              color: "text.primary",
+            },
           // Keep override for selected state (ensuring specificity)
           "& .Mui-selected .MuiListItemText-primary, & .Mui-selected .MuiListItemIcon-root":
-          {
-            color: "#000000",
-            fill: "#000000",
-          },
+            {
+              color: "#000000",
+              fill: "#000000",
+            },
           // Keep style for the AppBar root
           "& .MuiAppBar-root": {
             bgcolor: "background.paper",
           },
         }}
       >
+        <div className="absolute z-[9999] top-0 bg-transparent h-16 w-[70%] flex items-center justify-end">
+          <div className="flex items-center gap-8">
+            <Link
+              style={{ textDecoration: "none" }}
+              to="https://real-sales.vercel.app"
+            >
+              Home
+            </Link>
+            <Link
+              style={{ textDecoration: "none" }}
+              to="https://real-sales.vercel.app/about"
+            >
+              About
+            </Link>
+            <Link
+              style={{ textDecoration: "none" }}
+              to="https://real-sales.vercel.app/industries"
+            >
+              Industries
+            </Link>
+            <Link
+              style={{ textDecoration: "none" }}
+              to="https://real-sales.vercel.app/faq"
+            >
+              FAQ
+            </Link>
+            <Link
+              style={{ textDecoration: "underline" }}
+              to="#"
+            >
+              Dashboard
+            </Link>
+          </div>
+        </div>
         <PageContainer sx={{ minHeight: "100vh" }}>
           <Grid container spacing={2} sx={{ minHeight: "100vh" }}>
             <Persona currentSegment={currentSegment} />
