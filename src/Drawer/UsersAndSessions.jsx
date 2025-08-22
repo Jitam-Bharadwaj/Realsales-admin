@@ -12,6 +12,7 @@ import {
   Typography,
   Box,
   Grid,
+  LinearProgress,
   Modal,
   Snackbar,
   Alert,
@@ -22,6 +23,10 @@ import {
   TextField,
   MenuItem,
   Tooltip,
+  Chip,
+  Avatar,
+  Divider,
+  Stack,
 } from "@mui/material";
 import { axioInstance } from "../api/axios/axios";
 import { endpoints } from "../api/endpoints/endpoints";
@@ -48,8 +53,12 @@ const UsersAndSessions = ({ currentSegment }) => {
   const [users, setUsers] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedSubscriptionUser, setSelectedSubscriptionUser] = useState(null);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(false);
+  const [loadingSubscription, setLoadingSubscription] = useState(false);
+  const [subscriptionData, setSubscriptionData] = useState(null);
+  const [subscriptionList, setSubscriptionList] = useState([]);
   const [error, setError] = useState(null);
   const [modeNames, setModeNames] = useState({}); // { mode_id: mode_name }
   const fetchingModes = useRef({}); // To prevent duplicate fetches
@@ -81,6 +90,9 @@ const UsersAndSessions = ({ currentSegment }) => {
   const [changingRoleId, setChangingRoleId] = useState("");
   const [changingRoleLoading, setChangingRoleLoading] = useState(false);
   const [changeRoleModalOpen, setChangeRoleModalOpen] = useState(false);
+  const [giftCreditsModalOpen, setGiftCreditsModalOpen] = useState(false);
+  const [giftCreditsAmount, setGiftCreditsAmount] = useState("");
+  const [giftCreditsLoading, setGiftCreditsLoading] = useState(false);
 
   // Move fetchUsers outside useEffect for reuse
   const fetchUsers = async () => {
@@ -187,6 +199,24 @@ const UsersAndSessions = ({ currentSegment }) => {
     } catch (error) {
       console.error("Failed to download report:", error);
       alert("Failed to download report.");
+    }
+  };
+
+  const handleViewSubscription = async (user) => {
+    setSelectedSubscriptionUser(user);
+    setLoadingSubscription(true);
+    try {
+      const response = await axioInstance.get(`${endpoints.subscriptions.byUser}${user.user_id}`);
+      const data = Array.isArray(response.data) ? response.data : (response.data ? [response.data] : []);
+      setSubscriptionList(data);
+      // Prefer the first subscription for header context
+      const userSubscription = data[0] || null;
+      setSubscriptionData(userSubscription);
+    } catch (error) {
+      console.error("Failed to fetch subscription:", error);
+      setError("Failed to fetch subscription data.");
+    } finally {
+      setLoadingSubscription(false);
     }
   };
 
@@ -391,6 +421,78 @@ const UsersAndSessions = ({ currentSegment }) => {
     }
   };
 
+  const handleOpenGiftCredits = () => {
+    setGiftCreditsModalOpen(true);
+    setGiftCreditsAmount("");
+  };
+
+  const handleCloseGiftCredits = () => {
+    setGiftCreditsModalOpen(false);
+    setGiftCreditsAmount("");
+  };
+
+  const handleSaveGiftCredits = async () => {
+    if (!giftCreditsAmount || isNaN(giftCreditsAmount) || Number(giftCreditsAmount) <= 0) {
+      setSnackbar({
+        open: true,
+        message: "Please enter a valid number of credits.",
+        severity: "error",
+      });
+      return;
+    }
+
+    setGiftCreditsLoading(true);
+    try {
+      // Find the active subscription from the subscription list
+      const activeSubscription = subscriptionList.find(sub => sub.status_active === true);
+      
+      if (!activeSubscription) {
+        throw new Error("No active subscription found");
+      }
+      
+      // Calculate new remaining credits by adding gifted amount to current remaining
+      const currentRemaining = activeSubscription.credits_remaining || 0;
+      const newRemaining = currentRemaining + Number(giftCreditsAmount);
+      
+      // Use the user_subscription_id from the active subscription
+      const userSubscriptionId = activeSubscription.user_subscription_id;
+      
+      if (!userSubscriptionId) {
+        throw new Error("Active subscription ID not found");
+      }
+      
+      // Update the active user subscription with new remaining credits
+      await axioInstance.put(`${endpoints.subscriptions.update}${userSubscriptionId}`, {
+        credits_remaining: newRemaining
+      });
+      
+      setSnackbar({
+        open: true,
+        message: `${giftCreditsAmount} credits gifted successfully to active plan.`,
+        severity: "success",
+      });
+      
+      handleCloseGiftCredits();
+      // Refresh subscription data
+      if (selectedSubscriptionUser) {
+        handleViewSubscription(selectedSubscriptionUser);
+      }
+    } catch (error) {
+      console.error("Failed to gift credits:", error);
+      setSnackbar({
+        open: true,
+        message: error.message === "No active subscription found" 
+          ? "No active subscription found. Please activate a plan first." 
+          : error.message === "Active subscription ID not found"
+          ? "Active subscription ID not found. Please refresh and try again."
+          : "Failed to gift credits. Please try again.",
+        severity: "error",
+      });
+    } finally {
+      setGiftCreditsLoading(false);
+    }
+  };
+
   if (currentSegment !== "users") {
     return null;
   }
@@ -499,7 +601,7 @@ const UsersAndSessions = ({ currentSegment }) => {
       ) : (
         <>
           {/* Heading and actions */}
-          {!selectedUser && (
+          {!selectedUser && !selectedSubscriptionUser && (
             <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between mb-0 gap-2">
               <h1 className="text-2xl">Users</h1>
               <div className="flex items-center gap-2 mt-2 md:mt-0">
@@ -566,8 +668,228 @@ const UsersAndSessions = ({ currentSegment }) => {
               </Button>
             </div>
           )}
+          {selectedSubscriptionUser && (
+            <Box className="w-full" sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
+                    {`${(selectedSubscriptionUser.first_name || "").charAt(0)}${(selectedSubscriptionUser.last_name || "").charAt(0)}`.toUpperCase() || (selectedSubscriptionUser.email || '?').charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>Subscription Details</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {`${selectedSubscriptionUser.first_name || ''} ${selectedSubscriptionUser.last_name || ''}`.trim() || selectedSubscriptionUser.email}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleOpenGiftCredits}
+                    sx={{
+                      backgroundColor: "#4caf50",
+                      color: "white",
+                      fontWeight: 500,
+                      "&:hover": {
+                        backgroundColor: "#45a049",
+                        color: "white",
+                      },
+                    }}
+                  >
+                    Gift Credits
+                  </Button>
+                  <Button
+                    onClick={() => setSelectedSubscriptionUser(null)}
+                    sx={{
+                      backgroundColor: "#fbd255",
+                      color: "black",
+                      fontWeight: 500,
+                      "&:hover": {
+                        backgroundColor: "#ffe066",
+                        color: "black",
+                      },
+                    }}
+                  >
+                    Back to Users
+                  </Button>
+                </Box>
+              </Box>
+              <Divider sx={{ mt: 2 }} />
+            </Box>
+          )}
+          {/* Subscription Section */}
+          {selectedSubscriptionUser && !selectedUser && (
+            <div className="w-full overflow-x-auto">
+              {loadingSubscription ? (
+                <div className="flex items-center justify-center h-60">
+                  <CircularProgress />
+                </div>
+              ) : (
+                <Paper elevation={3} sx={{ p: { xs: 2, md: 4 }, mt: 3, borderRadius: 3 }}>
+                  {subscriptionList && subscriptionList.length > 0 ? (
+                    <div>
+                      {subscriptionList.map((sub, index) => (
+                        <Box key={sub.subscription?.id || index} sx={{ mb: 5 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700, textTransform: 'capitalize' }}>
+                              {sub.subscription?.plan_type || 'Subscription'}
+                            </Typography>
+                            <Chip
+                              label={(sub.status_active ? 'Active' : 'Inactive')}
+                              color={sub.status_active ? 'success' : 'default'}
+                              variant={sub.status_active ? 'filled' : 'outlined'}
+                              size="small"
+                            />
+                          </Box>
+                          <Grid container spacing={2} sx={{ mb: 2 }}>
+                            <Grid item xs={12} md={4}>
+                              <Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                <Typography variant="caption" color="text.secondary">Credits Remaining</Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                  {sub.credits_remaining || '0'}
+                                </Typography>
+                              </Paper>
+                            </Grid>
+                            <Grid item xs={12} md={4}>
+                              <Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                <Typography variant="caption" color="text.secondary">Credits Used</Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                  {sub.credits_used || '0'}
+                                </Typography>
+                              </Paper>
+                            </Grid>
+                            <Grid item xs={12} md={4}>
+                              <Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                <Typography variant="caption" color="text.secondary">Sessions Completed</Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                  {sub.sessions_completed || '0'}
+                                </Typography>
+                              </Paper>
+                            </Grid>
+                          </Grid>
+
+                          <Grid container spacing={3}>
+                            <Grid item xs={12}>
+                              <Paper elevation={1} sx={{ p: 3, borderRadius: 2, border: 1, borderColor: 'divider', height: '100%', backgroundColor: 'background.paper' }}>
+                                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M16 13H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M16 17H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M10 9H9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  Plan Information
+                                </Typography>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Plan Type:</Typography>
+                                    <Typography sx={{ fontWeight: 600, textTransform: 'capitalize', color: 'primary.main', backgroundColor: 'primary.50', px: 2, py: 0.5, borderRadius: 2, border: 1, borderColor: 'primary.200' }}>
+                                      {sub.subscription?.plan_type || 'N/A'}
+                                    </Typography>
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Billing Cycle:</Typography>
+                                    <Typography sx={{ fontWeight: 600, textTransform: 'capitalize', color: 'text.primary' }}>
+                                      {sub.subscription?.billing_cycle || 'N/A'}
+                                    </Typography>
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Credits Per Month:</Typography>
+                                    <Typography sx={{ fontWeight: 600, color: 'success.main' }}>
+                                      {sub.subscription?.credits_per_month || '0'}
+                                    </Typography>
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Maximum Users:</Typography>
+                                    <Typography sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                      {sub.subscription?.max_users || '0'}
+                                    </Typography>
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Max Session Duration:</Typography>
+                                    <Typography sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                      {sub.subscription?.max_session_duration ? `${sub.subscription.max_session_duration} min` : 'N/A'}
+                                    </Typography>
+                                  </div>
+                                </div>
+                              </Paper>
+                            </Grid>
+                            <Grid item xs={12}>
+                              <Paper elevation={1} sx={{ p: 3, borderRadius: 2, border: 1, borderColor: 'divider', height: '100%', backgroundColor: 'background.paper' }}>
+                                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>Usage</Typography>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Credits Allocated:</Typography>
+                                    <Typography sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                      {sub.credits_allocated || '0'}
+                                    </Typography>
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Start Date:</Typography>
+                                    <Typography sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                      {new Date(sub.start_date).toLocaleDateString()}
+                                    </Typography>
+                                  </div>
+                                </div>
+                                <div style={{ marginTop: '16px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>Usage Progress</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                      {((((sub.credits_used || 0) / (sub.credits_allocated || 1)) * 100)).toFixed(1)}%
+                                    </Typography>
+                                  </div>
+                                  <LinearProgress variant="determinate" value={(((sub.credits_used || 0) / (sub.credits_allocated || 1)) * 100)} sx={{ height: 12, borderRadius: 6, backgroundColor: 'action.hover', '& .MuiLinearProgress-bar': { backgroundColor: (sub.credits_remaining || 0) > 0 ? 'success.main' : 'error.main', borderRadius: 6 } }} />
+                                </div>
+                              </Paper>
+                            </Grid>
+                          </Grid>
+                          {index < subscriptionList.length - 1 && (
+                            <Divider sx={{ my: 3 }} />
+                          )}
+                        </Box>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      padding: '40px 20px',
+                      backgroundColor: 'action.hover',
+                      borderRadius: '8px'
+                    }}>
+                      <Typography 
+                        variant="h6" 
+                        sx={{ 
+                          color: 'error.main',
+                          fontWeight: 500,
+                          mb: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 1
+                        }}
+                      >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        No Subscription Data Available
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        No subscription data available for this user.
+                      </Typography>
+                    </div>
+                  )}
+                </Paper>
+              )}
+            </div>
+          )}
+
           {/* Users Section */}
-          {!selectedUser && (
+          {!selectedUser && !selectedSubscriptionUser && (
             <>
               {/* <hr className="mt-1" /> */}
               <div className="w-full overflow-x-auto">
@@ -661,12 +983,28 @@ const UsersAndSessions = ({ currentSegment }) => {
                                     color: "black",
                                     fontWeight: 500,
                                     "&:hover": {
-                                      backgroundColor: "#ffe066",
-                                      color: "black",
+                                      backgroundColor: "#45a049",
+                                      color: "white",
                                     },
+                                    marginRight: 1,
                                   }}
                                 >
                                   View Sessions
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  onClick={() => handleViewSubscription(user)}
+                                  sx={{
+                                    backgroundColor: "#fbd255",
+                                    color: "black",
+                                    fontWeight: 500,
+                                    "&:hover": {
+                                      backgroundColor: "#45a049",
+                                      color: "white",
+                                    },
+                                  }}
+                                >
+                                  View Subscription
                                 </Button>
                               </TableCell>
                               <TableCell sx={{ px: 2, py: 1.5 }}>
@@ -1141,6 +1479,91 @@ const UsersAndSessions = ({ currentSegment }) => {
               disabled={changingRoleLoading || !changingRoleId}
             >
               {changingRoleLoading ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Gift Credits Modal */}
+      <Modal
+        open={giftCreditsModalOpen}
+        onClose={handleCloseGiftCredits}
+        aria-labelledby="gift-credits-modal-title"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "90%", md: 480 },
+            bgcolor: "background.paper",
+            border: "1px solid #ccc",
+            borderRadius: 2,
+            boxShadow: 24,
+            p: { xs: 2, md: 4 },
+            color: "text.primary",
+            maxHeight: "90vh",
+            overflowY: "auto",
+          }}
+        >
+          <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600 }}>
+            Gift Credits
+          </Typography>
+          
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Gift additional credits to {selectedSubscriptionUser?.first_name || selectedSubscriptionUser?.email || 'this user'}
+          </Typography>
+
+          {/* Current Credits Display */}
+          <Box sx={{ mb: 3, p: 2, backgroundColor: 'action.hover', borderRadius: 1 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography variant="body2" color="text.secondary">Credits Remaining</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: 'success.main' }}>
+                  {subscriptionData?.credits_remaining || '0'}
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body2" color="text.secondary">Credits Allocated</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                  {subscriptionData?.credits_allocated || '0'}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+
+          <TextField
+            fullWidth
+            label="Number of Credits to Gift"
+            type="number"
+            value={giftCreditsAmount}
+            onChange={(e) => setGiftCreditsAmount(e.target.value)}
+            placeholder="Enter number of credits"
+            sx={{ mb: 3 }}
+            inputProps={{ min: 1 }}
+          />
+
+          <div className="flex items-center gap-2 justify-end w-full">
+            <Button
+              variant="outlined"
+              onClick={handleCloseGiftCredits}
+              disabled={giftCreditsLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSaveGiftCredits}
+              disabled={giftCreditsLoading || !giftCreditsAmount}
+              sx={{
+                backgroundColor: "#4caf50",
+                "&:hover": {
+                  backgroundColor: "#45a049",
+                },
+              }}
+            >
+              {giftCreditsLoading ? "Gifting..." : "Gift Credits"}
             </Button>
           </div>
         </Box>
