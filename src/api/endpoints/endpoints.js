@@ -7,6 +7,10 @@ export const endpoints = {
   sessions: {
     byUser: "/v1/sessions/by-user/",
   },
+  subscriptions: {
+    byUser: "/v1/user-subscriptions/by-user/",
+    update: "/v1/user-subscriptions/",
+  },
   closing: {
     getClosing: "v1/interaction-modes",
     editClosingData: "v1/interaction-modes",
