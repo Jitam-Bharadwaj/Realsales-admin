@@ -242,7 +242,7 @@ const Login = () => {
             {loading ? "Signing in..." : "Sign-in"}
           </Button>
 
-          <Typography
+          {/* <Typography
             sx={{ textAlign: "center", paddingTop: "20px", color: "#fbdc5c" }}
           >
             Don't have an account?&nbsp;
@@ -254,7 +254,7 @@ const Login = () => {
                 Sign-up
               </Link>
             </span>
-          </Typography>
+          </Typography> */}
         </Box>
       </Box>
 
