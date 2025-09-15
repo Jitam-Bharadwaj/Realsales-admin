@@ -13,6 +13,9 @@ import {
   Modal,
   Chip,
   Avatar,
+  Tabs,
+  Tab,
+  Box,
 } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
 import { axioInstance } from "../api/axios/axios";
@@ -482,6 +485,12 @@ const Persona = ({ currentSegment }) => {
   // Remove voiceIdModalOpen and tempVoiceId state
   const [audio, setAudio] = useState(null);
   const [aiVoicesArr, setAiVoicesArr] = useState([]);
+  
+  // Add state for tab management
+  const [profileTabValue, setProfileTabValue] = useState(0);
+  const [summaryTabValue, setSummaryTabValue] = useState(0);
+  const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [summaryText, setSummaryText] = useState("");
 
   useEffect(() => {
     if (persona?.gender) {
@@ -703,9 +712,13 @@ const Persona = ({ currentSegment }) => {
   const createPersona = async () => {
     setLoading(true);
     try {
-      let data = await axioInstance.post(endpoints.persona.persona, {
+      // Prepare persona data with profile picture URL if provided
+      const personaData = {
         ...persona,
-      });
+        ...(profileImageUrl && { profile_pic: profileImageUrl })
+      };
+
+      let data = await axioInstance.post(endpoints.persona.persona, personaData);
       if (data?.data?.persona_id) {
         // Send each produced product individually
         // if ((persona.product_ids || []).length > 0) {
@@ -726,6 +739,10 @@ const Persona = ({ currentSegment }) => {
           setProfilePicture(null);
           setProfilePicturePreview(null);
           setProfileFile(null);
+          setProfileImageUrl("");
+          setSummaryText("");
+          setProfileTabValue(0);
+          setSummaryTabValue(0);
           setAiLists({
             industry: true,
             plantSize: true,
@@ -751,9 +768,13 @@ const Persona = ({ currentSegment }) => {
   const updatePersona = async (id) => {
     setLoading(true);
     try {
-      let data = await axioInstance.put(`${endpoints.persona.persona}${id}`, {
+      // Prepare persona data with profile picture URL if provided
+      const personaData = {
         ...persona,
-      });
+        ...(profileImageUrl && { profile_pic: profileImageUrl })
+      };
+
+      let data = await axioInstance.put(`${endpoints.persona.persona}${id}`, personaData);
       if (data?.data?.persona_id) {
         // Send each produced product individually
         // if ((persona.product_ids || []).length > 0) {
@@ -774,6 +795,10 @@ const Persona = ({ currentSegment }) => {
           setProfilePicture(null);
           setProfilePicturePreview(null);
           setProfileFile(null);
+          setProfileImageUrl("");
+          setSummaryText("");
+          setProfileTabValue(0);
+          setSummaryTabValue(0);
           setAiLists({
             industry: true,
             plantSize: true,
@@ -894,46 +919,88 @@ const Persona = ({ currentSegment }) => {
         <div style={{ width: "100%", pt: "40px" }}>
           {addPersona && (
             <div className="flex flex-col gap-4 my-4">
-              {/* Profile Picture Upload */}
+              {/* Profile Picture Section */}
               <div className="flex flex-col gap-2 items-start w-full">
                 <p>Profile Picture</p>
-                <div
-                  {...getProfileRootProps()}
-                  className={`w-full flex flex-col items-center border border-dashed rounded p-4 ${uploadingProfile ? "cursor-not-allowed" : "cursor-pointer"}`}
-                >
-                  {uploadingProfile ? null : (
-                    <input {...getProfileInputProps()} />
+                <Box sx={{ width: '100%' }}>
+                  <Tabs
+                    value={profileTabValue}
+                    onChange={(e, newValue) => setProfileTabValue(newValue)}
+                    sx={{ borderBottom: 1, borderColor: 'divider' }}
+                  >
+                    <Tab label="Upload Image" />
+                    <Tab label="Image URL" />
+                  </Tabs>
+                  
+                  {/* Upload Tab */}
+                  {profileTabValue === 0 && (
+                    <div className="mt-4">
+                      <div
+                        {...getProfileRootProps()}
+                        className={`w-full flex flex-col items-center border border-dashed rounded p-4 ${uploadingProfile ? "cursor-not-allowed" : "cursor-pointer"}`}
+                      >
+                        {uploadingProfile ? null : (
+                          <input {...getProfileInputProps()} />
+                        )}
+                        <div className="flex flex-col items-center gap-4">
+                          {(profilePicturePreview || persona?.profile_pic) && (
+                            <Avatar
+                              src={profilePicturePreview || persona?.profile_pic}
+                              sx={{ width: 100, height: 100 }}
+                            />
+                          )}
+                          <div className="flex items-center gap-2">
+                            <CloudUploadIcon style={{ fontSize: 24 }} />
+                            {isProfileDragActive ? (
+                              <p>Drop the image here ...</p>
+                            ) : (
+                              <p>
+                                Drag & drop a profile picture here, or click to select
+                              </p>
+                            )}
+                          </div>
+                          {profilePicture && (
+                            <div style={{ color: "#1976d2" }}>
+                              Selected: {profilePicture.name}
+                            </div>
+                          )}
+                          {uploadingProfile && (
+                            <div style={{ color: "#1976d2" }}>Uploading...</div>
+                          )}
+                          {profileUploadError && (
+                            <div style={{ color: "red" }}>{profileUploadError}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   )}
-                  <div className="flex flex-col items-center gap-4">
-                    {(profilePicturePreview || persona?.profile_pic) && (
-                      <Avatar
-                        src={profilePicturePreview || persona?.profile_pic}
-                        sx={{ width: 100, height: 100 }}
+                  
+                  {/* URL Tab */}
+                  {profileTabValue === 1 && (
+                    <div className="mt-4">
+                      <TextField
+                        fullWidth
+                        label="Image URL"
+                        value={profileImageUrl}
+                        onChange={(e) => setProfileImageUrl(e.target.value)}
+                        placeholder="https://example.com/image.jpg"
+                        helperText="Enter the direct URL to your profile image"
                       />
-                    )}
-                    <div className="flex items-center gap-2">
-                      <CloudUploadIcon style={{ fontSize: 24 }} />
-                      {isProfileDragActive ? (
-                        <p>Drop the image here ...</p>
-                      ) : (
-                        <p>
-                          Drag & drop a profile picture here, or click to select
-                        </p>
+                      {profileImageUrl && (
+                        <div className="mt-4 flex justify-center">
+                          <Avatar
+                            src={profileImageUrl}
+                            sx={{ width: 100, height: 100 }}
+                            onError={() => {
+                              setProfileImageUrl("");
+                              showToast.error("Invalid image URL");
+                            }}
+                          />
+                        </div>
                       )}
                     </div>
-                    {profilePicture && (
-                      <div style={{ color: "#1976d2" }}>
-                        Selected: {profilePicture.name}
-                      </div>
-                    )}
-                    {uploadingProfile && (
-                      <div style={{ color: "#1976d2" }}>Uploading...</div>
-                    )}
-                    {profileUploadError && (
-                      <div style={{ color: "red" }}>{profileUploadError}</div>
-                    )}
-                  </div>
-                </div>
+                  )}
+                </Box>
               </div>
 
               <TextField
@@ -1090,108 +1157,135 @@ const Persona = ({ currentSegment }) => {
                 )}
               </div>
 
-              {persona?.behavioral_detail ? (
-                <TextField
-                  fullWidth
-                  className="!m-0"
-                  margin="normal"
-                  label={"Summary"}
-                  multiline
-                  rows={8}
-                  inputRef={textFieldRef}
-                  value={persona?.behavioral_detail
-                    ?.replace(/\\n\\n/g, "\n\n")
-                    ?.replace(/\\n/g, "\n")}
-                  onKeyDown={(e) => {
-                    const textarea = e.target;
-                    const cursorPosition = textarea.selectionStart;
-                    const scrollTop = textarea.scrollTop;
-
-                    // Store cursor position and scroll position
-                    requestAnimationFrame(() => {
-                      textarea.selectionStart = cursorPosition;
-                      textarea.selectionEnd = cursorPosition;
-                      textarea.scrollTop = scrollTop;
-                    });
-                  }}
-                  onChange={(e) => {
-                    const textarea = e.target;
-                    const cursorPosition = textarea.selectionStart;
-                    const scrollTop = textarea.scrollTop;
-
-                    setPersona({
-                      ...persona,
-                      behavioral_detail: e.target.value.replace(/"/g, "'"),
-                    });
-
-                    if (validationError.behavioral_detail)
-                      setValidationError((prev) => ({
-                        ...prev,
-                        behavioral_detail: undefined,
-                      }));
-
-                    // Restore cursor position and scroll position
-                    requestAnimationFrame(() => {
-                      textarea.selectionStart = cursorPosition;
-                      textarea.selectionEnd = cursorPosition;
-                      textarea.scrollTop = scrollTop;
-                    });
-                  }}
-                  error={!!validationError.behavioral_detail}
-                  helperText={validationError.behavioral_detail}
-                />
-              ) : (
-                <div className="flex flex-col gap-2 items-start w-full">
-                  <p>Summary</p>
-                  <div
-                    {...getRootProps()}
-                    className={`w-full flex flex-col items-center border border-dashed rounded p-4 ${uploading ? "cursor-not-allowed" : "cursor-pointer"}`}
+              {/* Summary Section */}
+              <div className="flex flex-col gap-2 items-start w-full">
+                <p>Summary</p>
+                <Box sx={{ width: '100%' }}>
+                  <Tabs
+                    value={summaryTabValue}
+                    onChange={(e, newValue) => setSummaryTabValue(newValue)}
+                    sx={{ borderBottom: 1, borderColor: 'divider' }}
                   >
-                    {uploading ? null : <input {...getInputProps()} />}
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
-                    >
-                      <CloudUploadIcon style={{ fontSize: 24 }} />
-                      {isDragActive ? (
-                        <p>Drop the files here ...</p>
-                      ) : (
-                        <p>Drag & drop a file here, or click to select file</p>
+                    <Tab label="Upload Document" />
+                    <Tab label="Type Summary" />
+                  </Tabs>
+                  
+                  {/* Upload Document Tab */}
+                  {summaryTabValue === 0 && (
+                    <div className="mt-4">
+                      <div
+                        {...getRootProps()}
+                        className={`w-full flex flex-col items-center border border-dashed rounded p-4 ${uploading ? "cursor-not-allowed" : "cursor-pointer"}`}
+                      >
+                        {uploading ? null : <input {...getInputProps()} />}
+                        <div
+                          style={{ display: "flex", alignItems: "center", gap: 8 }}
+                        >
+                          <CloudUploadIcon style={{ fontSize: 24 }} />
+                          {isDragActive ? (
+                            <p>Drop the files here ...</p>
+                          ) : (
+                            <p>Drag & drop a file here, or click to select file</p>
+                          )}
+                        </div>
+                        {selectedFile && (
+                          <div style={{ marginTop: 8, color: "#1976d2" }}>
+                            Selected: {selectedFile.name}
+                          </div>
+                        )}
+                        {uploading && (
+                          <div style={{ color: "#1976d2", marginTop: 4 }}>
+                            Uploading...
+                          </div>
+                        )}
+                        {uploadError && (
+                          <div style={{ color: "red", marginTop: 4 }}>
+                            {uploadError}
+                          </div>
+                        )}
+                      </div>
+                      {persona?.behavioral_detail && (
+                        <div className="mt-4 p-3 bg-gray-50 rounded">
+                          <p className="text-sm text-gray-600 mb-2">Generated Summary:</p>
+                          <p className="text-sm whitespace-pre-wrap">
+                            {persona?.behavioral_detail
+                              ?.replace(/\\n\\n/g, "\n\n")
+                              ?.replace(/\\n/g, "\n")}
+                          </p>
+                        </div>
                       )}
                     </div>
-                    {selectedFile && (
-                      <div style={{ marginTop: 8, color: "#1976d2" }}>
-                        Selected: {selectedFile.name}
-                      </div>
-                    )}
-                    {uploading && (
-                      <div style={{ color: "#1976d2", marginTop: 4 }}>
-                        Uploading...
-                      </div>
-                    )}
-                    {/* {uploadSuccess && (
-                    <div style={{ color: "green", marginTop: 4 }}>
-                      Upload successful!
-                    </div>
-                  )} */}
-                    {uploadError && (
-                      <div style={{ color: "red", marginTop: 4 }}>
-                        {uploadError}
-                      </div>
-                    )}
-                  </div>
-                  {validationError.behavioral_detail && (
-                    <p
-                      style={{
-                        color: "red",
-                        margin: "0 16px",
-                        fontSize: "13px",
-                      }}
-                    >
-                      {validationError.behavioral_detail}
-                    </p>
                   )}
-                </div>
-              )}
+                  
+                  {/* Type Summary Tab */}
+                  {summaryTabValue === 1 && (
+                    <div className="mt-4">
+                      <TextField
+                        fullWidth
+                        className="!m-0"
+                        margin="normal"
+                        label={"Summary"}
+                        multiline
+                        rows={8}
+                        inputRef={textFieldRef}
+                        value={summaryText || persona?.behavioral_detail
+                          ?.replace(/\\n\\n/g, "\n\n")
+                          ?.replace(/\\n/g, "\n") || ""}
+                        onKeyDown={(e) => {
+                          const textarea = e.target;
+                          const cursorPosition = textarea.selectionStart;
+                          const scrollTop = textarea.scrollTop;
+
+                          // Store cursor position and scroll position
+                          requestAnimationFrame(() => {
+                            textarea.selectionStart = cursorPosition;
+                            textarea.selectionEnd = cursorPosition;
+                            textarea.scrollTop = scrollTop;
+                          });
+                        }}
+                        onChange={(e) => {
+                          const textarea = e.target;
+                          const cursorPosition = textarea.selectionStart;
+                          const scrollTop = textarea.scrollTop;
+
+                          setSummaryText(e.target.value.replace(/"/g, "'"));
+                          setPersona({
+                            ...persona,
+                            behavioral_detail: e.target.value.replace(/"/g, "'"),
+                          });
+
+                          if (validationError.behavioral_detail)
+                            setValidationError((prev) => ({
+                              ...prev,
+                              behavioral_detail: undefined,
+                            }));
+
+                          // Restore cursor position and scroll position
+                          requestAnimationFrame(() => {
+                            textarea.selectionStart = cursorPosition;
+                            textarea.selectionEnd = cursorPosition;
+                            textarea.scrollTop = scrollTop;
+                          });
+                        }}
+                        error={!!validationError.behavioral_detail}
+                        helperText={validationError.behavioral_detail}
+                        placeholder="Type your summary here..."
+                      />
+                    </div>
+                  )}
+                </Box>
+                {validationError.behavioral_detail && (
+                  <p
+                    style={{
+                      color: "red",
+                      margin: "0 16px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {validationError.behavioral_detail}
+                  </p>
+                )}
+              </div>
 
               {/* Select Industry */}
               <div className="w-full flex flex-col items-start gap-2">
@@ -1750,6 +1844,10 @@ const Persona = ({ currentSegment }) => {
                       setPersona({});
                       setValidationError({});
                       setPersonaId("");
+                      setProfileImageUrl("");
+                      setSummaryText("");
+                      setProfileTabValue(0);
+                      setSummaryTabValue(0);
                       setAiLists({
                         industry: true,
                         plantSize: true,
@@ -1927,6 +2025,17 @@ const Persona = ({ currentSegment }) => {
                                         product_id: pp?.product?.product_id,
                                       })) || [],
                                   });
+                                  // Set profile image URL if it exists and is a URL
+                                  if (v?.profile_pic && v?.profile_pic.startsWith('http')) {
+                                    setProfileImageUrl(v?.profile_pic);
+                                    setProfileTabValue(1); // Switch to URL tab
+                                  } else {
+                                    setProfileImageUrl("");
+                                    setProfileTabValue(0); // Switch to upload tab
+                                  }
+                                  // Set summary text
+                                  setSummaryText(v?.behavioral_detail || "");
+                                  setSummaryTabValue(1); // Switch to type summary tab
                                   setAddPersona(true);
                                 }}
                               >
