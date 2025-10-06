@@ -38,6 +38,8 @@ import PeopleIcon from "@mui/icons-material/People";
 import UsersAndSessions from "./UsersAndSessions";
 import SchoolIcon from "@mui/icons-material/School";
 import Coaching from "./Coaching";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import Subscriptions from "./Subscriptions";
 
 const NAVIGATION = [
   {
@@ -48,6 +50,11 @@ const NAVIGATION = [
     segment: "users",
     title: "Users and Sessions",
     icon: <PeopleIcon />,
+  },
+  {
+    segment: "subscriptions",
+    title: "Subscriptions",
+    icon: <LocalOfferIcon />,
   },
   {
     segment: "createPersona",
@@ -99,6 +106,7 @@ const NAVIGATION = [
     title: "Coaching",
     icon: <SchoolIcon />,
   },
+
   // {
   //   segment: "generalInstruction",
   //   title: "General Instruction",
@@ -450,6 +458,7 @@ export default function DashboardLayoutBasic(props) {
             <Report currentSegment={currentSegment} />
             <UsersAndSessions currentSegment={currentSegment} />
             <Coaching currentSegment={currentSegment} />
+            <Subscriptions currentSegment={currentSegment} />
           </Grid>
         </PageContainer>
       </DashboardLayout>
