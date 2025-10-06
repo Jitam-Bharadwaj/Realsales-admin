@@ -10,6 +10,11 @@ export const endpoints = {
   subscriptions: {
     byUser: "/v1/user-subscriptions/by-user/",
     update: "/v1/user-subscriptions/",
+    updateById: "/v1/subscriptions/",
+    // Alternative endpoints to try
+    allAlt1: "/v1/subscriptions/",
+    allAlt2: "/v1/plans/",
+    allAlt3: "/v1/subscription-templates/",
   },
   closing: {
     getClosing: "v1/interaction-modes",
