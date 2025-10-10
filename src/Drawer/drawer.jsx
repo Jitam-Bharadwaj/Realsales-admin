@@ -2,7 +2,7 @@ import * as React from "react";
 import { createTheme } from "@mui/material/styles";
 
 import { Button, Modal, Typography, Grid, Box } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 import { axioInstance } from "../api/axios/axios";
@@ -423,12 +423,45 @@ export default function DashboardLayoutBasic(props) {
             >
               About
             </Link>
-            <Link
-              style={{ textDecoration: "none" }}
-              to="https://real-sales.vercel.app/industries"
-            >
-              Industries
-            </Link>
+            <div className="relative">
+              {/* Container that keeps dropdown open on hover */}
+              <div className="group inline-block relative">
+                {/* Main Link */}
+                <Link
+                  to="#"
+                  onClick={(e) => e.preventDefault()} // prevents navigation
+                  className={`text-white leading-1 border-b-2 border-transparent hover:border-yellow-400 transition-all duration-300 ${
+                    router?.pathname === "/industries"
+                      ? `nav-underline-yellow`
+                      : ``
+                  }`}
+                >
+                  Case Study & Industries
+                </Link>
+
+                {/* Dropdown Menu */}
+                <div
+                  className="absolute left-0 top-full mt-2 w-48 bg-[#060606] rounded shadow-lg opacity-0 invisible 
+               group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
+                  style={{ transitionDelay: "0.15s" }} // keeps dropdown visible a little longer
+                >
+                  <Link
+                    to="https://real-sales.vercel.app/industries/food-equipments"
+                    // https://real-sales.vercel.app/industries/food-equipments
+                    className="block px-4 py-2 text-white hover:bg-[#FFDE5A] hover:text-[#060606] transition-colors duration-200"
+                  >
+                    Food & Beverage Equipment
+                  </Link>
+                  <Link
+                    to="/industries/industry2"
+                    className="block px-4 py-2 text-white hover:bg-[#FFDE5A] hover:text-[#060606] transition-colors duration-200 cursor-not-allowed"
+                  >
+                    Healthcare -{" "}
+                    <span className="text-gray-400 italic">coming soon</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
             <Link
               style={{ textDecoration: "none" }}
               to="https://real-sales.vercel.app/faq"
