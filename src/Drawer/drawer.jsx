@@ -413,13 +413,13 @@ export default function DashboardLayoutBasic(props) {
           <div className="flex items-center gap-8">
             <Link
               style={{ textDecoration: "none" }}
-              to="https://real-sales.vercel.app"
+              to="https://real-sales.com"
             >
               Home
             </Link>
             <Link
               style={{ textDecoration: "none" }}
-              to="https://real-sales.vercel.app/about"
+              to="https://www.real-sales.com/about"
             >
               About
             </Link>
@@ -430,31 +430,48 @@ export default function DashboardLayoutBasic(props) {
                 <Link
                   to="#"
                   onClick={(e) => e.preventDefault()} // prevents navigation
-                  className={`text-white leading-1 border-b-2 border-transparent hover:border-yellow-400 transition-all duration-300 ${
+                  className={`leading-1 border-b-2 border-transparent hover:border-yellow-400 transition-all duration-300 ${
                     router?.pathname === "/industries"
                       ? `nav-underline-yellow`
                       : ``
                   }`}
+                  style={{ color: 'inherit' }}
                 >
                   Case Study & Industries
                 </Link>
 
                 {/* Dropdown Menu */}
                 <div
-                  className="absolute left-0 top-full mt-2 w-48 bg-[#060606] rounded shadow-lg opacity-0 invisible 
+                  className="absolute left-0 top-full mt-2 w-48 rounded shadow-lg opacity-0 invisible 
                group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50"
-                  style={{ transitionDelay: "0.15s" }} // keeps dropdown visible a little longer
+                  style={{ 
+                    transitionDelay: "0.15s",
+                    backgroundColor: 'var(--mui-palette-background-paper)',
+                    color: 'var(--mui-palette-text-primary)'
+                  }} // keeps dropdown visible a little longer
                 >
                   <Link
-                    to="https://real-sales.vercel.app/industries/food-equipments"
+                    to="https://www.real-sales.com/industries/food-equipments"
                     // https://real-sales.vercel.app/industries/food-equipments
-                    className="block px-4 py-2 text-white hover:bg-[#FFDE5A] hover:text-[#060606] transition-colors duration-200"
+                    className="block px-4 py-2 hover:bg-[#FFDE5A] transition-colors duration-200"
+                    style={{ 
+                      color: 'inherit',
+                      '--hover-text-color': '#000000'
+                    }}
+                    onMouseEnter={(e) => e.target.style.color = '#000000'}
+                    onMouseLeave={(e) => e.target.style.color = 'inherit'}
                   >
                     Food & Beverage Equipment
                   </Link>
                   <Link
                     to="/industries/industry2"
-                    className="block px-4 py-2 text-white hover:bg-[#FFDE5A] hover:text-[#060606] transition-colors duration-200 cursor-not-allowed"
+                    className="block px-4 py-2 hover:bg-[#FFDE5A] transition-colors duration-200 cursor-not-allowed"
+                    style={{ 
+                      color: 'inherit',
+                      '--hover-text-color': '#000000'
+                    }}
+                    onMouseEnter={(e) => e.target.style.color = '#000000'}
+                    onMouseLeave={(e) => e.target.style.color = 'inherit'}
                   >
                     Healthcare -{" "}
                     <span className="text-gray-400 italic">coming soon</span>
@@ -464,7 +481,7 @@ export default function DashboardLayoutBasic(props) {
             </div>
             <Link
               style={{ textDecoration: "none" }}
-              to="https://real-sales.vercel.app/faq"
+              to="https://www.real-sales.com/faq"
             >
               FAQ
             </Link>
